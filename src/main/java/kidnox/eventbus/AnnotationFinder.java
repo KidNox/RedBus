@@ -14,7 +14,7 @@ public interface AnnotationFinder {
 
     static final class DefaultAnnotationFinder implements AnnotationFinder {
 
-        static final Map<Class, ClassInfo> cache = new HashMap<>();
+        static final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
 
         final ClassFilter classFilter;
         final Dispatcher.Factory dispatcherFactory;
@@ -45,7 +45,7 @@ public interface AnnotationFinder {
                         dispatcher = Dispatcher.DEFAULT;
 
                     if(dispatchersToTypedMethodMap == null)
-                        dispatchersToTypedMethodMap = new HashMap<>();
+                        dispatchersToTypedMethodMap = new HashMap<Dispatcher, Map<Class, Method>>();
 
                     dispatchersToTypedMethodMap.put(dispatcher, subscribers);
                 }
@@ -80,7 +80,7 @@ public interface AnnotationFinder {
 
                 if(method.isAnnotationPresent(Subscribe.class)){
                     if(classToMethodMap == null)
-                        classToMethodMap = new HashMap<>();
+                        classToMethodMap = new HashMap<Class, Method>();
                     classToMethodMap.put(params[0], method);
                 }
             }

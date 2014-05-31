@@ -7,8 +7,8 @@ import static java.util.Map.Entry;
 
 public class BusImpl implements Bus {
 
-    protected final Map<Object, List<EventSubscriber>> instanceToSubscribersMap = new HashMap<>();
-    protected final Map<Class, Set<EventSubscriber>> eventTypeToSubscribersMap = new HashMap<>();
+    protected final Map<Object, List<EventSubscriber>> instanceToSubscribersMap = new HashMap<Object, List<EventSubscriber>>();
+    protected final Map<Class, Set<EventSubscriber>> eventTypeToSubscribersMap = new HashMap<Class, Set<EventSubscriber>>();
 
     protected final String name;
     protected final DeadEventHandler deadEventHandler;
@@ -34,7 +34,7 @@ public class BusImpl implements Bus {
         for (EventSubscriber subscriber : subscribers) {
             Set<EventSubscriber> set = eventTypeToSubscribersMap.get(subscriber.eventClass);
             if (set == null) {
-                set = new HashSet<>();
+                set = new HashSet<EventSubscriber>();
                 eventTypeToSubscribersMap.put(subscriber.eventClass, set);
             }
             if (!set.add(subscriber))
@@ -82,7 +82,7 @@ public class BusImpl implements Bus {
     }
 
     static List<EventSubscriber> getSubscribers(Object target, ClassInfo classInfo){
-        final LinkedList<EventSubscriber> subscribers = new LinkedList<>();
+        final LinkedList<EventSubscriber> subscribers = new LinkedList<EventSubscriber>();
 
         for(Entry<Dispatcher, Map<Class, Method>> dispatcherEntry : classInfo.dispatchersToTypedMethodMap.entrySet()){
             final Dispatcher dispatcher = dispatcherEntry.getKey();
