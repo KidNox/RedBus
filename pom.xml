@@ -6,7 +6,7 @@
 
     <groupId>com.kidnox</groupId>
     <artifactId>eventbus</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -74,8 +74,8 @@
 
         <dependency>
             <groupId>com.kidnox</groupId>
-            <artifactId>common</artifactId>
-            <version>[0.3,)</version>
+            <artifactId>nox-common</artifactId>
+            <version>[0.1,)</version>
         </dependency>
     </dependencies>
 
