@@ -3,9 +3,9 @@ package kidnox.eventbus.impl;
 
 import kidnox.annotations.Internal;
 import kidnox.annotations.NotNull;
-import kidnox.common.utils.Reflections;
 import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.Element;
+import kidnox.utils.Reflections;
 
 import java.lang.reflect.Method;
 

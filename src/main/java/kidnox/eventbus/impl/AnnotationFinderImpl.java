@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-class AnnotationFinderImpl implements AnnotationFinder {
+final class AnnotationFinderImpl implements AnnotationFinder {
 
     static final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
 
@@ -25,18 +25,17 @@ class AnnotationFinderImpl implements AnnotationFinder {
         this.dispatcherFactory = factory == null ? BusDefaults.createDefaultDispatcherFactory() : factory;
     }
 
+    @SuppressWarnings({"RedundantCast", "RedundantTypeArguments"})
     @Override
     public ClassInfo findClassInfo(Class clazz) {
         ClassInfo classInfo = cache.get(clazz);
         if(classInfo != null) return classInfo;
 
         Map<Dispatcher, Map<Class, Method>> dispatchersToTypedMethodMap = null;
-
         for(Class mClass = clazz; !skipClass(mClass); mClass = mClass.getSuperclass()){
 
-            Subscriber subscriberAnnotation = (Subscriber) clazz.getAnnotation(Subscriber.class);
+            Subscriber subscriberAnnotation = (Subscriber)clazz.<Subscriber>getAnnotation(Subscriber.class);
             if(subscriberAnnotation != null){
-
                 final Map<Class, Method> subscribers = getSubscribedMethods(mClass);
                 if(subscribers.isEmpty())
                     continue;
@@ -51,9 +50,8 @@ class AnnotationFinderImpl implements AnnotationFinder {
                 dispatchersToTypedMethodMap.put(dispatcher, subscribers);
             }
         }
-
-        classInfo = dispatchersToTypedMethodMap == null
-                ? ClassInfo.EMPTY : new ClassInfo(dispatchersToTypedMethodMap);
+        classInfo = dispatchersToTypedMethodMap == null ?
+                ClassInfo.EMPTY : new ClassInfo(dispatchersToTypedMethodMap);
         cache.put(clazz, classInfo);
 
         return classInfo;
@@ -70,12 +68,10 @@ class AnnotationFinderImpl implements AnnotationFinder {
 
             if ((method.getModifiers() & Modifier.PUBLIC) == 0)
                 continue;
-
             if(method.getReturnType() != void.class)
                 continue;
 
             final Class[] params = method.getParameterTypes();
-
             if(params.length != 1)
                 continue;
 

@@ -72,6 +72,17 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/truhno/maven</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.kidnox</groupId>
@@ -82,7 +93,7 @@
         <dependency>
             <groupId>com.kidnox</groupId>
             <artifactId>nox-common</artifactId>
-            <version>[0.1,)</version>
+            <version>[0.4,)</version>
         </dependency>
 
         <dependency>

@@ -8,14 +8,14 @@ public abstract class AsyncDispatcher implements Dispatcher {
 
     @Override
     public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
-        dispatch(getRunnableEvent(subscriber, event));
+        dispatch(getRunnableEventSubscriber(subscriber, event));
     }
 
     protected boolean isCurrentThread(){
         return false;
     }
 
-    private static Runnable getRunnableEvent(final EventSubscriber subscriber, final Object event){
+    private static Runnable getRunnableEventSubscriber(final EventSubscriber subscriber, final Object event){
         return new Runnable() {
             @Override
             public void run() {

@@ -1,22 +1,38 @@
 package kidnox.eventbus;
 
-import kidnox.common.utils.Strings;
-import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.impl.BusDefaults;
 import kidnox.eventbus.impl.BusImpl;
+import kidnox.utils.Strings;
 
 public final class BusFactory {
 
-    static Bus createBus(Builder builder) {
-        if (builder.async) {
-            return new AsyncBus(builder.name, builder.annotationFinder, builder.deadEventHandler);
-        } else {
-            return new BusImpl(builder.name, builder.annotationFinder, builder.deadEventHandler);
-        }
+    static Bus createBus(String name, boolean async, AnnotationFinder annotationFinder,
+                         DeadEventHandler deadEventHandler, EventLogger eventLogger) {
+        final Bus bus = new BusImpl(name, annotationFinder, deadEventHandler);
+        return async ? getSynchronizedDelegate(bus) : bus;
     }
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public static Bus getSynchronizedDelegate(final Bus bus) {
+        return new Bus() {
+            @Override
+            public synchronized void register(Object target) {
+                bus.register(target);
+            }
+
+            @Override
+            public synchronized void unregister(Object target) {
+                bus.unregister(target);
+            }
+
+            @Override
+            public synchronized void post(Object event) {
+                bus.post(event);
+            }
+        };
     }
 
     public static class Builder {
@@ -64,7 +80,7 @@ public final class BusFactory {
         public Bus create() {
             if (annotationFinder == null)
                 annotationFinder = BusDefaults.createDefaultAnnotationFinder(classFilter, dispatcherFactory);
-            return createBus(this);
+            return createBus(name, async, annotationFinder, deadEventHandler, null);
         }
     }
 

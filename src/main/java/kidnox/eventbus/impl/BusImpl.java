@@ -26,7 +26,7 @@ public class BusImpl implements Bus {
     @Override
     public void register(Object target) {
         final ClassInfo classInfo = getClassInfo(target.getClass());
-        if(classInfo == null || classInfo == ClassInfo.EMPTY)
+        if(ClassInfo.isNullOrEmpty(classInfo))
             return;
         final List<EventSubscriber> subscribers = getSubscribers(target, classInfo);
 
@@ -60,7 +60,7 @@ public class BusImpl implements Bus {
     @Override
     public void post(Object event) {
         Set<EventSubscriber> set = eventTypeToSubscribersMap.get(event.getClass());
-        if (set != null && !set.isEmpty()) {
+        if (kidnox.utils.Collections.notEmpty(set)) {
             for (EventSubscriber subscriber : set) {
                 subscriber.dispatch(event);
             }

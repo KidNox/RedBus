@@ -20,7 +20,6 @@ public class BusDefaults {
         return new AnnotationFinderImpl(filter, factory);
     }
 
-
     public static Dispatcher.Factory createDefaultDispatcherFactory() {
         return new Dispatcher.Factory() {
             @Override
