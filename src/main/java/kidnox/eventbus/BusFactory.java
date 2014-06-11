@@ -1,8 +1,11 @@
 package kidnox.eventbus;
 
 import kidnox.common.utils.Strings;
+import kidnox.eventbus.impl.AsyncBus;
+import kidnox.eventbus.impl.BusDefaults;
+import kidnox.eventbus.impl.BusImpl;
 
-public class BusFactory {
+public final class BusFactory {
 
     static Bus createBus(Builder builder) {
         if (builder.async) {
@@ -17,7 +20,7 @@ public class BusFactory {
     }
 
     public static class Builder {
-        boolean async = false;
+        boolean async = true;
         String name = Strings.EMPTY;
 
         DeadEventHandler deadEventHandler = null;
@@ -33,8 +36,8 @@ public class BusFactory {
             return this;
         }
 
-        public Builder async() {
-            this.async = true;
+        public Builder singleThread() {
+            this.async = false;
             return this;
         }
 
@@ -60,12 +63,12 @@ public class BusFactory {
 
         public Bus create() {
             if (annotationFinder == null)
-                annotationFinder = new AnnotationFinder.DefaultAnnotationFinder(classFilter, dispatcherFactory);
+                annotationFinder = BusDefaults.createDefaultAnnotationFinder(classFilter, dispatcherFactory);
             return createBus(this);
         }
     }
 
-
+    //no instance
     private BusFactory() {
     }
 }

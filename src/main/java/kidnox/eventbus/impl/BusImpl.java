@@ -1,4 +1,6 @@
-package kidnox.eventbus;
+package kidnox.eventbus.impl;
+
+import kidnox.eventbus.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -15,7 +17,7 @@ public class BusImpl implements Bus {
 
     protected final AnnotationFinder annotationFinder;
 
-    protected BusImpl(String name, AnnotationFinder annotationFinder, DeadEventHandler deadEventHandler) {
+    public BusImpl(String name, AnnotationFinder annotationFinder, DeadEventHandler deadEventHandler) {
         this.name = name;
         this.deadEventHandler = deadEventHandler;
         this.annotationFinder = annotationFinder;

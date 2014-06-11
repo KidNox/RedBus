@@ -1,7 +1,6 @@
 package kidnox.eventbus;
 
 public interface ClassFilter {
-
     boolean skipClass(Class clazz);
 
 

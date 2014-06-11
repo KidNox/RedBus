@@ -1,26 +1,30 @@
 package kidnox.eventbus;
 
-import kidnox.annotations.Nonnull;
+import kidnox.annotations.Internal;
+import kidnox.annotations.NotNull;
 
 import java.lang.reflect.Method;
 
+@Internal
 public abstract class Element {
 
-    protected final Class eventClass;
-    protected final Object target;
-    protected final Method method;
-    private final int hashCode;
+    public final Class eventClass;
+    public final Object target;
+    public final Method method;
+    public final int hashCode;
 
-    protected Element(@Nonnull Class eventClass, @Nonnull Object target, @Nonnull Method method) {
+    protected Element(@NotNull Class eventClass, @NotNull Object target, @NotNull Method method) {
         this.eventClass = eventClass;
         this.target = target;
         this.method = method;
         method.setAccessible(true);
-
+        // from otto
         // Compute hash code eagerly since we know it will be used frequently and we cannot estimate the runtime of the
         // target's hashCode call.
         hashCode = (31 + method.hashCode()) * 31 + target.hashCode();
     }
+
+    protected abstract Object invoke(Object event);
 
     @Override
     public String toString() {
@@ -40,6 +44,7 @@ public abstract class Element {
     public boolean equals(Object obj) {
         if (obj instanceof Element) {
             Element that = (Element) obj;
+            // from guava
             // Use == so that different equal instances will still receive events.
             // We only guard against the case that the same object is registered
             // multiple times

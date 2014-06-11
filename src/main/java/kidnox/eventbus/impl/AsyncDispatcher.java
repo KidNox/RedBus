@@ -1,7 +1,8 @@
-package kidnox.eventbus;
+package kidnox.eventbus.impl;
 
+import kidnox.eventbus.Dispatcher;
 
-public abstract class AsyncDispatcher implements Dispatcher{
+public abstract class AsyncDispatcher implements Dispatcher {
 
     protected abstract void dispatch(Runnable runnable);
 
@@ -18,7 +19,7 @@ public abstract class AsyncDispatcher implements Dispatcher{
         return new Runnable() {
             @Override
             public void run() {
-                subscriber.invokeSubscribe(event);
+                subscriber.invoke(event);
             }
         };
     }

@@ -6,7 +6,14 @@
 
     <groupId>com.kidnox</groupId>
     <artifactId>eventbus</artifactId>
-    <version>0.3</version>
+    <version>0.4</version>
+
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -69,13 +76,20 @@
         <dependency>
             <groupId>com.kidnox</groupId>
             <artifactId>nox-annotations</artifactId>
-            <version>[0.1,)</version>
+            <version>[0.2,)</version>
         </dependency>
 
         <dependency>
             <groupId>com.kidnox</groupId>
             <artifactId>nox-common</artifactId>
             <version>[0.1,)</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <version>4.11</version>
         </dependency>
     </dependencies>
 

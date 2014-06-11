@@ -1,12 +1,11 @@
 package kidnox.eventbus;
 
-
 import java.lang.reflect.Method;
 import java.util.Map;
 
 public final class ClassInfo {
 
-    static final ClassInfo EMPTY = new ClassInfo(null);
+    public static final ClassInfo EMPTY = new ClassInfo(null);
 
     final Map<Dispatcher, Map<Class, Method>> dispatchersToTypedMethodMap;
 

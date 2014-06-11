@@ -1,11 +1,13 @@
-package kidnox.eventbus;
+package kidnox.eventbus.impl;
 
+import kidnox.annotations.Internal;
+import kidnox.eventbus.AnnotationFinder;
+import kidnox.eventbus.DeadEventHandler;
 
-
+@Internal
 public final class AsyncBus extends BusImpl {
 
-
-    AsyncBus(String name, AnnotationFinder annotationFinder, DeadEventHandler deadEventHandler) {
+    public AsyncBus(String name, AnnotationFinder annotationFinder, DeadEventHandler deadEventHandler) {
         super(name, annotationFinder, deadEventHandler);
     }
 
