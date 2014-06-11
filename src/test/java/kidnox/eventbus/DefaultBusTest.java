@@ -2,21 +2,22 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.annotations.Subscribe;
 import kidnox.eventbus.annotations.Subscriber;
+import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.internal.BadSubscriber;
 import kidnox.eventbus.internal.SimpleSubscriber;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-
+//TODO check annotations cache!
 public class DefaultBusTest {
 
     private Bus bus;
 
     @Before public void setUp() throws Exception {
+        PackageLocalProvider.clearCache();
         bus = BusFactory.getDefault();
     }
 
@@ -36,6 +37,11 @@ public class DefaultBusTest {
     }
 
     @Test public void unregisterTest() {
+        Object target = new Object();
+        bus.register(target);
+        bus.post(new Object());
+        bus.unregister(target);
+
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
 
@@ -97,14 +103,9 @@ public class DefaultBusTest {
         @Subscriber
         class SubscriberClass {
             String string;
-            List list;
 
             @Subscribe public void obtainString(String event) {
                 string = event;
-            }
-
-            @Subscribe public void obtainList(List event) {
-                list = event;
             }
 
             @Subscribe public void obtainObject(Object event) {
@@ -116,12 +117,9 @@ public class DefaultBusTest {
         bus.register(subscriberClass);
 
         String stringEvent = "stringEvent";
-        List list = new ArrayList();
         bus.post(stringEvent);
-        bus.post(list);
 
         assertEquals("string not obtained", stringEvent, subscriberClass.string);
-        assertEquals("list not obtained", list, subscriberClass.list);
     }
 
     @Test public void classInheritanceTest() {

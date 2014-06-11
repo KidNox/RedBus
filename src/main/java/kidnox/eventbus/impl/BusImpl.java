@@ -1,5 +1,6 @@
 package kidnox.eventbus.impl;
 
+import kidnox.annotations.NotNull;
 import kidnox.common.Pair;
 import kidnox.eventbus.*;
 
@@ -27,8 +28,10 @@ public class BusImpl implements Bus {
     @Override
     public void register(Object target) {
         final ClassInfo classInfo = getClassInfo(target.getClass());
-        if(ClassInfo.isNullOrEmpty(classInfo))
+        if(ClassInfo.isNullOrEmpty(classInfo)){
+            instanceToSubscribersMap.put(target, Collections.<EventSubscriber>emptyList());
             return;
+        }
         final List<EventSubscriber> subscribers = getSubscribers(target, classInfo);
 
         if (instanceToSubscribersMap.put(target, subscribers) != null)
@@ -45,14 +48,16 @@ public class BusImpl implements Bus {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void unregister(Object target) {
         final List<EventSubscriber> subscribers = instanceToSubscribersMap.remove(target);
-
         if (subscribers == null)
             throwRuntimeException("unregister", target, " not registered");
 
-        //noinspection ConstantConditions
+        if(subscribers.isEmpty())
+            return;
+
         for (EventSubscriber subscriber : subscribers) {
             eventTypeToSubscribersMap.get(subscriber.eventClass).remove(subscriber);
         }
@@ -84,9 +89,8 @@ public class BusImpl implements Bus {
         return getClass().getSimpleName()+"{" + name + '}';
     }
 
-    static List<EventSubscriber> getSubscribers(Object target, ClassInfo classInfo){
+    static @NotNull List<EventSubscriber> getSubscribers(@NotNull Object target, @NotNull ClassInfo classInfo){
         final LinkedList<EventSubscriber> subscribers = new LinkedList<EventSubscriber>();
-
         for(Pair<Dispatcher, Map<Class, Method>> dispatcherEntry : classInfo.dispatchersToTypedMethodList){
             final Dispatcher dispatcher = dispatcherEntry.left;
             for(Entry<Class, Method> methodEntry : dispatcherEntry.right.entrySet()){
