@@ -1,5 +1,6 @@
 package kidnox.eventbus.impl;
 
+import kidnox.common.Pair;
 import kidnox.eventbus.*;
 
 import java.lang.reflect.Method;
@@ -75,7 +76,7 @@ public class BusImpl implements Bus {
 
     protected void onDeadEvent(Object event){
         if(deadEventHandler != null)
-            deadEventHandler.onDeadEvent(this, event);
+            deadEventHandler.onDeadEvent(event);
     }
 
     @Override
@@ -86,9 +87,9 @@ public class BusImpl implements Bus {
     static List<EventSubscriber> getSubscribers(Object target, ClassInfo classInfo){
         final LinkedList<EventSubscriber> subscribers = new LinkedList<EventSubscriber>();
 
-        for(Entry<Dispatcher, Map<Class, Method>> dispatcherEntry : classInfo.dispatchersToTypedMethodMap.entrySet()){
-            final Dispatcher dispatcher = dispatcherEntry.getKey();
-            for(Entry<Class, Method> methodEntry : dispatcherEntry.getValue().entrySet()){
+        for(Pair<Dispatcher, Map<Class, Method>> dispatcherEntry : classInfo.dispatchersToTypedMethodList){
+            final Dispatcher dispatcher = dispatcherEntry.left;
+            for(Entry<Class, Method> methodEntry : dispatcherEntry.right.entrySet()){
                 subscribers.add(new EventSubscriber(methodEntry.getKey(), target, methodEntry.getValue(), dispatcher));
             }
         }

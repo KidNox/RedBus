@@ -1,6 +1,9 @@
 package kidnox.eventbus;
 
+import kidnox.common.Pair;
+
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 public final class ClassInfo {
@@ -11,10 +14,10 @@ public final class ClassInfo {
         return classInfo == null || classInfo == EMPTY;
     }
 
-    public final Map<Dispatcher, Map<Class, Method>> dispatchersToTypedMethodMap;
+    public final List<Pair<Dispatcher, Map<Class, Method>>> dispatchersToTypedMethodList;
 
-    public ClassInfo(Map<Dispatcher, Map<Class, Method>> dispatchersToTypedMethodMap) {
-        this.dispatchersToTypedMethodMap = dispatchersToTypedMethodMap;
+    public ClassInfo(List<Pair<Dispatcher, Map<Class, Method>>> dispatchersToTypedMethodMap) {
+        this.dispatchersToTypedMethodList = dispatchersToTypedMethodMap;
     }
 
 }

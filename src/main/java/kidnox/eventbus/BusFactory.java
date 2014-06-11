@@ -21,6 +21,7 @@ public final class BusFactory {
     }
 
     public static Bus getSynchronizedDelegate(final Bus bus) {
+        if(bus == null) throw new NullPointerException();
         return new Bus() {
             @Override
             public synchronized void register(Object target) {

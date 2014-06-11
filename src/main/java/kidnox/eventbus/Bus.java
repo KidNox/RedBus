@@ -6,4 +6,5 @@ public interface Bus {
     void unregister(Object target);
 
     void post(Object event);
+
 }

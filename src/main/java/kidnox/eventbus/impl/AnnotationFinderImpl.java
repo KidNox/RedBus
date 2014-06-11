@@ -1,5 +1,6 @@
 package kidnox.eventbus.impl;
 
+import kidnox.common.Pair;
 import kidnox.eventbus.AnnotationFinder;
 import kidnox.eventbus.ClassFilter;
 import kidnox.eventbus.ClassInfo;
@@ -9,9 +10,7 @@ import kidnox.eventbus.annotations.Subscriber;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 final class AnnotationFinderImpl implements AnnotationFinder {
 
@@ -31,11 +30,11 @@ final class AnnotationFinderImpl implements AnnotationFinder {
         ClassInfo classInfo = cache.get(clazz);
         if(classInfo != null) return classInfo;
 
-        Map<Dispatcher, Map<Class, Method>> dispatchersToTypedMethodMap = null;
+        List<Pair<Dispatcher, Map<Class, Method>>> dispatchersToTypedMethodList = null;
         for(Class mClass = clazz; !skipClass(mClass); mClass = mClass.getSuperclass()){
 
             Subscriber subscriberAnnotation = (Subscriber)mClass.<Subscriber>getAnnotation(Subscriber.class);
-            System.out.println(""+subscriberAnnotation);
+
             if(subscriberAnnotation != null){
                 final Map<Class, Method> subscribers = getSubscribedMethods(mClass);
                 if(subscribers.isEmpty())
@@ -45,14 +44,14 @@ final class AnnotationFinderImpl implements AnnotationFinder {
                 if(dispatcher == null)
                     dispatcher = BusDefaults.DISPATCHER;
 
-                if(dispatchersToTypedMethodMap == null)
-                    dispatchersToTypedMethodMap = new HashMap<Dispatcher, Map<Class, Method>>();
+                if(dispatchersToTypedMethodList == null)
+                    dispatchersToTypedMethodList = new LinkedList<Pair<Dispatcher, Map<Class, Method>>>();
 
-                dispatchersToTypedMethodMap.put(dispatcher, subscribers);
+                dispatchersToTypedMethodList.add(new Pair<Dispatcher, Map<Class, Method>>(dispatcher, subscribers));
             }
         }
-        classInfo = dispatchersToTypedMethodMap == null ?
-                ClassInfo.EMPTY : new ClassInfo(dispatchersToTypedMethodMap);
+        classInfo = dispatchersToTypedMethodList == null ?
+                ClassInfo.EMPTY : new ClassInfo(dispatchersToTypedMethodList);
         cache.put(clazz, classInfo);
 
         return classInfo;
@@ -79,7 +78,11 @@ final class AnnotationFinderImpl implements AnnotationFinder {
             if(method.isAnnotationPresent(Subscribe.class)){
                 if(classToMethodMap == null)
                     classToMethodMap = new HashMap<Class, Method>();
-                classToMethodMap.put(params[0], method);
+
+                final Class clazz = params[0];
+                if(clazz.isInterface())
+                    throw new IllegalArgumentException("Can't subscribe for interface.");
+                classToMethodMap.put(clazz, method);
             }
         }
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;

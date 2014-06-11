@@ -7,10 +7,12 @@ import kidnox.eventbus.internal.SimpleSubscriber;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
 
-public class BasicBusTest {
+import static org.junit.Assert.*;
+
+public class DefaultBusTest {
 
     private Bus bus;
 
@@ -49,11 +51,77 @@ public class BasicBusTest {
         assertEquals("Subscriber obtain wrong event", event, subscriber.getCurrentEvent());
     }
 
+    @Test public void doubleRegisterTest() {
+        SimpleSubscriber subscriber = new SimpleSubscriber();
+        bus.register(subscriber);
+
+        try {
+            bus.register(subscriber);
+            fail("already registered");
+        } catch (RuntimeException ignored) {}
+    }
+
+    @Test public void unregisterWhenNotRegisteredTest() {
+        try {
+            bus.unregister(new Object());
+            fail("not registered");
+        } catch (RuntimeException ignored) {}
+
+        try {
+            bus.unregister(new SimpleSubscriber());
+            fail("not registered");
+        } catch (RuntimeException ignored) {}
+    }
+
+    @Test public void interfaceSubscriptionTest() {
+        @Subscriber
+        class SubscriberClass {
+            @Subscribe public void obtainList(List list) {
+                fail("can't subscribe for interface");
+            }
+        }
+
+        try {
+            bus.register(new SubscriberClass());
+            fail("must throw exception");
+        } catch (IllegalArgumentException ignored) {}
+    }
+
     @Test public void eventInheritanceTest() {
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
         bus.post("");
         assertNull("Subscriber obtain wrong event", subscriber.getCurrentEvent());
+        bus.unregister(subscriber);
+
+        @Subscriber
+        class SubscriberClass {
+            String string;
+            List list;
+
+            @Subscribe public void obtainString(String event) {
+                string = event;
+            }
+
+            @Subscribe public void obtainList(List event) {
+                list = event;
+            }
+
+            @Subscribe public void obtainObject(Object event) {
+                fail("wrong event");
+            }
+        }
+
+        SubscriberClass subscriberClass = new SubscriberClass();
+        bus.register(subscriberClass);
+
+        String stringEvent = "stringEvent";
+        List list = new ArrayList();
+        bus.post(stringEvent);
+        bus.post(list);
+
+        assertEquals("string not obtained", stringEvent, subscriberClass.string);
+        assertEquals("list not obtained", list, subscriberClass.list);
     }
 
     @Test public void classInheritanceTest() {
@@ -90,9 +158,8 @@ public class BasicBusTest {
         assertEquals("Subscriber obtain wrong event", event, subscriber2.getCurrentEvent());
         assertEquals("Subscriber obtain wrong event", event, subscriber3.getCurrentEvent());
 
-        assertNotNull("Subscriber doesn't obtain event", subscriber3.getCurrentEvent());
+        assertNotNull("Subscriber doesn't obtain event", subscriber3.mEvent);
     }
-
 
 
 }

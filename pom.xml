@@ -93,7 +93,7 @@
         <dependency>
             <groupId>com.kidnox</groupId>
             <artifactId>nox-common</artifactId>
-            <version>[0.4,)</version>
+            <version>[0.5,)</version>
         </dependency>
 
         <dependency>
