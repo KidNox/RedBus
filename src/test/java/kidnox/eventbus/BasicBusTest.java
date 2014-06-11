@@ -1,18 +1,21 @@
 package kidnox.eventbus;
 
+import kidnox.eventbus.annotations.Subscribe;
+import kidnox.eventbus.annotations.Subscriber;
 import kidnox.eventbus.internal.BadSubscriber;
 import kidnox.eventbus.internal.SimpleSubscriber;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class BasicBusTest {
 
     private Bus bus;
 
     @Before public void setUp() throws Exception {
-        bus = BusFactory.builder().singleThread().create();
+        bus = BusFactory.getDefault();
     }
 
 
@@ -28,7 +31,22 @@ public class BasicBusTest {
 
         assertNotNull("Subscriber doesn't obtain event", subscriber1.getCurrentEvent());
         assertEquals("Subscriber obtain wrong event", event, subscriber1.getCurrentEvent());
+    }
 
+    @Test public void unregisterTest() {
+        SimpleSubscriber subscriber = new SimpleSubscriber();
+        bus.register(subscriber);
+
+        Object event = new Object();
+        bus.post(event);
+
+        bus.unregister(subscriber);
+
+        Object event2 = new Object();
+        bus.post(event2);
+
+        assertNotEquals("Subscriber obtain event after unregister", event2, subscriber.getCurrentEvent());
+        assertEquals("Subscriber obtain wrong event", event, subscriber.getCurrentEvent());
     }
 
     @Test public void eventInheritanceTest() {
@@ -38,7 +56,7 @@ public class BasicBusTest {
         assertNull("Subscriber obtain wrong event", subscriber.getCurrentEvent());
     }
 
-/*    @Test public void classInheritanceTest() {
+    @Test public void classInheritanceTest() {
 
         class Subscriber1 extends SimpleSubscriber {}
 
@@ -73,8 +91,7 @@ public class BasicBusTest {
         assertEquals("Subscriber obtain wrong event", event, subscriber3.getCurrentEvent());
 
         assertNotNull("Subscriber doesn't obtain event", subscriber3.getCurrentEvent());
-
-    }*/
+    }
 
 
 

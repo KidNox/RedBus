@@ -12,6 +12,10 @@ public final class BusFactory {
         return async ? getSynchronizedDelegate(bus) : bus;
     }
 
+    public static Bus getDefault() {
+        return builder().create();
+    }
+
     public static Builder builder() {
         return new Builder();
     }

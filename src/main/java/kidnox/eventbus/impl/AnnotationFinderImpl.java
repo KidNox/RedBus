@@ -34,7 +34,8 @@ final class AnnotationFinderImpl implements AnnotationFinder {
         Map<Dispatcher, Map<Class, Method>> dispatchersToTypedMethodMap = null;
         for(Class mClass = clazz; !skipClass(mClass); mClass = mClass.getSuperclass()){
 
-            Subscriber subscriberAnnotation = (Subscriber)clazz.<Subscriber>getAnnotation(Subscriber.class);
+            Subscriber subscriberAnnotation = (Subscriber)mClass.<Subscriber>getAnnotation(Subscriber.class);
+            System.out.println(""+subscriberAnnotation);
             if(subscriberAnnotation != null){
                 final Map<Class, Method> subscribers = getSubscribedMethods(mClass);
                 if(subscribers.isEmpty())
