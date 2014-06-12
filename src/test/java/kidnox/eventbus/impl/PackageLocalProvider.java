@@ -17,8 +17,4 @@ public class PackageLocalProvider {
         return getSubscribers(target, classInfo);
     }
 
-    public static void clearCache() {
-        AnnotationFinderImpl.cache.clear();
-    }
-
 }

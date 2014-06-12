@@ -11,7 +11,7 @@ public abstract class AsyncDispatcher implements Dispatcher {
         dispatch(getRunnableEventSubscriber(subscriber, event));
     }
 
-    protected boolean isCurrentThread(){
+    protected boolean inCurrentThread(){
         return false;
     }
 

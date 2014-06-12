@@ -17,7 +17,6 @@ public class DefaultBusTest {
     private Bus bus;
 
     @Before public void setUp() throws Exception {
-        PackageLocalProvider.clearCache();
         bus = BusFactory.getDefault();
     }
 

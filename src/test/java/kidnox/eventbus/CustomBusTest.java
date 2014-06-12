@@ -17,10 +17,6 @@ public class CustomBusTest {
 
     Bus bus;
 
-    @Before public void setUp() {
-        PackageLocalProvider.clearCache();
-    }
-
     @Test public void deadEventHandlerTest() {
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
         bus = BusFactory.builder().withDeadEventHandler(deadEventHandler).create();

@@ -28,7 +28,7 @@ public class EventSubscriber extends Element {
     }
 
     protected void dispatch(Object event) {
-        if (asyncDispatcher != null && asyncDispatcher.isCurrentThread()) {
+        if (asyncDispatcher != null && asyncDispatcher.inCurrentThread()) {
             invoke(event);
         } else {
             dispatcher.dispatchSubscribe(this, event);

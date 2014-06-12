@@ -14,7 +14,7 @@ import java.util.*;
 
 final class AnnotationFinderImpl implements AnnotationFinder {
 
-    static final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
+    final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
 
     final ClassFilter classFilter;
     final Dispatcher.Factory dispatcherFactory;
