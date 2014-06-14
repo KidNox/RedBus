@@ -5,7 +5,10 @@ import kidnox.eventbus.annotations.Subscriber;
 import kidnox.eventbus.internal.AbsAsyncSubscriber;
 import kidnox.eventbus.internal.AsyncDispatchersFactory;
 import kidnox.eventbus.internal.NamedAsyncDispatcher;
+import kidnox.eventbus.internal.SimpleSubscriber;
 import org.junit.Test;
+
+import java.util.concurrent.Executor;
 
 import static org.junit.Assert.*;
 
@@ -73,6 +76,35 @@ public class AsyncTest {
         assertEquals("wrong event", event, subscriber1.getCurrentEvent());
         assertEquals("wrong event", event, subscriber2.getCurrentEvent());
         assertEquals("wrong event", event, subscriber3.getCurrentEvent());
+    }
+
+    @Test public void asyncPost() throws InterruptedException {
+        final Bus bus = BusFactory.getDefault();
+        final NamedAsyncDispatcher dispatcher1 = new NamedAsyncDispatcher("worker-1");
+
+        @Subscriber
+        class SubscriberClass extends AbsAsyncSubscriber {
+            @Subscribe public void obtainEvent(Object event) {
+                currentEvent = event;
+                checkThread(dispatcher1.getThread());
+
+                dispatcher1.getWorker().dismiss(true);
+            }
+        }
+
+        final SubscriberClass subscriberClass = new SubscriberClass();
+        bus.register(subscriberClass);
+
+        dispatcher1.getWorker().execute(new Runnable() {
+            @Override
+            public void run() {
+                bus.post(new Object());
+            }
+        });
+
+        dispatcher1.getThread().join();
+
+        assertNotNull("wrong event", subscriberClass.getCurrentEvent());
     }
 
     private void checkThread(Thread expected) {

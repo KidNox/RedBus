@@ -2,18 +2,21 @@ package kidnox.eventbus.impl;
 
 import kidnox.annotations.Beta;
 import kidnox.eventbus.AnnotationFinder;
+import kidnox.eventbus.Bus;
 import kidnox.eventbus.DeadEventHandler;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 @Beta
-public class AsyncBus extends BusImpl {
+public class AsyncBusDelegate implements Bus {
 
-    final Executor busExecutor = Executors.newSingleThreadExecutor();
+    final Executor busExecutor;
+    final Bus bus;
 
-    public AsyncBus(String name, AnnotationFinder annotationFinder, DeadEventHandler deadEventHandler) {
-        super(name, annotationFinder, deadEventHandler);
+    public AsyncBusDelegate(Bus bus) {
+        busExecutor = Executors.newSingleThreadExecutor();
+        this.bus = bus;
     }
 
     @Override
@@ -21,7 +24,7 @@ public class AsyncBus extends BusImpl {
         execute(new Runnable() {
             @Override
             public void run() {
-                AsyncBus.super.register(target);
+                bus.register(target);
             }
         });
     }
@@ -31,7 +34,7 @@ public class AsyncBus extends BusImpl {
         execute(new Runnable() {
             @Override
             public void run() {
-                AsyncBus.super.unregister(target);
+                bus.unregister(target);
             }
         });
     }
@@ -41,7 +44,7 @@ public class AsyncBus extends BusImpl {
         execute(new Runnable() {
             @Override
             public void run() {
-                AsyncBus.super.post(event);
+                bus.post(event);
             }
         });
     }

@@ -15,6 +15,7 @@ import java.util.*;
 final class AnnotationFinderImpl implements AnnotationFinder {
 
     final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
+    final Map<String, Dispatcher> dispatcherMap = new HashMap<String, Dispatcher>();
 
     final ClassFilter classFilter;
     final Dispatcher.Factory dispatcherFactory;
@@ -40,9 +41,7 @@ final class AnnotationFinderImpl implements AnnotationFinder {
                 if(subscribers.isEmpty())
                     continue;
 
-                Dispatcher dispatcher = dispatcherFactory.getDispatcher(subscriberAnnotation.value());
-                if(dispatcher == null)
-                    dispatcher = BusDefaults.DISPATCHER;
+                Dispatcher dispatcher = getDispatcher(subscriberAnnotation.value());
 
                 if(dispatchersToTypedMethodList == null)
                     dispatchersToTypedMethodList = new LinkedList<Pair<Dispatcher, Map<Class, Method>>>();
@@ -86,6 +85,18 @@ final class AnnotationFinderImpl implements AnnotationFinder {
             }
         }
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
+    }
+
+    private Dispatcher getDispatcher(String dispatcherName) {
+        Dispatcher dispatcher = dispatcherMap.get(dispatcherName);
+        if(dispatcher == null){
+            dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
+            if(dispatcher == null){
+                dispatcher = BusDefaults.DISPATCHER;
+            }
+            dispatcherMap.put(dispatcherName, dispatcher);
+        }
+        return dispatcher;
     }
 
 }

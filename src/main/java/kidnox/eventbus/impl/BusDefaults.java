@@ -23,7 +23,7 @@ public class BusDefaults {
     public static Dispatcher.Factory createDefaultDispatcherFactory() {
         return new Dispatcher.Factory() {
             @Override
-            public Dispatcher getDispatcher(@NotNull String subscriberName) {
+            public Dispatcher getDispatcher(@NotNull String dispatcherName) {
                 return BusDefaults.DISPATCHER;
             }
         };

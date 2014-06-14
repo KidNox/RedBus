@@ -11,8 +11,8 @@ public class AsyncDispatchersFactory implements Dispatcher.Factory {
     final Map<String, NamedAsyncDispatcher> dispatchers = new HashMap<String, NamedAsyncDispatcher>();
 
     @Override
-    public Dispatcher getDispatcher(@NotNull String subscriberName) {
-        return dispatchers.get(subscriberName);
+    public Dispatcher getDispatcher(@NotNull String dispatcherName) {
+        return dispatchers.get(dispatcherName);
     }
 
     public void addDispatcher(NamedAsyncDispatcher dispatcher) {

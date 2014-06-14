@@ -66,7 +66,7 @@ public class CustomBusTest {
     @Test public void dispatcherFactoryTest() {
         bus = BusFactory.builder().withDispatcherFactory(new Dispatcher.Factory() {
             @Override
-            public Dispatcher getDispatcher(@NotNull String subscriberName) {
+            public Dispatcher getDispatcher(@NotNull String dispatcherName) {
                 fail("must not be called");
                 return null;
             }
@@ -82,7 +82,7 @@ public class CustomBusTest {
         BusFactory.Builder builder = BusFactory.builder();
         bus = builder.withDispatcherFactory(new Dispatcher.Factory() {
             @Override
-            public Dispatcher getDispatcher(@NotNull String subscriberName) {
+            public Dispatcher getDispatcher(@NotNull String dispatcherName) {
                 return dispatcher;
             }
         }).create();

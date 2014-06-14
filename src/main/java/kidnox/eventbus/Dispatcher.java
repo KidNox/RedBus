@@ -8,6 +8,6 @@ public interface Dispatcher {
 
 
     public interface Factory {
-        public Dispatcher getDispatcher(@NotNull String subscriberName);
+        public Dispatcher getDispatcher(@NotNull String dispatcherName);
     }
 }
