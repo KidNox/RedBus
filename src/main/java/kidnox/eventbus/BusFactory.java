@@ -110,6 +110,11 @@ public final class BusFactory {
             public synchronized void post(Object event) {
                 bus.post(event);
             }
+
+            @Override
+            public String toString() {
+                return bus.toString();
+            }
         };
     }
 

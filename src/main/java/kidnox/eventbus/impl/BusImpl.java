@@ -86,7 +86,7 @@ public class BusImpl implements Bus {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()+"{" + name + '}';
+        return getClass().getSimpleName() + '{' + name + '}';
     }
 
     static @NotNull List<EventSubscriber> getSubscribers(@NotNull Object target, @NotNull ClassInfo classInfo){

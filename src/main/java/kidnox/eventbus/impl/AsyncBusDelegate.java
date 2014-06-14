@@ -53,4 +53,8 @@ public class AsyncBusDelegate implements Bus {
         busExecutor.execute(runnable);
     }
 
+    @Override
+    public String toString() {
+        return bus.toString();
+    }
 }
