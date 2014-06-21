@@ -1,9 +1,7 @@
 package kidnox.eventbus.impl;
 
 import kidnox.annotations.Beta;
-import kidnox.eventbus.AnnotationFinder;
 import kidnox.eventbus.Bus;
-import kidnox.eventbus.DeadEventHandler;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

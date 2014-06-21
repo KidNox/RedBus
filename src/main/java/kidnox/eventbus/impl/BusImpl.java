@@ -17,12 +17,12 @@ public class BusImpl implements Bus {
     protected final String name;
     protected final DeadEventHandler deadEventHandler;
 
-    protected final AnnotationFinder annotationFinder;
+    protected final ClassInfoExtractor classInfoExtractor;
 
-    public BusImpl(String name, AnnotationFinder annotationFinder, DeadEventHandler deadEventHandler) {
+    public BusImpl(String name, ClassInfoExtractor classInfoExtractor, DeadEventHandler deadEventHandler) {
         this.name = name;
         this.deadEventHandler = deadEventHandler;
-        this.annotationFinder = annotationFinder;
+        this.classInfoExtractor = classInfoExtractor;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class BusImpl implements Bus {
     }
 
     protected ClassInfo getClassInfo(Class clazz){
-        return annotationFinder.findClassInfo(clazz);
+        return classInfoExtractor.findClassInfo(clazz);
     }
 
     protected void onDeadEvent(Object event){
@@ -101,6 +101,6 @@ public class BusImpl implements Bus {
     }
 
     protected void throwRuntimeException(String action, Object cause, String message) {
-        throw new RuntimeException(action + " was failed in " + toString() + ", " + cause + message);
+        throw new IllegalStateException(action + " was failed in " + toString() + ", " + cause + message);
     }
 }

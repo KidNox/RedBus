@@ -1,5 +1,5 @@
 package kidnox.eventbus;
 
-public interface AnnotationFinder {
+public interface ClassInfoExtractor {
     ClassInfo findClassInfo(Class clazz);
 }

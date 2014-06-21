@@ -6,7 +6,7 @@
 
     <groupId>com.kidnox</groupId>
     <artifactId>eventbus</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
 
     <licenses>
         <license>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>com.kidnox</groupId>
             <artifactId>nox-common</artifactId>
-            <version>[0.5,)</version>
+            <version>[0.5.2,)</version>
         </dependency>
 
         <dependency>

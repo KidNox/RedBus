@@ -1,8 +1,8 @@
 package kidnox.eventbus.impl;
 
 import kidnox.annotations.Internal;
-import kidnox.annotations.NotNull;
-import kidnox.eventbus.AnnotationFinder;
+import kidnox.common.Factory;
+import kidnox.eventbus.ClassInfoExtractor;
 import kidnox.eventbus.ClassFilter;
 import kidnox.eventbus.Dispatcher;
 
@@ -16,14 +16,13 @@ public class BusDefaults {
         }
     };
 
-    public static AnnotationFinder createDefaultAnnotationFinder(ClassFilter filter, Dispatcher.Factory factory) {
-        return new AnnotationFinderImpl(filter, factory);
+    public static ClassInfoExtractor createDefaultAnnotationFinder(ClassFilter filter, Factory<String, Dispatcher> factory) {
+        return new ClassInfoExtractorImpl(filter, factory);
     }
 
-    public static Dispatcher.Factory createDefaultDispatcherFactory() {
-        return new Dispatcher.Factory() {
-            @Override
-            public Dispatcher getDispatcher(@NotNull String dispatcherName) {
+    public static Factory<String, Dispatcher> createDefaultDispatcherFactory() {
+        return new Factory<String, Dispatcher>() {
+            @Override public Dispatcher get(String s) {
                 return BusDefaults.DISPATCHER;
             }
         };

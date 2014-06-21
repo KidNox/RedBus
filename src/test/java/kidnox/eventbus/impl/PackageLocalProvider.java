@@ -1,7 +1,7 @@
 package kidnox.eventbus.impl;
 
 
-import kidnox.eventbus.AnnotationFinder;
+import kidnox.eventbus.ClassInfoExtractor;
 import kidnox.eventbus.ClassInfo;
 
 import java.util.List;
@@ -12,8 +12,8 @@ public class PackageLocalProvider {
         return BusImpl.getSubscribers(target, classInfo);
     }
 
-    public static List<EventSubscriber> getSubscribers(Object target, AnnotationFinder annotationFinder) {
-        ClassInfo classInfo = annotationFinder.findClassInfo(target.getClass());
+    public static List<EventSubscriber> getSubscribers(Object target, ClassInfoExtractor classInfoExtractor) {
+        ClassInfo classInfo = classInfoExtractor.findClassInfo(target.getClass());
         return getSubscribers(target, classInfo);
     }
 

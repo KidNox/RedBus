@@ -1,12 +1,12 @@
 package kidnox.eventbus;
 
 import kidnox.annotations.NotNull;
+import kidnox.common.Factory;
 import kidnox.eventbus.annotations.Subscribe;
 import kidnox.eventbus.annotations.Subscriber;
 import kidnox.eventbus.impl.EventSubscriber;
 import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.internal.*;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -64,9 +64,9 @@ public class CustomBusTest {
     }
 
     @Test public void dispatcherFactoryTest() {
-        bus = BusFactory.builder().withDispatcherFactory(new Dispatcher.Factory() {
+        bus = BusFactory.builder().withDispatcherFactory(new Factory<String, Dispatcher>() {
             @Override
-            public Dispatcher getDispatcher(@NotNull String dispatcherName) {
+            public Dispatcher get(@NotNull String dispatcherName) {
                 fail("must not be called");
                 return null;
             }
@@ -80,19 +80,19 @@ public class CustomBusTest {
 
         final SimpleDispatcher dispatcher = new SimpleDispatcher();
         BusFactory.Builder builder = BusFactory.builder();
-        bus = builder.withDispatcherFactory(new Dispatcher.Factory() {
+        bus = builder.withDispatcherFactory(new Factory<String, Dispatcher>() {
             @Override
-            public Dispatcher getDispatcher(@NotNull String dispatcherName) {
+            public Dispatcher get(@NotNull String dispatcherName) {
                 return dispatcher;
             }
         }).create();
 
-        AnnotationFinder annotationFinder = builder.annotationFinder;
+        ClassInfoExtractor classInfoExtractor = builder.classInfoExtractor;
 
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
 
-        List<EventSubscriber> eventSubscribers = PackageLocalProvider.getSubscribers(subscriber, annotationFinder);
+        List<EventSubscriber> eventSubscribers = PackageLocalProvider.getSubscribers(subscriber, classInfoExtractor);
         assertNotNull("valid subscriber without event subscribers", eventSubscribers);
 
         Object event = new Object();

@@ -1,17 +1,18 @@
 package kidnox.eventbus.internal;
 
 import kidnox.annotations.NotNull;
+import kidnox.common.Factory;
 import kidnox.eventbus.Dispatcher;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AsyncDispatchersFactory implements Dispatcher.Factory {
+public class AsyncDispatchersFactory implements Factory<String, Dispatcher> {
 
     final Map<String, NamedAsyncDispatcher> dispatchers = new HashMap<String, NamedAsyncDispatcher>();
 
     @Override
-    public Dispatcher getDispatcher(@NotNull String dispatcherName) {
+    public Dispatcher get(@NotNull String dispatcherName) {
         return dispatchers.get(dispatcherName);
     }
 

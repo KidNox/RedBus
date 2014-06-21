@@ -1,5 +1,6 @@
 package kidnox.eventbus;
 
+import kidnox.common.Factory;
 import kidnox.eventbus.impl.AsyncBusDelegate;
 import kidnox.eventbus.impl.BusDefaults;
 import kidnox.eventbus.impl.BusImpl;
@@ -13,9 +14,9 @@ public final class BusFactory {
 
     static final int DEFAULT_BUS = SYNCHRONIZED_BUS;
 
-    static Bus createBus(String name, int type, AnnotationFinder annotationFinder,
+    static Bus createBus(String name, int type, ClassInfoExtractor classInfoExtractor,
                          DeadEventHandler deadEventHandler, EventLogger eventLogger) {
-        return wrapBusForType(new BusImpl(name, annotationFinder, deadEventHandler), type);
+        return wrapBusForType(new BusImpl(name, classInfoExtractor, deadEventHandler), type);
     }
 
     static Bus wrapBusForType(Bus bus, int type) {
@@ -44,8 +45,8 @@ public final class BusFactory {
         String name = Strings.EMPTY;
 
         DeadEventHandler deadEventHandler = null;
-        AnnotationFinder annotationFinder = null;
-        Dispatcher.Factory dispatcherFactory = null;
+        ClassInfoExtractor classInfoExtractor = null;
+        Factory<String, Dispatcher> dispatcherFactory = null;
         ClassFilter classFilter = null;
 
         Builder() {
@@ -71,12 +72,12 @@ public final class BusFactory {
             return this;
         }
 
-        public Builder withAnnotationFinder(AnnotationFinder annotationFinder) {
-            this.annotationFinder = annotationFinder;
+        public Builder withAnnotationFinder(ClassInfoExtractor classInfoExtractor) {
+            this.classInfoExtractor = classInfoExtractor;
             return this;
         }
 
-        public Builder withDispatcherFactory(Dispatcher.Factory factory) {
+        public Builder withDispatcherFactory(Factory<String, Dispatcher> factory) {
             this.dispatcherFactory = factory;
             return this;
         }
@@ -87,9 +88,9 @@ public final class BusFactory {
         }
 
         public Bus create() {
-            if (annotationFinder == null)
-                annotationFinder = BusDefaults.createDefaultAnnotationFinder(classFilter, dispatcherFactory);
-            return createBus(name, type, annotationFinder, deadEventHandler, null);
+            if (classInfoExtractor == null)
+                classInfoExtractor = BusDefaults.createDefaultAnnotationFinder(classFilter, dispatcherFactory);
+            return createBus(name, type, classInfoExtractor, deadEventHandler, null);
         }
     }
 

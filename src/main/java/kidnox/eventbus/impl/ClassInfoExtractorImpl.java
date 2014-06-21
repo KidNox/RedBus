@@ -1,7 +1,8 @@
 package kidnox.eventbus.impl;
 
+import kidnox.common.Factory;
 import kidnox.common.Pair;
-import kidnox.eventbus.AnnotationFinder;
+import kidnox.eventbus.ClassInfoExtractor;
 import kidnox.eventbus.ClassFilter;
 import kidnox.eventbus.ClassInfo;
 import kidnox.eventbus.Dispatcher;
@@ -12,15 +13,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-final class AnnotationFinderImpl implements AnnotationFinder {
+final class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
     final Map<Class, ClassInfo> cache = new HashMap<Class, ClassInfo>();
     final Map<String, Dispatcher> dispatcherMap = new HashMap<String, Dispatcher>();
 
     final ClassFilter classFilter;
-    final Dispatcher.Factory dispatcherFactory;
+    final Factory<String, Dispatcher> dispatcherFactory;
 
-    AnnotationFinderImpl(ClassFilter filter, Dispatcher.Factory factory) {
+    ClassInfoExtractorImpl(ClassFilter filter, Factory<String, Dispatcher> factory) {
         this.classFilter = filter == null ? ClassFilter.Filters.DEFAULT : filter;
         this.dispatcherFactory = factory == null ? BusDefaults.createDefaultDispatcherFactory() : factory;
     }
@@ -90,7 +91,7 @@ final class AnnotationFinderImpl implements AnnotationFinder {
     private Dispatcher getDispatcher(String dispatcherName) {
         Dispatcher dispatcher = dispatcherMap.get(dispatcherName);
         if(dispatcher == null){
-            dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
+            dispatcher = dispatcherFactory.get(dispatcherName);
             if(dispatcher == null){
                 dispatcher = BusDefaults.DISPATCHER;
             }
