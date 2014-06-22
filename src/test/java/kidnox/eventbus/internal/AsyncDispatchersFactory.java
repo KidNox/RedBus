@@ -7,7 +7,7 @@ import kidnox.eventbus.Dispatcher;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AsyncDispatchersFactory implements Factory<String, Dispatcher> {
+public class AsyncDispatchersFactory implements Factory<Dispatcher, String> {
 
     final Map<String, NamedAsyncDispatcher> dispatchers = new HashMap<String, NamedAsyncDispatcher>();
 

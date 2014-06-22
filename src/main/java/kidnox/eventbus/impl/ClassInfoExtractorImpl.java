@@ -19,9 +19,9 @@ final class ClassInfoExtractorImpl implements ClassInfoExtractor {
     final Map<String, Dispatcher> dispatcherMap = new HashMap<String, Dispatcher>();
 
     final ClassFilter classFilter;
-    final Factory<String, Dispatcher> dispatcherFactory;
+    final Factory<Dispatcher, String> dispatcherFactory;
 
-    ClassInfoExtractorImpl(ClassFilter filter, Factory<String, Dispatcher> factory) {
+    ClassInfoExtractorImpl(ClassFilter filter, Factory<Dispatcher, String> factory) {
         this.classFilter = filter == null ? ClassFilter.Filters.DEFAULT : filter;
         this.dispatcherFactory = factory == null ? BusDefaults.createDefaultDispatcherFactory() : factory;
     }

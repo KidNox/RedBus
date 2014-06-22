@@ -46,7 +46,7 @@ public final class BusFactory {
 
         DeadEventHandler deadEventHandler = null;
         ClassInfoExtractor classInfoExtractor = null;
-        Factory<String, Dispatcher> dispatcherFactory = null;
+        Factory<Dispatcher, String> dispatcherFactory = null;
         ClassFilter classFilter = null;
 
         Builder() {
@@ -72,12 +72,12 @@ public final class BusFactory {
             return this;
         }
 
-        public Builder withAnnotationFinder(ClassInfoExtractor classInfoExtractor) {
+        public Builder withClassInfoExtractor(ClassInfoExtractor classInfoExtractor) {
             this.classInfoExtractor = classInfoExtractor;
             return this;
         }
 
-        public Builder withDispatcherFactory(Factory<String, Dispatcher> factory) {
+        public Builder withDispatcherFactory(Factory<Dispatcher, String> factory) {
             this.dispatcherFactory = factory;
             return this;
         }

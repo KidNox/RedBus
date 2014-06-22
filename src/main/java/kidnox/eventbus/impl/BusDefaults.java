@@ -16,12 +16,12 @@ public class BusDefaults {
         }
     };
 
-    public static ClassInfoExtractor createDefaultAnnotationFinder(ClassFilter filter, Factory<String, Dispatcher> factory) {
+    public static ClassInfoExtractor createDefaultAnnotationFinder(ClassFilter filter, Factory<Dispatcher, String> factory) {
         return new ClassInfoExtractorImpl(filter, factory);
     }
 
-    public static Factory<String, Dispatcher> createDefaultDispatcherFactory() {
-        return new Factory<String, Dispatcher>() {
+    public static Factory<Dispatcher, String> createDefaultDispatcherFactory() {
+        return new Factory<Dispatcher, String>() {
             @Override public Dispatcher get(String s) {
                 return BusDefaults.DISPATCHER;
             }
