@@ -6,8 +6,7 @@ public abstract class AsyncDispatcher implements Dispatcher {
 
     protected abstract void dispatch(Runnable runnable);
 
-    @Override
-    public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
+    @Override public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
         dispatch(getRunnableEventSubscriber(subscriber, event));
     }
 

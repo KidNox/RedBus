@@ -1,9 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.annotations.NotNull;
 import kidnox.common.Factory;
-import kidnox.eventbus.annotations.Subscribe;
-import kidnox.eventbus.annotations.Subscriber;
 import kidnox.eventbus.impl.EventSubscriber;
 import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.internal.*;
@@ -65,8 +62,7 @@ public class CustomBusTest {
 
     @Test public void dispatcherFactoryTest() {
         bus = BusFactory.builder().withDispatcherFactory(new Factory<Dispatcher, String>() {
-            @Override
-            public Dispatcher get(@NotNull String dispatcherName) {
+            @Override public Dispatcher get(String dispatcherName) {
                 fail("must not be called");
                 return null;
             }
@@ -81,8 +77,7 @@ public class CustomBusTest {
         final SimpleDispatcher dispatcher = new SimpleDispatcher();
         BusFactory.Builder builder = BusFactory.builder();
         bus = builder.withDispatcherFactory(new Factory<Dispatcher, String>() {
-            @Override
-            public Dispatcher get(@NotNull String dispatcherName) {
+            @Override public Dispatcher get(String dispatcherName) {
                 return dispatcher;
             }
         }).create();

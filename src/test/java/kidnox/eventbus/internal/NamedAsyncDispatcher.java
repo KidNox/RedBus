@@ -1,18 +1,18 @@
 package kidnox.eventbus.internal;
 
-import kidnox.async.impl.WorkerImpl;
+import kidnox.eventbus.async.SingleThreadWorker;
 import kidnox.eventbus.impl.AsyncDispatcher;
 
 public class NamedAsyncDispatcher extends AsyncDispatcher {
 
     final String name;
-    final WorkerImpl worker;
+    final SingleThreadWorker worker;
 
     public NamedAsyncDispatcher(String name) {
-        this(name, new WorkerImpl("worker-"+name));
+        this(name, new SingleThreadWorker("worker-"+name));
     }
 
-    public NamedAsyncDispatcher(String name, WorkerImpl worker) {
+    public NamedAsyncDispatcher(String name, SingleThreadWorker worker) {
         this.name = name;
         this.worker = worker;
     }
@@ -21,13 +21,11 @@ public class NamedAsyncDispatcher extends AsyncDispatcher {
         return name;
     }
 
-    @Override
-    protected void dispatch(Runnable runnable) {
+    @Override protected void dispatch(Runnable runnable) {
         worker.execute(runnable);
     }
 
-    @Override
-    protected boolean inCurrentThread() {
+    @Override protected boolean inCurrentThread() {
         return worker.inWorkerThread();
     }
 
@@ -35,7 +33,7 @@ public class NamedAsyncDispatcher extends AsyncDispatcher {
         return worker.getWorkerThread();
     }
 
-    public WorkerImpl getWorker() {
+    public SingleThreadWorker getWorker() {
         return worker;
     }
 }

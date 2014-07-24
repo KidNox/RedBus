@@ -1,22 +1,18 @@
 package kidnox.eventbus.impl;
 
-
-import kidnox.annotations.Internal;
-import kidnox.annotations.NotNull;
 import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.Element;
 import kidnox.utils.Reflections;
 
 import java.lang.reflect.Method;
 
-@Internal
-public class EventSubscriber extends Element {
+public final class EventSubscriber extends Element {
 
-    protected final Dispatcher dispatcher;
-    protected final AsyncDispatcher asyncDispatcher;
+    final Dispatcher dispatcher;
+    final AsyncDispatcher asyncDispatcher;
 
-    protected EventSubscriber(@NotNull Class eventClass, @NotNull Object target,
-                              @NotNull Method method, @NotNull Dispatcher dispatcher) {
+    EventSubscriber(Class eventClass, Object target,
+                    Method method, Dispatcher dispatcher) {
         super(eventClass, target, method);
         this.dispatcher = dispatcher;
 
@@ -27,7 +23,7 @@ public class EventSubscriber extends Element {
         }
     }
 
-    protected void dispatch(Object event) {
+    void dispatch(Object event) {
         if (asyncDispatcher != null && asyncDispatcher.inCurrentThread()) {
             invoke(event);
         } else {
@@ -35,8 +31,7 @@ public class EventSubscriber extends Element {
         }
     }
 
-    @Override
-    protected Object invoke(Object event) {
+    @Override protected Object invoke(Object event) {
         return Reflections.invokeMethod(target, method, event);
     }
 }

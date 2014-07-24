@@ -8,8 +8,7 @@ public class SimpleDispatcher implements Dispatcher {
     EventSubscriber currentSubscriber;
     Object currentEvent;
 
-    @Override
-    public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
+    @Override public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
         currentSubscriber = subscriber;
         currentEvent = event;
     }

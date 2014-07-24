@@ -1,8 +1,7 @@
 package kidnox.eventbus.internal;
 
-
-import kidnox.eventbus.annotations.Subscribe;
-import kidnox.eventbus.annotations.Subscriber;
+import kidnox.eventbus.Subscribe;
+import kidnox.eventbus.Subscriber;
 
 import static org.junit.Assert.fail;
 
@@ -11,8 +10,7 @@ public class SimpleSubscriber {
 
     private Object currentEvent;
 
-    @Subscribe
-    public void publicObtainString(Object event) {
+    @Subscribe public void publicObtainString(Object event) {
         currentEvent = event;
     }
 

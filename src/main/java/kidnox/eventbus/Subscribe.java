@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kidnox.eventbus.annotations;
+package kidnox.eventbus;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

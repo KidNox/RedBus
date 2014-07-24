@@ -6,8 +6,7 @@ public class SimpleDeadEventHandler implements DeadEventHandler{
 
     Object currentEvent;
 
-    @Override
-    public void onDeadEvent(Object event) {
+    @Override public void onDeadEvent(Object event) {
         currentEvent = event;
     }
 

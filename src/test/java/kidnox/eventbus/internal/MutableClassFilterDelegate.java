@@ -6,8 +6,7 @@ public class MutableClassFilterDelegate implements ClassFilter{
 
     ClassFilter internal;
 
-    @Override
-    public boolean skipClass(Class clazz) {
+    @Override public boolean skipClass(Class clazz) {
         return internal != null && internal.skipClass(clazz);
     }
 

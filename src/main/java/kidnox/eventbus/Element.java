@@ -1,11 +1,7 @@
 package kidnox.eventbus;
 
-import kidnox.annotations.Internal;
-import kidnox.annotations.NotNull;
-
 import java.lang.reflect.Method;
 
-@Internal
 public abstract class Element {
 
     public final Class eventClass;
@@ -13,7 +9,7 @@ public abstract class Element {
     public final Method method;
     public final int hashCode;
 
-    protected Element(@NotNull Class eventClass, @NotNull Object target, @NotNull Method method) {
+    protected Element(Class eventClass, Object target, Method method) {
         this.eventClass = eventClass;
         this.target = target;
         this.method = method;
@@ -26,8 +22,7 @@ public abstract class Element {
 
     protected abstract Object invoke(Object event);
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "Element{" +
                 "eventClass=" + eventClass +
                 ", target=" + target +
@@ -35,13 +30,11 @@ public abstract class Element {
                 '}';
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         return hashCode;
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if (obj instanceof Element) {
             Element that = (Element) obj;
             // from guava

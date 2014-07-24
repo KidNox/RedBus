@@ -1,12 +1,11 @@
 package kidnox.eventbus.impl;
 
-import kidnox.annotations.Beta;
 import kidnox.eventbus.Bus;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-@Beta
+/**beta*/
 public class AsyncBusDelegate implements Bus {
 
     final Executor busExecutor;
@@ -17,8 +16,7 @@ public class AsyncBusDelegate implements Bus {
         this.bus = bus;
     }
 
-    @Override
-    public void register(final Object target) {
+    @Override public void register(final Object target) {
         execute(new Runnable() {
             @Override
             public void run() {
@@ -27,8 +25,7 @@ public class AsyncBusDelegate implements Bus {
         });
     }
 
-    @Override
-    public void unregister(final Object target) {
+    @Override public void unregister(final Object target) {
         execute(new Runnable() {
             @Override
             public void run() {
@@ -37,8 +34,7 @@ public class AsyncBusDelegate implements Bus {
         });
     }
 
-    @Override
-    public void post(final Object event) {
+    @Override public void post(final Object event) {
         execute(new Runnable() {
             @Override
             public void run() {
@@ -51,8 +47,7 @@ public class AsyncBusDelegate implements Bus {
         busExecutor.execute(runnable);
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return bus.toString();
     }
 }

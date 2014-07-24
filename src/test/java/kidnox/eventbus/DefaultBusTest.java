@@ -1,9 +1,7 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.annotations.Subscribe;
-import kidnox.eventbus.annotations.Subscriber;
-import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.internal.BadSubscriber;
+import kidnox.eventbus.internal.InterfaceSubscriber;
 import kidnox.eventbus.internal.SimpleSubscriber;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +9,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.*;
-//TODO check annotations cache!
+
 public class DefaultBusTest {
 
     private Bus bus;
@@ -126,8 +124,7 @@ public class DefaultBusTest {
         class Subscriber1 extends SimpleSubscriber {}
 
         class Subscriber2 extends SimpleSubscriber {
-            @Subscribe
-            public void obtainEvent(Object event) {
+            @Subscribe public void obtainEvent(Object event) {
                 fail("class not annotated with @Subscriber!");
             }
         }
@@ -156,6 +153,13 @@ public class DefaultBusTest {
         assertEquals("Subscriber obtain wrong event", event, subscriber3.getCurrentEvent());
 
         assertNotNull("Subscriber doesn't obtain event", subscriber3.mEvent);
+    }
+
+    @Test public void iSubscriberTest() {
+        InterfaceSubscriber interfaceSubscriber = new InterfaceSubscriber();
+        bus.register(interfaceSubscriber);
+        bus.post(new Object());
+        assertNotNull(interfaceSubscriber.getCurrentEvent());
     }
 
 

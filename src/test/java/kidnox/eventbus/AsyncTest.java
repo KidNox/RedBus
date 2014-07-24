@@ -1,14 +1,15 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.annotations.Subscribe;
-import kidnox.eventbus.annotations.Subscriber;
+import kidnox.common.Factory;
+import kidnox.eventbus.async.AsyncDispatcherExt;
+import kidnox.eventbus.async.AsyncDispatcherFactory;
+import kidnox.eventbus.async.PackageLocalProvider;
+import kidnox.eventbus.async.SingleThreadWorker;
+import kidnox.eventbus.impl.AsyncDispatcher;
 import kidnox.eventbus.internal.AbsAsyncSubscriber;
 import kidnox.eventbus.internal.AsyncDispatchersFactory;
 import kidnox.eventbus.internal.NamedAsyncDispatcher;
-import kidnox.eventbus.internal.SimpleSubscriber;
 import org.junit.Test;
-
-import java.util.concurrent.Executor;
 
 import static org.junit.Assert.*;
 
@@ -105,6 +106,35 @@ public class AsyncTest {
         dispatcher1.getThread().join();
 
         assertNotNull("wrong event", subscriberClass.getCurrentEvent());
+    }
+
+    @Test public void testAsyncDispatcherFactory() throws InterruptedException {
+        final Factory<Dispatcher, String> factory = new AsyncDispatcherFactory()
+                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final Bus bus = BusFactory.builder()
+                .withDispatcherFactory(factory)
+                .create();
+
+        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.get(Dispatcher.WORKER);
+        final SingleThreadWorker worker = PackageLocalProvider.getSingleThreadWorker(dispatcher);
+
+        @Subscriber(Dispatcher.WORKER)
+        class SubscriberClass extends AbsAsyncSubscriber {
+            @Subscribe public void obtainEvent(Object event) {
+                currentEvent = event;
+                assertTrue(PackageLocalProvider.inCurrentThread(dispatcher));
+                worker.dismiss(true);
+            }
+        }
+
+        SubscriberClass subscriberClass = new SubscriberClass();
+        bus.register(subscriberClass);
+        bus.post(new Object());
+
+        worker.getWorkerThread().join();
+
+        assertNotNull(subscriberClass.getCurrentEvent());
+
     }
 
     private void checkThread(Thread expected) {

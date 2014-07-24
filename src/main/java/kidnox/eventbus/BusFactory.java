@@ -1,6 +1,7 @@
 package kidnox.eventbus;
 
 import kidnox.common.Factory;
+import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.impl.AsyncBusDelegate;
 import kidnox.eventbus.impl.BusDefaults;
 import kidnox.eventbus.impl.BusImpl;
@@ -8,7 +9,7 @@ import kidnox.utils.Strings;
 
 public final class BusFactory {
 
-    static final int SINGLE_THREAD_BUS  = 1;
+    static final int NO_SYNC_BUS        = 1;
     static final int SYNCHRONIZED_BUS   = 2;
     static final int ASYNC_BUS          = 3;
 
@@ -21,7 +22,7 @@ public final class BusFactory {
 
     static Bus wrapBusForType(Bus bus, int type) {
         switch (type) {
-            case SINGLE_THREAD_BUS:
+            case NO_SYNC_BUS:
                 return bus;
             case SYNCHRONIZED_BUS:
                 return getSynchronizedDelegate(bus);
@@ -57,8 +58,8 @@ public final class BusFactory {
             return this;
         }
 
-        public Builder singleThread() {
-            this.type = SINGLE_THREAD_BUS;
+        public Builder notSynchronized() {
+            this.type = NO_SYNC_BUS;
             return this;
         }
 
@@ -72,13 +73,13 @@ public final class BusFactory {
             return this;
         }
 
-        public Builder withClassInfoExtractor(ClassInfoExtractor classInfoExtractor) {
-            this.classInfoExtractor = classInfoExtractor;
+        public Builder withDispatcherFactory(Factory<Dispatcher, String> factory) {
+            this.dispatcherFactory = factory;
             return this;
         }
 
-        public Builder withDispatcherFactory(Factory<Dispatcher, String> factory) {
-            this.dispatcherFactory = factory;
+        public Builder withAndroidDefaultDispatchers() {
+            this.dispatcherFactory = AsyncDispatcherFactory.getAndroidDispatcherFactory();
             return this;
         }
 
@@ -88,8 +89,7 @@ public final class BusFactory {
         }
 
         public Bus create() {
-            if (classInfoExtractor == null)
-                classInfoExtractor = BusDefaults.createDefaultAnnotationFinder(classFilter, dispatcherFactory);
+            classInfoExtractor = BusDefaults.createDefaultExtractor(classFilter, dispatcherFactory);
             return createBus(name, type, classInfoExtractor, deadEventHandler, null);
         }
     }
@@ -97,23 +97,19 @@ public final class BusFactory {
     public static Bus getSynchronizedDelegate(final Bus bus) {
         if(bus == null) throw new NullPointerException();
         return new Bus() {
-            @Override
-            public synchronized void register(Object target) {
+            @Override public synchronized void register(Object target) {
                 bus.register(target);
             }
 
-            @Override
-            public synchronized void unregister(Object target) {
+            @Override public synchronized void unregister(Object target) {
                 bus.unregister(target);
             }
 
-            @Override
-            public synchronized void post(Object event) {
+            @Override public synchronized void post(Object event) {
                 bus.post(event);
             }
 
-            @Override
-            public String toString() {
+            @Override public String toString() {
                 return bus.toString();
             }
         };

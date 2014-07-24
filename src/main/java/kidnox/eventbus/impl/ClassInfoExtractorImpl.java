@@ -6,8 +6,8 @@ import kidnox.eventbus.ClassInfoExtractor;
 import kidnox.eventbus.ClassFilter;
 import kidnox.eventbus.ClassInfo;
 import kidnox.eventbus.Dispatcher;
-import kidnox.eventbus.annotations.Subscribe;
-import kidnox.eventbus.annotations.Subscriber;
+import kidnox.eventbus.Subscribe;
+import kidnox.eventbus.Subscriber;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -22,20 +22,19 @@ final class ClassInfoExtractorImpl implements ClassInfoExtractor {
     final Factory<Dispatcher, String> dispatcherFactory;
 
     ClassInfoExtractorImpl(ClassFilter filter, Factory<Dispatcher, String> factory) {
-        this.classFilter = filter == null ? ClassFilter.Filters.DEFAULT : filter;
+        this.classFilter = filter == null ? ClassFilter.JAVA : filter;
         this.dispatcherFactory = factory == null ? BusDefaults.createDefaultDispatcherFactory() : factory;
     }
 
-    @SuppressWarnings({"RedundantCast", "RedundantTypeArguments"})
-    @Override
-    public ClassInfo findClassInfo(Class clazz) {
+    @SuppressWarnings("unchecked")
+    @Override public ClassInfo findClassInfo(Class clazz) {
         ClassInfo classInfo = cache.get(clazz);
         if(classInfo != null) return classInfo;
 
         List<Pair<Dispatcher, Map<Class, Method>>> dispatchersToTypedMethodList = null;
         for(Class mClass = clazz; !skipClass(mClass); mClass = mClass.getSuperclass()){
 
-            Subscriber subscriberAnnotation = (Subscriber)mClass.<Subscriber>getAnnotation(Subscriber.class);
+            Subscriber subscriberAnnotation = (Subscriber) mClass.getAnnotation(Subscriber.class);
 
             if(subscriberAnnotation != null){
                 final Map<Class, Method> subscribers = getSubscribedMethods(mClass);
@@ -57,8 +56,8 @@ final class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return classInfo;
     }
 
-    protected boolean skipClass(Class clazz){
-        return clazz == null || classFilter.skipClass(clazz) || clazz.isInterface();
+    boolean skipClass(Class clazz) {
+        return clazz == null || classFilter.skipClass(clazz);
     }
 
     private Map<Class, Method> getSubscribedMethods(Class targetClass){
