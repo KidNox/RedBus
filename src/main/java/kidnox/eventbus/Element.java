@@ -23,7 +23,7 @@ public abstract class Element {
     protected abstract Object invoke(Object event);
 
     @Override public String toString() {
-        return "Element{" +
+        return getClass().getSimpleName()+"{" +
                 "eventClass=" + eventClass +
                 ", target=" + target +
                 ", method=" + method +

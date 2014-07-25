@@ -17,7 +17,7 @@ public final class BusFactory {
 
     static Bus createBus(String name, int type, ClassInfoExtractor classInfoExtractor,
                          DeadEventHandler deadEventHandler, EventLogger eventLogger) {
-        return wrapBusForType(new BusImpl(name, classInfoExtractor, deadEventHandler), type);
+        return wrapBusForType(new BusImpl(name, classInfoExtractor, eventLogger, deadEventHandler), type);
     }
 
     static Bus wrapBusForType(Bus bus, int type) {
@@ -45,10 +45,12 @@ public final class BusFactory {
         int type = DEFAULT_BUS;
         String name = Strings.EMPTY;
 
+        EventLogger eventLogger = null;
         DeadEventHandler deadEventHandler = null;
-        ClassInfoExtractor classInfoExtractor = null;
         Factory<Dispatcher, String> dispatcherFactory = null;
         ClassFilter classFilter = null;
+
+        ClassInfoExtractor classInfoExtractor = null;
 
         Builder() {
         }
@@ -65,6 +67,11 @@ public final class BusFactory {
 
         public Builder asyncBus() {
             this.type = ASYNC_BUS;
+            return this;
+        }
+
+        public Builder withEventLogger(EventLogger eventLogger) {
+            this.eventLogger = eventLogger;
             return this;
         }
 
@@ -90,7 +97,7 @@ public final class BusFactory {
 
         public Bus create() {
             classInfoExtractor = BusDefaults.createDefaultExtractor(classFilter, dispatcherFactory);
-            return createBus(name, type, classInfoExtractor, deadEventHandler, null);
+            return createBus(name, type, classInfoExtractor, deadEventHandler, eventLogger);
         }
     }
 
@@ -110,7 +117,7 @@ public final class BusFactory {
             }
 
             @Override public String toString() {
-                return bus.toString();
+                return "Synchronized"+bus.toString();
             }
         };
     }

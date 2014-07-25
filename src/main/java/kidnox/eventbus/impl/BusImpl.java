@@ -14,12 +14,15 @@ public class BusImpl implements Bus {
     protected final Map<Class, Set<EventSubscriber>> eventTypeToSubscribersMap = new HashMap<Class, Set<EventSubscriber>>();
 
     protected final String name;
+    protected final EventLogger logger;
     protected final DeadEventHandler deadEventHandler;
 
     protected final ClassInfoExtractor classInfoExtractor;
 
-    public BusImpl(String name, ClassInfoExtractor classInfoExtractor, DeadEventHandler deadEventHandler) {
+    public BusImpl(String name, ClassInfoExtractor classInfoExtractor,
+                   EventLogger logger, DeadEventHandler deadEventHandler) {
         this.name = name;
+        this.logger = logger;
         this.deadEventHandler = deadEventHandler;
         this.classInfoExtractor = classInfoExtractor;
     }
@@ -62,12 +65,13 @@ public class BusImpl implements Bus {
 
     @Override public void post(Object event) {
         Set<EventSubscriber> set = eventTypeToSubscribersMap.get(event.getClass());
+        if(logger != null) logger.logEvent(event, set);
         if (kidnox.utils.Collections.notEmpty(set)) {
             for (EventSubscriber subscriber : set) {
                 subscriber.dispatch(event);
             }
         } else {
-            onDeadEvent(event);
+            if(deadEventHandler != null) deadEventHandler.onDeadEvent(event);
         }
     }
 
@@ -75,13 +79,8 @@ public class BusImpl implements Bus {
         return classInfoExtractor.findClassInfo(clazz);
     }
 
-    protected void onDeadEvent(Object event){
-        if(deadEventHandler != null)
-            deadEventHandler.onDeadEvent(event);
-    }
-
     @Override public String toString() {
-        return getClass().getSimpleName() + '{' + name + '}';
+        return "Bus{" + name + '}';
     }
 
     static List<EventSubscriber> getSubscribers(Object target, ClassInfo classInfo){

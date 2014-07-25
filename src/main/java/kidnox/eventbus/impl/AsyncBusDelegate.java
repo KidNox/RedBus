@@ -48,6 +48,6 @@ public class AsyncBusDelegate implements Bus {
     }
 
     @Override public String toString() {
-        return bus.toString();
+        return "Async"+bus.toString();
     }
 }

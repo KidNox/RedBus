@@ -4,6 +4,7 @@ import kidnox.common.Factory;
 import kidnox.eventbus.impl.EventSubscriber;
 import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.internal.*;
+import kidnox.utils.Collections;
 import org.junit.Test;
 
 import java.util.List;
@@ -96,6 +97,19 @@ public class CustomBusTest {
         assertNotNull("dispatchSubscribe not called, event null", dispatcher.getCurrentEvent());
         assertEquals("wrong event in dispatcher", event, dispatcher.getCurrentEvent());
         assertTrue("wrong event subscriber in dispatcher", eventSubscribers.contains(dispatcher.getCurrentSubscriber()));
+    }
+
+    @Test public void eventLoggerTest() {
+        final EventLoggerImpl logger = new EventLoggerImpl();
+        bus = BusFactory.builder().withEventLogger(logger).create();
+
+        SimpleSubscriber simpleSubscriber = new SimpleSubscriber();
+        bus.register(simpleSubscriber);
+
+        bus.post(new Object());
+
+        assertNotNull(logger.getEvent());
+        assertTrue(Collections.notEmpty(logger.getElementSet()));
     }
 
 }
