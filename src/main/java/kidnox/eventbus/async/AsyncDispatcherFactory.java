@@ -50,6 +50,10 @@ public class AsyncDispatcherFactory implements Factory<Dispatcher, String> {
             @Override protected void dispatch(Runnable runnable) {
                 handler.post(runnable);
             }
+
+            @Override protected boolean inCurrentThread() {
+                return Looper.myLooper() == Looper.getMainLooper();
+            }
         };
     }
 
