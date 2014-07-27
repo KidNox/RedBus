@@ -6,7 +6,7 @@
 
     <groupId>com.kidnox</groupId>
     <artifactId>eventbus</artifactId>
-    <version>0.7.5</version>
+    <version>0.8.0</version>
 
     <licenses>
         <license>
@@ -84,12 +84,6 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>com.kidnox</groupId>
-            <artifactId>nox-common</artifactId>
-            <version>[0.5.4,)</version>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

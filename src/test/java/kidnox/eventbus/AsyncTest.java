@@ -1,11 +1,9 @@
 package kidnox.eventbus;
 
-import kidnox.common.Factory;
 import kidnox.eventbus.async.AsyncDispatcherExt;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.async.PackageLocalProvider;
 import kidnox.eventbus.async.SingleThreadWorker;
-import kidnox.eventbus.impl.AsyncDispatcher;
 import kidnox.eventbus.internal.AbsAsyncSubscriber;
 import kidnox.eventbus.internal.AsyncDispatchersFactory;
 import kidnox.eventbus.internal.NamedAsyncDispatcher;
@@ -109,13 +107,13 @@ public class AsyncTest {
     }
 
     @Test public void testAsyncDispatcherFactory() throws InterruptedException {
-        final Factory<Dispatcher, String> factory = new AsyncDispatcherFactory()
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = BusFactory.builder()
                 .withDispatcherFactory(factory)
                 .create();
 
-        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.get(Dispatcher.WORKER);
+        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.getDispatcher(Dispatcher.WORKER);
         final SingleThreadWorker worker = PackageLocalProvider.getSingleThreadWorker(dispatcher);
 
         @Subscriber(Dispatcher.WORKER)

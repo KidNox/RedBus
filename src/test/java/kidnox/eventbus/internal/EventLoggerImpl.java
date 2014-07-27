@@ -1,25 +1,28 @@
 package kidnox.eventbus.internal;
 
-import kidnox.eventbus.Element;
 import kidnox.eventbus.EventLogger;
-
-import java.util.Set;
 
 public class EventLoggerImpl implements EventLogger {
 
     Object event;
-    Set<? extends Element> elementSet;
+    Object element;
+    String what;
 
-    @Override public void logEvent(Object event, Set<? extends Element> elementSet) {
+    @Override public void logEvent(Object event, Object element, String what) {
         this.event = event;
-        this.elementSet = elementSet;
+        this.element = element;
+        this.what = what;
     }
 
     public Object getEvent() {
         return event;
     }
 
-    public Set<? extends Element> getElementSet() {
-        return elementSet;
+    public Object getElement() {
+        return element;
+    }
+
+    public String getWhat() {
+        return what;
     }
 }

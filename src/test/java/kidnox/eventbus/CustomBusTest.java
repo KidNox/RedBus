@@ -1,10 +1,9 @@
 package kidnox.eventbus;
 
-import kidnox.common.Factory;
+import kidnox.eventbus.impl.BusImpl;
 import kidnox.eventbus.impl.EventSubscriber;
 import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.internal.*;
-import kidnox.utils.Collections;
 import org.junit.Test;
 
 import java.util.List;
@@ -34,36 +33,9 @@ public class CustomBusTest {
         assertEquals("wrong event", event, deadEventHandler.getCurrentEvent());
     }
 
-    @Test public void classFilterTest() {
-        MutableClassFilterDelegate classFilterDelegate = new MutableClassFilterDelegate();
-        bus = BusFactory.builder().withClassFilter(classFilterDelegate).create();
-
-        @Subscriber
-        class SubscriberClass1 {
-            @Subscribe public void obtainEvent(Object event) {
-                fail("this class must be filtered");
-            }
-        }
-
-        classFilterDelegate.set(new ClassFilter() {
-            @Override
-            public boolean skipClass(Class clazz) {
-                return clazz == SubscriberClass1.class;
-            }
-        });
-
-        SimpleSubscriber subscriber = new SimpleSubscriber();
-        bus.register(subscriber);
-        bus.register(new SubscriberClass1());
-
-        Object event = new Object();
-        bus.post(event);
-        assertEquals("wrong event", event, subscriber.getCurrentEvent());
-    }
-
     @Test public void dispatcherFactoryTest() {
-        bus = BusFactory.builder().withDispatcherFactory(new Factory<Dispatcher, String>() {
-            @Override public Dispatcher get(String dispatcherName) {
+        BusImpl bus = (BusImpl) BusFactory.builder().withDispatcherFactory(new Dispatcher.Factory() {
+            @Override public Dispatcher getDispatcher(String name) {
                 fail("must not be called");
                 return null;
             }
@@ -77,18 +49,16 @@ public class CustomBusTest {
 
         final SimpleDispatcher dispatcher = new SimpleDispatcher();
         BusFactory.Builder builder = BusFactory.builder();
-        bus = builder.withDispatcherFactory(new Factory<Dispatcher, String>() {
-            @Override public Dispatcher get(String dispatcherName) {
+        bus = (BusImpl) builder.withDispatcherFactory(new Dispatcher.Factory() {
+            @Override public Dispatcher getDispatcher(String dispatcherName) {
                 return dispatcher;
             }
         }).create();
 
-        ClassInfoExtractor classInfoExtractor = builder.classInfoExtractor;
-
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
 
-        List<EventSubscriber> eventSubscribers = PackageLocalProvider.getSubscribers(subscriber, classInfoExtractor);
+        List<EventSubscriber> eventSubscribers = PackageLocalProvider.getSubscribers(bus, subscriber);
         assertNotNull("valid subscriber without event subscribers", eventSubscribers);
 
         Object event = new Object();
@@ -109,7 +79,21 @@ public class CustomBusTest {
         bus.post(new Object());
 
         assertNotNull(logger.getEvent());
-        assertTrue(Collections.notEmpty(logger.getElementSet()));
+    }
+
+    @Test public void interfaceSubscriptionTest() {
+        bus = BusFactory.builder().withValidation().create();
+        @Subscriber
+        class SubscriberClass {
+            @Subscribe public void obtainList(List list) {
+                fail("can't subscribe for interface");
+            }
+        }
+
+        try {
+            bus.register(new SubscriberClass());
+            fail("must throw exception");
+        } catch (IllegalArgumentException ignored) {}
     }
 
 }

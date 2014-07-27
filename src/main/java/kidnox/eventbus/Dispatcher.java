@@ -8,4 +8,10 @@ public interface Dispatcher {
     String WORKER   = "worker";
 
     void dispatchSubscribe(EventSubscriber subscriber, Object event);
+
+
+    interface Factory {
+        Dispatcher getDispatcher(String name);
+    }
+
 }

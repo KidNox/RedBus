@@ -3,14 +3,13 @@ package kidnox.eventbus.async;
 import android.os.Handler;
 import android.os.Looper;
 
-import kidnox.common.Factory;
 import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.impl.AsyncDispatcher;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AsyncDispatcherFactory implements Factory<Dispatcher, String> {
+public class AsyncDispatcherFactory implements Dispatcher.Factory {
 
     protected final Map<String, Dispatcher> dispatchersMap;
 
@@ -22,7 +21,7 @@ public class AsyncDispatcherFactory implements Factory<Dispatcher, String> {
         dispatchersMap = map;
     }
 
-    @Override public Dispatcher get(String s) {
+    @Override public Dispatcher getDispatcher(String s) {
         Dispatcher dispatcher = dispatchersMap.get(s);
         if(dispatcher == null) throw new NullPointerException(String.format("dispatcher for %s is not registered", s));
         return dispatcher;

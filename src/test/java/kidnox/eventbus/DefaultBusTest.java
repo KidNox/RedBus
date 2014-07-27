@@ -4,6 +4,7 @@ import kidnox.eventbus.internal.BadSubscriber;
 import kidnox.eventbus.internal.InterfaceSubscriber;
 import kidnox.eventbus.internal.SimpleSubscriber;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -76,20 +77,6 @@ public class DefaultBusTest {
         } catch (RuntimeException ignored) {}
     }
 
-    @Test public void interfaceSubscriptionTest() {
-        @Subscriber
-        class SubscriberClass {
-            @Subscribe public void obtainList(List list) {
-                fail("can't subscribe for interface");
-            }
-        }
-
-        try {
-            bus.register(new SubscriberClass());
-            fail("must throw exception");
-        } catch (IllegalArgumentException ignored) {}
-    }
-
     @Test public void eventInheritanceTest() {
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
@@ -121,6 +108,7 @@ public class DefaultBusTest {
 
     @Test public void classInheritanceTest() {
 
+        @Subscriber
         class Subscriber1 extends SimpleSubscriber {}
 
         class Subscriber2 extends SimpleSubscriber {
@@ -131,8 +119,8 @@ public class DefaultBusTest {
 
         @Subscriber
         class Subscriber3 extends SimpleSubscriber {
-            Object mEvent;
-            @Subscribe public void obtainEvent(Object event) {
+            String mEvent;
+            @Subscribe public void obtainEvent(String event) {
                 mEvent = event;
             }
         }
@@ -149,9 +137,10 @@ public class DefaultBusTest {
         bus.post(event);
 
         assertEquals("Subscriber obtain wrong event", event, subscriber1.getCurrentEvent());
-        assertEquals("Subscriber obtain wrong event", event, subscriber2.getCurrentEvent());
+        assertNull("Subscriber obtain wrong event", subscriber2.getCurrentEvent());
         assertEquals("Subscriber obtain wrong event", event, subscriber3.getCurrentEvent());
 
+        bus.post("");
         assertNotNull("Subscriber doesn't obtain event", subscriber3.mEvent);
     }
 

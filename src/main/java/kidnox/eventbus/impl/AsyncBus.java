@@ -1,26 +1,27 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.Bus;
+import kidnox.eventbus.ClassInfoExtractor;
+import kidnox.eventbus.DeadEventHandler;
+import kidnox.eventbus.EventLogger;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-/**beta*/
-public class AsyncBusDelegate implements Bus {
+public class AsyncBus extends BusImpl {
 
     final Executor busExecutor;
-    final Bus bus;
 
-    public AsyncBusDelegate(Bus bus) {
+    public AsyncBus(String name, ClassInfoExtractor classInfoExtractor,
+                    EventLogger logger, DeadEventHandler deadEventHandler) {
+        super(name, classInfoExtractor, logger, deadEventHandler);
         busExecutor = Executors.newSingleThreadExecutor();
-        this.bus = bus;
     }
 
     @Override public void register(final Object target) {
         execute(new Runnable() {
             @Override
             public void run() {
-                bus.register(target);
+                AsyncBus.super.register(target);
             }
         });
     }
@@ -29,7 +30,7 @@ public class AsyncBusDelegate implements Bus {
         execute(new Runnable() {
             @Override
             public void run() {
-                bus.unregister(target);
+                AsyncBus.super.unregister(target);
             }
         });
     }
@@ -38,7 +39,7 @@ public class AsyncBusDelegate implements Bus {
         execute(new Runnable() {
             @Override
             public void run() {
-                bus.post(event);
+                AsyncBus.super.post(event);
             }
         });
     }
@@ -48,6 +49,6 @@ public class AsyncBusDelegate implements Bus {
     }
 
     @Override public String toString() {
-        return "Async"+bus.toString();
+        return "Async"+super.toString();
     }
 }

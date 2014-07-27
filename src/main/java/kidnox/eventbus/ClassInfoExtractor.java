@@ -1,5 +1,11 @@
 package kidnox.eventbus;
 
 public interface ClassInfoExtractor {
-    ClassInfo findClassInfo(Class clazz);
+
+    ClassType getTypeOf(Class clazz);
+
+    ClassSubscribers getClassSubscribers(Class clazz);
+
+    ClassProducers getClassProducers(Class clazz);
+
 }

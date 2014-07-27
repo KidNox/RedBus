@@ -1,11 +1,10 @@
 package kidnox.eventbus;
 
-import kidnox.common.Factory;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
-import kidnox.eventbus.impl.AsyncBusDelegate;
+import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.impl.BusDefaults;
 import kidnox.eventbus.impl.BusImpl;
-import kidnox.utils.Strings;
+import kidnox.eventbus.impl.SynchronizedBus;
 
 public final class BusFactory {
 
@@ -17,17 +16,13 @@ public final class BusFactory {
 
     static Bus createBus(String name, int type, ClassInfoExtractor classInfoExtractor,
                          DeadEventHandler deadEventHandler, EventLogger eventLogger) {
-        return wrapBusForType(new BusImpl(name, classInfoExtractor, eventLogger, deadEventHandler), type);
-    }
-
-    static Bus wrapBusForType(Bus bus, int type) {
         switch (type) {
             case NO_SYNC_BUS:
-                return bus;
+                return new BusImpl(name, classInfoExtractor, eventLogger, deadEventHandler);
             case SYNCHRONIZED_BUS:
-                return getSynchronizedDelegate(bus);
+                return new SynchronizedBus(name, classInfoExtractor, eventLogger, deadEventHandler);
             case ASYNC_BUS:
-                return new AsyncBusDelegate(bus);
+                return new AsyncBus(name, classInfoExtractor, eventLogger, deadEventHandler);
             default:
                 throw new IllegalArgumentException();
         }
@@ -42,13 +37,14 @@ public final class BusFactory {
     }
 
     public static class Builder {
+
         int type = DEFAULT_BUS;
-        String name = Strings.EMPTY;
+        String name = "";
+        boolean validate = false;
 
         EventLogger eventLogger = null;
         DeadEventHandler deadEventHandler = null;
-        Factory<Dispatcher, String> dispatcherFactory = null;
-        ClassFilter classFilter = null;
+        Dispatcher.Factory dispatcherFactory = null;
 
         ClassInfoExtractor classInfoExtractor = null;
 
@@ -80,7 +76,7 @@ public final class BusFactory {
             return this;
         }
 
-        public Builder withDispatcherFactory(Factory<Dispatcher, String> factory) {
+        public Builder withDispatcherFactory(Dispatcher.Factory factory) {
             this.dispatcherFactory = factory;
             return this;
         }
@@ -90,36 +86,16 @@ public final class BusFactory {
             return this;
         }
 
-        public Builder withClassFilter(ClassFilter classFilter) {
-            this.classFilter = classFilter;
+        public Builder withValidation() {
+            validate = true;
             return this;
         }
 
         public Bus create() {
-            classInfoExtractor = BusDefaults.createDefaultExtractor(classFilter, dispatcherFactory);
+            classInfoExtractor = validate ? BusDefaults.createValidationExtractor(dispatcherFactory)
+                    : BusDefaults.createDefaultExtractor(dispatcherFactory);
             return createBus(name, type, classInfoExtractor, deadEventHandler, eventLogger);
         }
-    }
-
-    public static Bus getSynchronizedDelegate(final Bus bus) {
-        if(bus == null) throw new NullPointerException();
-        return new Bus() {
-            @Override public synchronized void register(Object target) {
-                bus.register(target);
-            }
-
-            @Override public synchronized void unregister(Object target) {
-                bus.unregister(target);
-            }
-
-            @Override public synchronized void post(Object event) {
-                bus.post(event);
-            }
-
-            @Override public String toString() {
-                return "Synchronized"+bus.toString();
-            }
-        };
     }
 
     //no instance

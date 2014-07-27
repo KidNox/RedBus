@@ -1,7 +1,7 @@
 package kidnox.eventbus.impl;
 
-import kidnox.common.Pair;
 import kidnox.eventbus.*;
+import kidnox.eventbus.utils.Utils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -10,14 +10,20 @@ import static java.util.Map.Entry;
 
 public class BusImpl implements Bus {
 
-    protected final Map<Object, List<EventSubscriber>> instanceToSubscribersMap = new HashMap<Object, List<EventSubscriber>>();
-    protected final Map<Class, Set<EventSubscriber>> eventTypeToSubscribersMap = new HashMap<Class, Set<EventSubscriber>>();
+    public static final String POST = "post";
+    public static final String PRODUCE = "produce";
 
-    protected final String name;
-    protected final EventLogger logger;
-    protected final DeadEventHandler deadEventHandler;
+    final Map<Object, List<EventSubscriber>> instanceToSubscribersMap = new HashMap<Object, List<EventSubscriber>>();
+    final Map<Class, Set<EventSubscriber>> eventTypeToSubscribersMap = new HashMap<Class, Set<EventSubscriber>>();
 
-    protected final ClassInfoExtractor classInfoExtractor;
+    final Map<Object, Set<EventProducer>> instanceToProducersMap = new HashMap<Object, Set<EventProducer>>();
+    final Map<Class, EventProducer> eventTypeToProducerMap = new HashMap<Class, EventProducer>();
+
+    final String name;
+    final EventLogger logger;
+    final DeadEventHandler deadEventHandler;
+
+    final ClassInfoExtractor classInfoExtractor;
 
     public BusImpl(String name, ClassInfoExtractor classInfoExtractor,
                    EventLogger logger, DeadEventHandler deadEventHandler) {
@@ -28,73 +34,140 @@ public class BusImpl implements Bus {
     }
 
     @Override public void register(Object target) {
-        final ClassInfo classInfo = getClassInfo(target.getClass());
-        if(ClassInfo.isNullOrEmpty(classInfo)){
-            instanceToSubscribersMap.put(target, Collections.<EventSubscriber>emptyList());
-            return;
-        }
-        final List<EventSubscriber> subscribers = getSubscribers(target, classInfo);
-
-        if (instanceToSubscribersMap.put(target, subscribers) != null)
-            throwRuntimeException("register", target, " already registered");
-
-        for (EventSubscriber subscriber : subscribers) {
-            Set<EventSubscriber> set = eventTypeToSubscribersMap.get(subscriber.eventClass);
-            if (set == null) {
-                set = new HashSet<EventSubscriber>();
-                eventTypeToSubscribersMap.put(subscriber.eventClass, set);
-            }
-            if (!set.add(subscriber))
-                throwRuntimeException("register", subscriber, " already registered");
+        final Class targetClass = target.getClass();
+        switch (classInfoExtractor.getTypeOf(targetClass)) {
+            case SUBSCRIBER:
+                registerSubscriber(target, targetClass);
+                break;
+            case PRODUCER:
+                registerProducer(target, targetClass);
+                break;
+            case NONE:
+                if(instanceToSubscribersMap.put(target, Collections.<EventSubscriber>emptyList()) != null)
+                    throwRuntimeException("register", target, " already registered");
+                break;
         }
     }
 
     @SuppressWarnings("ConstantConditions")
     @Override public void unregister(Object target) {
-        final List<EventSubscriber> subscribers = instanceToSubscribersMap.remove(target);
-        if (subscribers == null)
-            throwRuntimeException("unregister", target, " not registered");
-
-        if(subscribers.isEmpty())
-            return;
-
-        for (EventSubscriber subscriber : subscribers) {
-            eventTypeToSubscribersMap.get(subscriber.eventClass).remove(subscriber);
+        final Class targetClass = target.getClass();
+        switch (classInfoExtractor.getTypeOf(targetClass)) {
+            case SUBSCRIBER:
+                unregisterSubscribers(target);
+                break;
+            case PRODUCER:
+                unregisterProducers(target);
+                break;
+            case NONE:
+                if(instanceToSubscribersMap.remove(target) == null)
+                    throwRuntimeException("unregister", target, " not registered");
+                break;
         }
     }
 
     @Override public void post(Object event) {
         Set<EventSubscriber> set = eventTypeToSubscribersMap.get(event.getClass());
-        if(logger != null) logger.logEvent(event, set);
-        if (kidnox.utils.Collections.notEmpty(set)) {
+        logEvent(event, set, POST);
+        if (Utils.notEmpty(set)) {
             for (EventSubscriber subscriber : set) {
-                subscriber.dispatch(event);
+                subscriber.receive(event);
             }
-        } else {
-            if(deadEventHandler != null) deadEventHandler.onDeadEvent(event);
+        } else if(deadEventHandler != null) {
+            deadEventHandler.onDeadEvent(event);
         }
     }
 
-    protected ClassInfo getClassInfo(Class clazz){
-        return classInfoExtractor.findClassInfo(clazz);
+    private void registerSubscriber(Object target, Class targetClass) {
+        final ClassSubscribers classSubscribers = classInfoExtractor.getClassSubscribers(targetClass);
+        List<EventSubscriber> subscribers;
+        if(ClassSubscribers.isNullOrEmpty(classSubscribers)) {
+            subscribers = Collections.emptyList();
+        } else {
+            final boolean checkProducers = instanceToProducersMap.size() > 0;
+            subscribers = new LinkedList<EventSubscriber>();
+            for(Entry<Class, Method> entry : classSubscribers.typedMethodsMap.entrySet()) {
+                final EventSubscriber subscriber = new EventSubscriber(entry.getKey(), target,
+                        entry.getValue(), classSubscribers.dispatcher);
+                subscribers.add(subscriber);
+                if(checkProducers) {
+                    final EventProducer producer = eventTypeToProducerMap.get(subscriber.eventClass);
+                    if(producer != null) produce(producer, subscriber);
+                }
+                Set<EventSubscriber> set = eventTypeToSubscribersMap.get(subscriber.eventClass);
+                if (set == null) {
+                    set = new HashSet<EventSubscriber>(2);
+                    eventTypeToSubscribersMap.put(subscriber.eventClass, set);
+                }
+                set.add(subscriber);
+            }
+        }
+        if (instanceToSubscribersMap.put(target, subscribers) != null)
+            throwRuntimeException("register", target, " already registered");
+    }
+
+    private void registerProducer(Object target, Class targetClass) {
+        final ClassProducers classProducers = classInfoExtractor.getClassProducers(targetClass);
+        Set<EventProducer> producers;
+        if(ClassProducers.isNullOrEmpty(classProducers)) {
+            producers = Collections.emptySet();
+        } else {
+            producers = new HashSet<EventProducer>(classProducers.typedMethodsMap.size());
+            for(Entry<Class, Method> entry : classProducers.typedMethodsMap.entrySet()) {
+                final EventProducer producer = new EventProducer(entry.getKey(), target, entry.getValue());
+                if(eventTypeToProducerMap.put(producer.eventClass, producer) != null) {
+                    throwRuntimeException("register", target, " producer for event "
+                            + producer.eventClass +" already registered");
+                }
+                producers.add(producer);
+                final Set<EventSubscriber> subscribers = eventTypeToSubscribersMap.get(producer.eventClass);
+                if(Utils.notEmpty(subscribers)) {
+                    for(EventSubscriber subscriber : subscribers) {
+                        produce(producer, subscriber);
+                    }
+                }
+            }
+        }
+        if (instanceToProducersMap.put(target, producers) != null)
+            throwRuntimeException("register", target, " already registered");
+    }
+
+    private void unregisterSubscribers(Object target) {
+        final List<EventSubscriber> subscribers = instanceToSubscribersMap.remove(target);
+        if (subscribers == null) throwRuntimeException("unregister", target, " not registered");
+        else if(!subscribers.isEmpty()){
+            for (EventSubscriber subscriber : subscribers) {
+                eventTypeToSubscribersMap.get(subscriber.eventClass).remove(subscriber);
+            }
+        }
+    }
+
+    private void unregisterProducers(Object target) {
+        final Set<EventProducer> producers = instanceToProducersMap.remove(target);
+        if (producers == null) throwRuntimeException("unregister", target, " not registered");
+        else if(!producers.isEmpty()) {
+            for(EventProducer producer : producers) {
+                eventTypeToProducerMap.remove(producer.eventClass);
+            }
+        }
+    }
+
+    private void produce(EventProducer producer, EventSubscriber subscriber) {
+        Object event = producer.invoke(null);
+        logEvent(event, subscriber, PRODUCE);
+        subscriber.receive(event);
+    }
+
+    private void logEvent(Object event, Object element, String what) {
+        if(logger != null) logger.logEvent(event, element, what);
+    }
+
+    protected void throwRuntimeException(String action, Object cause, String message) {
+        throw new IllegalStateException(action + " was failed in " + toString() + ", " + cause + message);
     }
 
     @Override public String toString() {
         return "Bus{" + name + '}';
     }
 
-    static List<EventSubscriber> getSubscribers(Object target, ClassInfo classInfo){
-        final LinkedList<EventSubscriber> subscribers = new LinkedList<EventSubscriber>();
-        for(Pair<Dispatcher, Map<Class, Method>> dispatcherEntry : classInfo.dispatchersToTypedMethodList){
-            final Dispatcher dispatcher = dispatcherEntry.left;
-            for(Entry<Class, Method> methodEntry : dispatcherEntry.right.entrySet()){
-                subscribers.add(new EventSubscriber(methodEntry.getKey(), target, methodEntry.getValue(), dispatcher));
-            }
-        }
-        return subscribers;
-    }
-
-    protected void throwRuntimeException(String action, Object cause, String message) {
-        throw new IllegalStateException(action + " was failed in " + toString() + ", " + cause + message);
-    }
 }
