@@ -81,19 +81,4 @@ public class CustomBusTest {
         assertNotNull(logger.getEvent());
     }
 
-    @Test public void interfaceSubscriptionTest() {
-        bus = BusFactory.builder().withValidation().create();
-        @Subscriber
-        class SubscriberClass {
-            @Subscribe public void obtainList(List list) {
-                fail("can't subscribe for interface");
-            }
-        }
-
-        try {
-            bus.register(new SubscriberClass());
-            fail("must throw exception");
-        } catch (IllegalArgumentException ignored) {}
-    }
-
 }
