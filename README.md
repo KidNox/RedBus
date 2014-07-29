@@ -1,4 +1,4 @@
-nox-bus
+RedBus
 =======
 
 Eventbus like otto/guava, but with threads dispatchers
