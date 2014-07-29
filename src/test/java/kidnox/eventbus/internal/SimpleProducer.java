@@ -8,9 +8,9 @@ public class SimpleProducer {
 
     volatile int producedCount = 0;
 
-    @Produce public Object produceObject() {
+    @Produce public Event produceEvent() {
         producedCount++;
-        return new Object();
+        return new Event();
     }
 
     public int getProducedCount() {

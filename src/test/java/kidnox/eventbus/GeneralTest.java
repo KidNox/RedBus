@@ -29,7 +29,7 @@ public class GeneralTest {
         bus.register(subscriber1);
         bus.register(badSubscriber);
 
-        Object event = new Object();
+        Event event = new Event();
         bus.post(event);
 
         assertNotNull("Subscriber doesn't obtain event", subscriber1.getCurrentEvent());
@@ -40,16 +40,37 @@ public class GeneralTest {
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
 
-        Object event = new Object();
+        Event event = new Event();
         bus.post(event);
 
         bus.unregister(subscriber);
 
-        Object event2 = new Object();
+        Event event2 = new Event();
         bus.post(event2);
 
         assertNotEquals("Subscriber obtain event after unregister", event2, subscriber.getCurrentEvent());
         assertEquals("Subscriber obtain wrong event", event, subscriber.getCurrentEvent());
+    }
+
+    @Test public void subscribersTest() {
+        SimpleSubscriber subscriber1 = new SimpleSubscriber();
+        SimpleSubscriber subscriber2 = new SimpleSubscriber();
+        SimpleSubscriber subscriber3 = new SimpleSubscriber();
+
+        bus.register(subscriber1);
+        bus.register(subscriber2);
+        bus.register(subscriber3);
+
+        Event event = new Event();
+        bus.post(event);
+
+        assertEquals(event, subscriber1.getCurrentEvent());
+        assertEquals(event, subscriber2.getCurrentEvent());
+        assertEquals(event, subscriber3.getCurrentEvent());
+
+        assertEquals(subscriber1.getSubscribedCount(), 1);
+        assertEquals(subscriber2.getSubscribedCount(), 1);
+        assertEquals(subscriber3.getSubscribedCount(), 1);
     }
 
     @Test public void producerTest() {
@@ -109,7 +130,7 @@ public class GeneralTest {
         SimpleProducer producer = new SimpleProducer();
         bus.register(producer);
         assertEquals(producer.getProducedCount(), 0);
-        bus.post(new Object());
+        bus.post(new Event());
         bus.register(new Object());
         bus.post(new Object());
         assertEquals(producer.getProducedCount(), 0);
@@ -121,7 +142,7 @@ public class GeneralTest {
         bus.register(subscriber);
         assertEquals(producer.getProducedCount(), 0);
         assertEquals(subscriber.getSubscribedCount(), 0);
-        bus.post(new Object());
+        bus.post(new Event());
         assertEquals(subscriber.getSubscribedCount(), 1);
     }
 
@@ -152,7 +173,7 @@ public class GeneralTest {
     @Test public void eventInheritanceTest() {
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
-        bus.post("");
+        bus.post(new Event() {});
         assertNull("Subscriber obtain wrong event", subscriber.getCurrentEvent());
         bus.unregister(subscriber);
 
@@ -178,7 +199,7 @@ public class GeneralTest {
         assertEquals("string not obtained", stringEvent, subscriberClass.string);
     }
 
-    @Test public void nonPublicMethodsTest() {
+    @Test public void nonPublicMethodsNoValidationTest() {
         BadSubscriber2 badSubscriber2 = new BadSubscriber2();
         bus.register(badSubscriber2);
         Object o = new Object();

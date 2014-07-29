@@ -1,11 +1,14 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.Dispatcher;
+import kidnox.eventbus.utils.Utils;
 
 import java.lang.reflect.Method;
 
 /**beta*/
 public final class AsyncEventSubscriber extends EventSubscriber {
+
+    private volatile boolean valid = true;
 
     protected AsyncEventSubscriber(Class eventClass, Object target, Method method, Dispatcher dispatcher) {
         super(eventClass, target, method, dispatcher);
@@ -19,8 +22,13 @@ public final class AsyncEventSubscriber extends EventSubscriber {
         dispatcher.dispatchSubscribe(this, event);
     }
 
-    @Override public void onUnregister() {
-        //unused
+    public void onUnregister() {
+        valid = false;
+    }
+
+    @Override public Object invoke(Object event) {
+        if(valid) return Utils.invokeMethod(target, method, event);
+        else return null; //Subscriber already unregistered here
     }
 
 }

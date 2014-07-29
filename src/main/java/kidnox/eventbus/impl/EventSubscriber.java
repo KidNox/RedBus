@@ -13,7 +13,7 @@ public class EventSubscriber extends Element {
 
     //Mutable, but not volatile.
     //Unregister should be called from invocation thread, otherwise invoke may be called after unregister.
-    private boolean valid = true; 
+    private boolean valid = true;
 
     EventSubscriber(Class eventClass, Object target, Method method, Dispatcher dispatcher) {
         super(eventClass, target, method);

@@ -113,9 +113,9 @@ public class ClassInfoExtractorTest {
     @Test public void sameSubscribeMethodTest() {
         @Subscriber
         class Subscriber1 {
-            @Subscribe public void obtainEvent1(Object event) {}
+            @Subscribe public void obtainEvent1(Event event) {}
 
-            @Subscribe public void obtainEvent2(Object event) {}
+            @Subscribe public void obtainEvent2(Event event) {}
         }
 
         try {
@@ -129,7 +129,7 @@ public class ClassInfoExtractorTest {
     @Test public void sameExtSubscriberTest() {
         @Subscriber
         class Subscriber1 extends SimpleSubscriber {
-            @Subscribe public void obtainEvent2(Object event) {}
+            @Subscribe public void obtainEvent2(Event event) {}
         }
 
         try {
@@ -143,12 +143,12 @@ public class ClassInfoExtractorTest {
     @Test public void sameProduceMethodTest() {
         @Producer
         class Producer1 {
-            @Produce public Object produceEvent1() {
-                return new Object();
+            @Produce public Event produceEvent1() {
+                return new Event();
             }
 
-            @Produce public Object produceEvent2() {
-                return new Object();
+            @Produce public Event produceEvent2() {
+                return new Event();
             }
         }
 
@@ -163,8 +163,8 @@ public class ClassInfoExtractorTest {
     @Test public void sameProducerExtTest() {
         @Producer
         class Producer1 extends SimpleProducer {
-            @Produce public Object produceEvent2() {
-                return new Object();
+            @Produce public Event produceEvent2() {
+                return new Event();
             }
         }
 

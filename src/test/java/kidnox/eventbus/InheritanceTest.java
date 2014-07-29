@@ -22,9 +22,7 @@ public class InheritanceTest {
     @Test public void overriddenSubscriberTest() {
         @Subscriber
         class SubscriberExt extends SimpleSubscriber {
-            @Override @Subscribe public void obtainEvent(Object event) {
-                super.obtainEvent(event);
-            }
+            @Override @Subscribe public void obtainEvent(Event event) {}
         }
 
         classInfoExtractor.getTypeOf(SubscriberExt.class);
@@ -34,8 +32,8 @@ public class InheritanceTest {
     @Test public void overriddenProducerTest() {
         @Producer
         class ProducerExt extends SimpleProducer {
-            @Override @Produce public Object produceObject() {
-                return super.produceObject();
+            @Override @Produce public Event produceEvent() {
+                return super.produceEvent();
             }
         }
         classInfoExtractor.getTypeOf(ProducerExt.class);
@@ -59,9 +57,7 @@ public class InheritanceTest {
 
         @Subscriber
         class Subscriber2 extends Subscriber1 {
-            @Override @Subscribe public void obtainString(String s) {
-                super.obtainString(s);
-            }
+            @Override @Subscribe public void obtainString(String s) {}
         }
 
         classInfoExtractor.getTypeOf(Subscriber2.class);
@@ -75,7 +71,7 @@ public class InheritanceTest {
 
         @Subscriber
         class Subscriber2 extends Subscriber1 {
-            @Subscribe public void obtainEvent(Event e) {}
+            @Override @Subscribe public void obtainEvent(Event event) {}
         }
 
         classInfoExtractor.getTypeOf(Subscriber2.class);

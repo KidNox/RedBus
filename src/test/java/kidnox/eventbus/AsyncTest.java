@@ -4,10 +4,7 @@ import kidnox.eventbus.async.AsyncDispatcherExt;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.async.PackageLocalProvider;
 import kidnox.eventbus.async.SingleThreadWorker;
-import kidnox.eventbus.internal.AbsAsyncSubscriber;
-import kidnox.eventbus.internal.NamedAsyncDispatcher;
-import kidnox.eventbus.internal.SimpleProducer;
-import kidnox.eventbus.internal.Utils;
+import kidnox.eventbus.internal.*;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -188,7 +185,7 @@ public class AsyncTest {
 
         @Subscriber(Dispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
-            @Subscribe public void obtainEvent(Object event) {
+            @Subscribe public void obtainEvent(Event event) {
                 currentEvent = event;
                 checkThread(worker.getWorkerThread());
                 worker.dismiss(true);
@@ -197,9 +194,9 @@ public class AsyncTest {
 
         @Producer
         class ProducerClass extends SimpleProducer {
-            @Override @Produce public Object produceObject() {
+            @Override @Produce public Event produceEvent() {
                 checkThread(thread);
-                return super.produceObject();
+                return super.produceEvent();
             }
         }
 

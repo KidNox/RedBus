@@ -1,5 +1,10 @@
 package kidnox.eventbus.utils;
 
+import kidnox.eventbus.Dispatcher;
+import kidnox.eventbus.async.AsyncDispatcherExt;
+import kidnox.eventbus.async.SingleThreadWorker;
+import kidnox.eventbus.async.Worker;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 
@@ -24,6 +29,19 @@ public final class Utils {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Useful for testing.
+     * */
+    public static SingleThreadWorker getSingleThreadWorkerForName(String name, Dispatcher.Factory factory) {
+        Dispatcher dispatcher = factory.getDispatcher(name);
+        if(dispatcher instanceof AsyncDispatcherExt) {
+            Worker worker = ((AsyncDispatcherExt)dispatcher).worker;
+            if(worker instanceof SingleThreadWorker)
+                return (SingleThreadWorker) worker;
+        }
+        return null;
     }
 
     //no instance

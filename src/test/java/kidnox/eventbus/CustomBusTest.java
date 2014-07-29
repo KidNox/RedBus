@@ -20,12 +20,12 @@ public class CustomBusTest {
 
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
-        bus.post(new Object());
+        bus.post(new Event());
 
         assertNull("onDeadEvent called!, event not null", deadEventHandler.getCurrentEvent());
 
         bus.unregister(subscriber);
-        Object event = new Object();
+        Event event = new Event();
         bus.post(event);
 
         assertNotNull("onDeadEvent not called!, event is null", deadEventHandler.getCurrentEvent());
@@ -61,7 +61,7 @@ public class CustomBusTest {
         List<EventSubscriber> eventSubscribers = PackageLocalProvider.getSubscribers(bus, subscriber);
         assertNotNull("valid subscriber without event subscribers", eventSubscribers);
 
-        Object event = new Object();
+        Event event = new Event();
         bus.post(event);
 
         assertNotNull("dispatchSubscribe not called, event null", dispatcher.getCurrentEvent());
@@ -73,10 +73,10 @@ public class CustomBusTest {
         final EventLoggerImpl logger = new EventLoggerImpl();
         bus = BusFactory.builder().withEventLogger(logger).create();
 
-        SimpleSubscriber badSubscriber2 = new SimpleSubscriber();
-        bus.register(badSubscriber2);
+        SimpleSubscriber subscriber = new SimpleSubscriber();
+        bus.register(subscriber);
 
-        bus.post(new Object());
+        bus.post(new Event());
 
         assertNotNull(logger.getEvent());
     }

@@ -7,7 +7,7 @@ public abstract class Element {
     public final Class eventClass;
     public final Object target;
     public final Method method;
-    public final int hashCode;
+    //public final int hashCode;
 
     protected Element(Class eventClass, Object target, Method method) {
         this.eventClass = eventClass;
@@ -17,7 +17,7 @@ public abstract class Element {
         // from otto
         // Compute hash code eagerly since we know it will be used frequently and we cannot estimate the runtime of the
         // target's hashCode call.
-        hashCode = (31 + method.hashCode()) * 31 + target.hashCode();
+        //hashCode = (31 + method.hashCode()) * 31 + target.hashCode();
     }
 
     public abstract Object invoke(Object event);
@@ -25,23 +25,24 @@ public abstract class Element {
     @Override public String toString() {
         return getClass().getSimpleName()+"{" +
                 ", target=" + target +
-                ", method=" + method +
+                ", eventClass=" + eventClass +
+                ", method=" + method.getName() +
                 '}';
     }
 
-    @Override public int hashCode() {
-        return hashCode;
-    }
-
-    @Override public boolean equals(Object obj) {
-        if (obj instanceof Element) {
-            Element that = (Element) obj;
-            // from guava
-            // Use == so that different equal instances will still receive events.
-            // We only guard against the case that the same object is registered
-            // multiple times
-            return target == that.target && method.equals(that.method);
-        }
-        return false;
-    }
+//    @Override public int hashCode() {
+//        return hashCode;
+//    }
+//
+//    @Override public boolean equals(Object obj) {
+//        if (obj instanceof Element) {
+//            Element that = (Element) obj;
+//            // from guava
+//            // Use == so that different equal instances will still receive events.
+//            // We only guard against the case that the same object is registered
+//            // multiple times
+//            return target == that.target && method.equals(that.method);
+//        }
+//        return false;
+//    }
 }

@@ -1,7 +1,5 @@
 package kidnox.eventbus.async;
 
-import kidnox.eventbus.utils.Utils;
-
 import java.util.concurrent.*;
 
 import static kidnox.eventbus.utils.Utils.checkNotNull;
