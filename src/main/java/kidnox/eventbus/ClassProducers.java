@@ -16,4 +16,8 @@ public final class ClassProducers {
     public ClassProducers(Map<Class, Method> typedMethodsMap) {
         this.typedMethodsMap = typedMethodsMap;
     }
+
+    public int size() {
+        return typedMethodsMap.size();
+    }
 }

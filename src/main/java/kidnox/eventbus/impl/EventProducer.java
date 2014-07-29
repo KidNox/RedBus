@@ -11,7 +11,8 @@ public final class EventProducer extends Element {
         super(eventClass, target, method);
     }
 
-    @Override protected Object invoke(Object event) {
+    @Override public Object invoke(Object event) {
         return Utils.invokeMethod(target, method);
     }
+
 }

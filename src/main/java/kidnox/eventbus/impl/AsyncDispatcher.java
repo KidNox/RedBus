@@ -14,7 +14,7 @@ public abstract class AsyncDispatcher implements Dispatcher {
         return false;
     }
 
-    private static Runnable getRunnableSubscription(final EventSubscriber subscriber, final Object event){
+    static Runnable getRunnableSubscription(final EventSubscriber subscriber, final Object event) {
         return new Runnable() {
             @Override
             public void run() {

@@ -6,7 +6,7 @@ import kidnox.eventbus.Dispatcher;
 /**internal*/
 public final class BusDefaults {
 
-    public static final Dispatcher DISPATCHER = new Dispatcher() {
+    public static final Dispatcher CURRENT_THREAD_DISPATCHER = new Dispatcher() {
         @Override public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
             subscriber.invoke(event);
         }
@@ -23,7 +23,11 @@ public final class BusDefaults {
     public static Dispatcher.Factory createDefaultDispatcherFactory() {
         return new Dispatcher.Factory() {
             @Override public Dispatcher getDispatcher(String name) {
-                return BusDefaults.DISPATCHER;
+                if(name.isEmpty()) {
+                    return BusDefaults.CURRENT_THREAD_DISPATCHER;
+                } else {
+                    throw new IllegalArgumentException("Dispatcher ["+name+"] not found");
+                }
             }
         };
     }

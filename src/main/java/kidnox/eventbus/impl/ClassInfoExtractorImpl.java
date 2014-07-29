@@ -23,7 +23,7 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
         this.dispatcherFactory = factory == null ? BusDefaults.createDefaultDispatcherFactory() : factory;
     }
 
-    @Override public ClassType getTypeOf(Class clazz) {//TODO test it
+    @Override public ClassType getTypeOf(Class clazz) {
         ClassType type = classToTypeMap.get(clazz);
         if(type != null) return type;
 
@@ -54,14 +54,14 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return producersCache.get(clazz);
     }
 
-    protected void saveSubscribers(Subscriber annotation, Class clazz) {//TODO
+    protected void saveSubscribers(Subscriber annotation, Class clazz) {
         Map<Class, Method> typedMethodsMap = null;
         final String value = annotation.value();
 
         for(Class mClass = clazz; checkSubscriberConditions(mClass, annotation, value, clazz);
             mClass = mClass.getSuperclass(), annotation = (Subscriber) mClass.getAnnotation(Subscriber.class)) {
 
-            final Map<Class, Method> subscribers = getSubscribedMethods(mClass.getDeclaredMethods());
+            final Map<Class, Method> subscribers = getSubscribedMethods(mClass);
             if(subscribers.isEmpty())
                 continue;
 
@@ -71,8 +71,12 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
             for(Map.Entry<Class, Method> entry : subscribers.entrySet()) {
                 Method method = typedMethodsMap.put(entry.getKey(), entry.getValue());
                 if(method != null) {
-                    throw new IllegalStateException(String.format("To many subscribe methods in instance of %s, " +
-                            "for event %s, can be only one", clazz.getName(), entry.getKey().getName()));
+                    //overridden method check
+                    if(method.getName().equals(entry.getValue().getName())) {
+                        typedMethodsMap.put(entry.getKey(), method);
+                    } else {
+                        throwMultiplyMethodsException(clazz, entry.getKey(), "subscribe");
+                    }
                 }
             }
         }
@@ -88,7 +92,7 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
             return false;
         } else if (!value.equals(annotation.value())){
             throw new IllegalArgumentException(String.format("dispatchers for child and parent classes does not match:"
-                    +" child class = %s, dispatcher = %s, parent class = %s, dispatcher = %s",
+                    +" child class = %s, dispatcher = %s, parent class = %s, dispatcher = %s.",
                     first.getName(), value, clazz.getName(), annotation.value()));
         } else {
             return true;
@@ -100,7 +104,7 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
         for(Class mClass = clazz; clazz != null && annotation != null; mClass = mClass.getSuperclass(),
                 annotation = (Producer) mClass.getAnnotation(Producer.class)) {
 
-            final Map<Class, Method> producers = getProducerMethods(mClass.getDeclaredMethods());
+            final Map<Class, Method> producers = getProducerMethods(mClass);
             if(producers.isEmpty())
                 continue;
 
@@ -108,10 +112,14 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 typedMethodsMap = new HashMap<Class, Method>();
 
             for(Map.Entry<Class, Method> entry : producers.entrySet()) {
-                Object value = typedMethodsMap.put(entry.getKey(), entry.getValue());
-                if(value != null) {
-                    throw new IllegalStateException(String.format("To many produce methods in instance of %s, " +
-                            "for event %s, can be only one", clazz.getName(), entry.getKey().getName()));
+                Method method = typedMethodsMap.put(entry.getKey(), entry.getValue());
+                if(method != null) {
+                    //overridden method check
+                    if(method.getName().equals(entry.getValue().getName())) {
+                        typedMethodsMap.put(entry.getKey(), method);
+                    } else {
+                        throwMultiplyMethodsException(clazz, entry.getKey(), "produce");
+                    }
                 }
             }
         }
@@ -121,9 +129,9 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
         producersCache.put(clazz, classProducers);
     }
 
-    protected Map<Class, Method> getSubscribedMethods(Method[] methods){
+    protected Map<Class, Method> getSubscribedMethods(Class clazz){
         Map<Class, Method> classToMethodMap = null;
-        for(Method method : methods){
+        for(Method method : clazz.getDeclaredMethods()){
             if ((method.getModifiers() & Modifier.PUBLIC) == 0)
                 continue;
             if(method.getReturnType() != void.class)
@@ -137,18 +145,16 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 if(classToMethodMap == null)
                     classToMethodMap = new HashMap<Class, Method>();
 
-                final Class clazz = params[0];
-//                if(clazz.isInterface())
-//                    throw new IllegalArgumentException("Can't subscribe for interface.");
-                classToMethodMap.put(clazz, method);
+                if(classToMethodMap.put(params[0], method) != null)
+                    throwMultiplyMethodsException(clazz, params[0], "subscribe");
             }
         }
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
     }
 
-    protected Map<Class, Method> getProducerMethods(Method[] methods) {
+    protected Map<Class, Method> getProducerMethods(Class clazz) {
         Map<Class, Method> classToMethodMap = null;
-        for(Method method : methods){
+        for(Method method : clazz.getDeclaredMethods()){
             if ((method.getModifiers() & Modifier.PUBLIC) == 0)
                 continue;
 
@@ -162,9 +168,8 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 if(classToMethodMap == null)
                     classToMethodMap = new HashMap<Class, Method>();
 
-//                if(returnType.isInterface())
-//                    throw new IllegalArgumentException("Can't produce interface.");
-                classToMethodMap.put(returnType, method);
+                if(classToMethodMap.put(returnType, method) != null)
+                    throwMultiplyMethodsException(clazz, returnType, "produce");
             }
         }
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
@@ -172,14 +177,23 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
     Dispatcher getDispatcher(String dispatcherName) {
         Dispatcher dispatcher = dispatchersMap.get(dispatcherName);
-        if(dispatcher == null){
+        if(dispatcher == null) {
             dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
-            if(dispatcher == null){
-                dispatcher = BusDefaults.DISPATCHER;
+            if(dispatcher == null) {
+                if(dispatcherName.isEmpty()) {
+                    dispatcher = BusDefaults.CURRENT_THREAD_DISPATCHER;
+                } else {
+                    throw new IllegalArgumentException("Dispatcher ["+dispatcherName+"] not found");
+                }
             }
             dispatchersMap.put(dispatcherName, dispatcher);
         }
         return dispatcher;
+    }
+
+    void throwMultiplyMethodsException(Class clazz, Class event, String what) {
+        throw new IllegalStateException(String.format("To many %s methods in instance of %s, " +
+                "for event %s, can be only one.", what, clazz.getName(), event.getName()));
     }
 
 }

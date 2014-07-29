@@ -73,8 +73,8 @@ public class CustomBusTest {
         final EventLoggerImpl logger = new EventLoggerImpl();
         bus = BusFactory.builder().withEventLogger(logger).create();
 
-        SimpleSubscriber simpleSubscriber = new SimpleSubscriber();
-        bus.register(simpleSubscriber);
+        SimpleSubscriber badSubscriber2 = new SimpleSubscriber();
+        bus.register(badSubscriber2);
 
         bus.post(new Object());
 

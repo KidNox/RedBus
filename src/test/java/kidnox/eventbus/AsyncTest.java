@@ -5,9 +5,12 @@ import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.async.PackageLocalProvider;
 import kidnox.eventbus.async.SingleThreadWorker;
 import kidnox.eventbus.internal.AbsAsyncSubscriber;
-import kidnox.eventbus.internal.AsyncDispatchersFactory;
 import kidnox.eventbus.internal.NamedAsyncDispatcher;
+import kidnox.eventbus.internal.SimpleProducer;
+import kidnox.eventbus.internal.Utils;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
@@ -16,16 +19,15 @@ public class AsyncTest {
     Bus bus;
 
     @Test public void baseAsyncTest() throws InterruptedException {
-        AsyncDispatchersFactory factory = new AsyncDispatchersFactory();
+        AsyncDispatcherFactory factory = new AsyncDispatcherFactory();
+        factory.registerDispatchersForNames("worker-1", "worker-2", "worker-3");
         bus = BusFactory.builder().withDispatcherFactory(factory).create();
 
         final NamedAsyncDispatcher dispatcher1 = new NamedAsyncDispatcher("worker-1");
         final NamedAsyncDispatcher dispatcher2 = new NamedAsyncDispatcher("worker-2");
         final NamedAsyncDispatcher dispatcher3 = new NamedAsyncDispatcher("worker-3");
 
-        factory.addDispatcher(dispatcher1);
-        factory.addDispatcher(dispatcher2);
-        factory.addDispatcher(dispatcher3);
+        Utils.addDispatchersToFactory(factory, dispatcher1, dispatcher2, dispatcher3);
 
         @Subscriber("worker-1")
         class Worker1 extends AbsAsyncSubscriber {
@@ -120,7 +122,7 @@ public class AsyncTest {
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Object event) {
                 currentEvent = event;
-                assertTrue(PackageLocalProvider.inCurrentThread(dispatcher));
+                checkThread(worker.getWorkerThread());
                 worker.dismiss(true);
             }
         }
@@ -132,7 +134,85 @@ public class AsyncTest {
         worker.getWorkerThread().join();
 
         assertNotNull(subscriberClass.getCurrentEvent());
+    }
 
+    @Test public void asyncUnregisterTest() throws InterruptedException {
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
+                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final Bus bus = BusFactory.builder()
+                .withDispatcherFactory(factory)
+                .create();
+
+        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.getDispatcher(Dispatcher.WORKER);
+        final SingleThreadWorker worker = PackageLocalProvider.getSingleThreadWorker(dispatcher);
+
+        final AtomicBoolean isRegistered = new AtomicBoolean();
+        final AtomicBoolean mustFail = new AtomicBoolean(false);
+
+        @Subscriber(Dispatcher.WORKER)
+        class SubscriberClass extends AbsAsyncSubscriber {
+            @Subscribe public void obtainEvent(Object event) {
+                mustFail.set(!isRegistered.get());
+            }
+        }
+
+        final SubscriberClass subscriberClass = new SubscriberClass();
+        bus.register(subscriberClass);
+        isRegistered.set(true);
+
+        worker.execute(new Runnable() {
+            @Override public void run() {
+                bus.unregister(subscriberClass);
+                isRegistered.set(false);
+                worker.dismiss(true);
+            }
+        });
+
+        bus.post(new Object());
+        worker.getWorkerThread().join();
+
+        if(mustFail.get()) fail("obtain event after unregister");
+    }
+
+    @Test public void produceTest() throws InterruptedException {
+        final Thread thread = Thread.currentThread();
+
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
+                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final Bus bus = BusFactory.builder()
+                .withDispatcherFactory(factory)
+                .create();
+
+        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.getDispatcher(Dispatcher.WORKER);
+        final SingleThreadWorker worker = PackageLocalProvider.getSingleThreadWorker(dispatcher);
+
+        @Subscriber(Dispatcher.WORKER)
+        class SubscriberClass extends AbsAsyncSubscriber {
+            @Subscribe public void obtainEvent(Object event) {
+                currentEvent = event;
+                checkThread(worker.getWorkerThread());
+                worker.dismiss(true);
+            }
+        }
+
+        @Producer
+        class ProducerClass extends SimpleProducer {
+            @Override @Produce public Object produceObject() {
+                checkThread(thread);
+                return super.produceObject();
+            }
+        }
+
+        ProducerClass producerClass = new ProducerClass();
+        SubscriberClass subscriberClass = new SubscriberClass();
+
+        bus.register(producerClass);
+        bus.register(subscriberClass);
+
+        worker.getWorkerThread().join();
+
+        assertEquals(producerClass.getProducedCount(), 1);
+        assertNotNull(subscriberClass.getCurrentEvent());
     }
 
     private void checkThread(Thread expected) {

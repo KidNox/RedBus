@@ -5,6 +5,11 @@ import java.util.Collection;
 
 public final class Utils {
 
+    public static <T> T checkNotNull(T instance) {
+        if(instance == null) throw new NullPointerException();
+        return instance;
+    }
+
     public static boolean isNullOrEmpty(Object[] args) {
         return args == null || args.length == 0;
     }

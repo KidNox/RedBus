@@ -61,10 +61,10 @@ public final class BusFactory {
             return this;
         }
 
-        public Builder asyncBus() {
-            this.type = ASYNC_BUS;
-            return this;
-        }
+//        public Builder asyncBus() {
+//            this.type = ASYNC_BUS;
+//            return this;
+//        }
 
         public Builder withEventLogger(EventLogger eventLogger) {
             this.eventLogger = eventLogger;

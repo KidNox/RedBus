@@ -78,7 +78,7 @@ public class BusImpl implements Bus {
         }
     }
 
-    private void registerSubscriber(Object target, Class targetClass) {
+    void registerSubscriber(Object target, Class targetClass) {
         final ClassSubscribers classSubscribers = classInfoExtractor.getClassSubscribers(targetClass);
         List<EventSubscriber> subscribers;
         if(ClassSubscribers.isNullOrEmpty(classSubscribers)) {
@@ -87,7 +87,7 @@ public class BusImpl implements Bus {
             final boolean checkProducers = instanceToProducersMap.size() > 0;
             subscribers = new LinkedList<EventSubscriber>();
             for(Entry<Class, Method> entry : classSubscribers.typedMethodsMap.entrySet()) {
-                final EventSubscriber subscriber = new EventSubscriber(entry.getKey(), target,
+                final EventSubscriber subscriber = getEventSubscriber(entry.getKey(), target,
                         entry.getValue(), classSubscribers.dispatcher);
                 subscribers.add(subscriber);
                 if(checkProducers) {
@@ -106,7 +106,7 @@ public class BusImpl implements Bus {
             throwRuntimeException("register", target, " already registered");
     }
 
-    private void registerProducer(Object target, Class targetClass) {
+    void registerProducer(Object target, Class targetClass) {
         final ClassProducers classProducers = classInfoExtractor.getClassProducers(targetClass);
         Set<EventProducer> producers;
         if(ClassProducers.isNullOrEmpty(classProducers)) {
@@ -132,17 +132,18 @@ public class BusImpl implements Bus {
             throwRuntimeException("register", target, " already registered");
     }
 
-    private void unregisterSubscribers(Object target) {
+    void unregisterSubscribers(Object target) {
         final List<EventSubscriber> subscribers = instanceToSubscribersMap.remove(target);
         if (subscribers == null) throwRuntimeException("unregister", target, " not registered");
         else if(!subscribers.isEmpty()){
             for (EventSubscriber subscriber : subscribers) {
                 eventTypeToSubscribersMap.get(subscriber.eventClass).remove(subscriber);
+                subscriber.onUnregister();
             }
         }
     }
 
-    private void unregisterProducers(Object target) {
+    void unregisterProducers(Object target) {
         final Set<EventProducer> producers = instanceToProducersMap.remove(target);
         if (producers == null) throwRuntimeException("unregister", target, " not registered");
         else if(!producers.isEmpty()) {
@@ -152,13 +153,17 @@ public class BusImpl implements Bus {
         }
     }
 
-    private void produce(EventProducer producer, EventSubscriber subscriber) {
+    EventSubscriber getEventSubscriber(Class event, Object target, Method method, Dispatcher dispatcher) {
+        return new EventSubscriber(event, target, method, dispatcher);
+    }
+
+    void produce(EventProducer producer, EventSubscriber subscriber) {
         Object event = producer.invoke(null);
         logEvent(event, subscriber, PRODUCE);
         subscriber.receive(event);
     }
 
-    private void logEvent(Object event, Object element, String what) {
+    void logEvent(Object event, Object element, String what) {
         if(logger != null) logger.logEvent(event, element, what);
     }
 
@@ -167,7 +172,7 @@ public class BusImpl implements Bus {
     }
 
     @Override public String toString() {
-        return "Bus{" + name + '}';
+        return "Bus[" + name + ']';
     }
 
 }

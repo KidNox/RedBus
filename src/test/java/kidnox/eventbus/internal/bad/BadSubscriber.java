@@ -1,4 +1,4 @@
-package kidnox.eventbus.internal;
+package kidnox.eventbus.internal.bad;
 
 import kidnox.eventbus.Subscribe;
 

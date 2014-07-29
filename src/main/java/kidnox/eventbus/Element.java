@@ -20,11 +20,10 @@ public abstract class Element {
         hashCode = (31 + method.hashCode()) * 31 + target.hashCode();
     }
 
-    protected abstract Object invoke(Object event);
+    public abstract Object invoke(Object event);
 
     @Override public String toString() {
         return getClass().getSimpleName()+"{" +
-                "eventClass=" + eventClass +
                 ", target=" + target +
                 ", method=" + method +
                 '}';

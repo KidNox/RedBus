@@ -10,22 +10,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
+final class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
 
     ClassInfoExtractorValidation(Dispatcher.Factory factory) {
         super(factory);
     }
 
-    @Override protected Map<Class, Method> getSubscribedMethods(Method[] methods) {
+    @Override protected Map<Class, Method> getSubscribedMethods(Class clazz) {
         Map<Class, Method> classToMethodMap = null;
-        for (Method method : methods) {
+        for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(Subscribe.class)) {
 
                 if ((method.getModifiers() & Modifier.PUBLIC) == 0)
                     throw new IllegalArgumentException("Method " + method + " with @Subscribe must be public.");
 
                 if (method.getReturnType() != void.class)
-                    throw new IllegalArgumentException("Method with" + method
+                    throw new IllegalArgumentException("Method " + method
                             + " with @Subscribe must return void type.");
 
                 final Class[] params = method.getParameterTypes();
@@ -36,18 +36,20 @@ class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
                 if (classToMethodMap == null)
                     classToMethodMap = new HashMap<Class, Method>();
 
-                final Class clazz = params[0];
-                if (clazz.isInterface())
+                final Class eventClass = params[0];
+                if (eventClass.isInterface())
                     throw new IllegalArgumentException("Method " + method + " can't subscribe for interface.");
-                classToMethodMap.put(clazz, method);
+
+                if(classToMethodMap.put(params[0], method) != null)
+                    throwMultiplyMethodsException(clazz, params[0], "subscribe");
             }
         }
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
     }
 
-    @Override protected Map<Class, Method> getProducerMethods(Method[] methods) {
+    @Override protected Map<Class, Method> getProducerMethods(Class clazz) {
         Map<Class, Method> classToMethodMap = null;
-        for (Method method : methods) {
+        for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(Produce.class)) {
 
                 if ((method.getModifiers() & Modifier.PUBLIC) == 0)
@@ -65,7 +67,9 @@ class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
 
                 if (returnType.isInterface())
                     throw new IllegalArgumentException("Method " + method + " can't produce interface.");
-                classToMethodMap.put(returnType, method);
+
+                if(classToMethodMap.put(returnType, method) != null)
+                    throwMultiplyMethodsException(clazz, returnType, "produce");
             }
         }
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;

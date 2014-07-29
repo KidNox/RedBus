@@ -1,6 +1,10 @@
 package kidnox.eventbus.async;
 
+import kidnox.eventbus.utils.Utils;
+
 import java.util.concurrent.*;
+
+import static kidnox.eventbus.utils.Utils.checkNotNull;
 
 public final class SingleThreadWorker implements Worker {
 
@@ -26,9 +30,9 @@ public final class SingleThreadWorker implements Worker {
     }
 
     protected SingleThreadWorker(String name, SingleThreadFactory factory, ThreadPoolExecutor executor) {
-        this.threadFactory = factory;
-        this.name = name;
-        this.executor = executor;
+        this.threadFactory = checkNotNull(factory);
+        this.name = checkNotNull(name);
+        this.executor = checkNotNull(executor);
     }
 
     public void setRejectedExecutionHandler(RejectedExecutionHandler handler) {

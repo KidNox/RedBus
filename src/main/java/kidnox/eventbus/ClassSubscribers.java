@@ -19,4 +19,8 @@ public final class ClassSubscribers {
         this.typedMethodsMap = typedMethodsMap;
     }
 
+    public int size() {
+        return typedMethodsMap.size();
+    }
+
 }

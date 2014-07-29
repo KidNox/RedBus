@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.impl.AsyncDispatcher;
+import kidnox.eventbus.impl.BusDefaults;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,11 @@ import java.util.Map;
 public class AsyncDispatcherFactory implements Dispatcher.Factory {
 
     protected final Map<String, Dispatcher> dispatchersMap;
+
+    public AsyncDispatcherFactory(String... dispatchers) {
+        this();
+        registerDispatchersForNames(dispatchers);
+    }
 
     public AsyncDispatcherFactory() {
         this(new HashMap<String, Dispatcher>());
@@ -21,15 +27,41 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
         dispatchersMap = map;
     }
 
-    @Override public Dispatcher getDispatcher(String s) {
-        Dispatcher dispatcher = dispatchersMap.get(s);
-        if(dispatcher == null) throw new NullPointerException(String.format("dispatcher for %s is not registered", s));
+    @Override public Dispatcher getDispatcher(String name) {
+        Dispatcher dispatcher = dispatchersMap.get(name);
+        if(dispatcher == null) {
+            if(name.isEmpty()) {
+                return BusDefaults.CURRENT_THREAD_DISPATCHER;
+            } else {
+                throw new IllegalArgumentException("Dispatcher ["+name+"] not found");
+            }
+        }
         return dispatcher;
     }
 
     public AsyncDispatcherFactory addDispatcher(String key, Dispatcher dispatcher) {
         dispatchersMap.put(key, dispatcher);
         return this;
+    }
+
+    public AsyncDispatcherFactory registerDispatcherForName(String name) {
+        dispatchersMap.put(name, createAsyncDispatcher(name));
+        return this;
+    }
+
+    public AsyncDispatcherFactory registerDispatchersForNames(String... names) {
+        for(String name : names) {
+            dispatchersMap.put(name, createAsyncDispatcher(name));
+        }
+        return this;
+    }
+
+    public static Dispatcher createAsyncDispatcher(String name) {
+        return new AsyncDispatcherExt(new SingleThreadWorker(name));
+    }
+
+    public static Dispatcher getWorkerDispatcher() {
+        return createAsyncDispatcher(Dispatcher.WORKER);
     }
 
     public static AsyncDispatcherFactory getAndroidDispatcherFactory() {
@@ -54,10 +86,6 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
                 return Looper.myLooper() == Looper.getMainLooper();
             }
         };
-    }
-
-    public static Dispatcher getWorkerDispatcher() {
-        return new AsyncDispatcherExt(new SingleThreadWorker(Dispatcher.WORKER));
     }
 
 }

@@ -2,14 +2,17 @@ package kidnox.eventbus.impl;
 
 import kidnox.eventbus.ClassInfoExtractor;
 import kidnox.eventbus.DeadEventHandler;
+import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.EventLogger;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+/**beta*/
 public class AsyncBus extends BusImpl {
 
-    final Executor busExecutor;
+    public final Executor busExecutor;
 
     public AsyncBus(String name, ClassInfoExtractor classInfoExtractor,
                     EventLogger logger, DeadEventHandler deadEventHandler) {
@@ -46,6 +49,10 @@ public class AsyncBus extends BusImpl {
 
     private void execute(Runnable runnable) {
         busExecutor.execute(runnable);
+    }
+
+    @Override EventSubscriber getEventSubscriber(Class event, Object target, Method method, Dispatcher dispatcher) {
+        return new AsyncEventSubscriber(event, target, method, dispatcher);
     }
 
     @Override public String toString() {
