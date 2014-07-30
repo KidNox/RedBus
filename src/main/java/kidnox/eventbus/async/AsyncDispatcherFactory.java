@@ -13,6 +13,7 @@ import java.util.Map;
 public class AsyncDispatcherFactory implements Dispatcher.Factory {
 
     protected final Map<String, Dispatcher> dispatchersMap;
+    protected final Thread.UncaughtExceptionHandler exceptionHandler;
 
     public AsyncDispatcherFactory(String... dispatchers) {
         this();
@@ -20,11 +21,16 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
     }
 
     public AsyncDispatcherFactory() {
-        this(new HashMap<String, Dispatcher>());
+        this((Thread.UncaughtExceptionHandler)null);
     }
 
-    public AsyncDispatcherFactory(Map<String, Dispatcher> map) {
+    public AsyncDispatcherFactory(Thread.UncaughtExceptionHandler exceptionHandler) {
+        this(new HashMap<String, Dispatcher>(), exceptionHandler);
+    }
+
+    public AsyncDispatcherFactory(Map<String, Dispatcher> map, Thread.UncaughtExceptionHandler exceptionHandler) {
         dispatchersMap = map;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override public Dispatcher getDispatcher(String name) {
@@ -45,13 +51,13 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
     }
 
     public AsyncDispatcherFactory registerDispatcherForName(String name) {
-        dispatchersMap.put(name, createAsyncDispatcher(name));
+        dispatchersMap.put(name, createAsyncDispatcher(name, exceptionHandler));
         return this;
     }
 
     public AsyncDispatcherFactory registerDispatchersForNames(String... names) {
         for(String name : names) {
-            dispatchersMap.put(name, createAsyncDispatcher(name));
+            dispatchersMap.put(name, createAsyncDispatcher(name, exceptionHandler));
         }
         return this;
     }
@@ -60,12 +66,16 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
         return new AsyncDispatcherExt(new SingleThreadWorker(name));
     }
 
+    public static Dispatcher createAsyncDispatcher(String name, Thread.UncaughtExceptionHandler exceptionHandler) {
+        return new AsyncDispatcherExt(new SingleThreadWorker(name).withUncaughtExceptionHandler(exceptionHandler));
+    }
+
     public static Dispatcher getWorkerDispatcher() {
         return createAsyncDispatcher(Dispatcher.WORKER);
     }
 
     public static AsyncDispatcherFactory getAndroidDispatcherFactory() {
-        return new AsyncDispatcherFactory(getAndroidDefaultDispatchersMap());
+        return new AsyncDispatcherFactory(getAndroidDefaultDispatchersMap(), null);
     }
 
     public static Map<String, Dispatcher> getAndroidDefaultDispatchersMap() {

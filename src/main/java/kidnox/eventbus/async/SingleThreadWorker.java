@@ -33,8 +33,15 @@ public final class SingleThreadWorker implements Worker {
         this.executor = checkNotNull(executor);
     }
 
-    public void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
+    public SingleThreadWorker withRejectedExecutionHandler(RejectedExecutionHandler handler) {
         executor.setRejectedExecutionHandler(handler);
+        return this;
+    }
+
+    public SingleThreadWorker withUncaughtExceptionHandler(Thread.UncaughtExceptionHandler exceptionHandler) {
+        if(exceptionHandler != null)
+            threadFactory.setUncaughtExceptionHandler(exceptionHandler);
+        return this;
     }
 
     public Thread getWorkerThread() {

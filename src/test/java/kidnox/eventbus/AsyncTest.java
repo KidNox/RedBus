@@ -17,7 +17,6 @@ public class AsyncTest {
 
     @Test public void baseAsyncTest() throws InterruptedException {
         AsyncDispatcherFactory factory = new AsyncDispatcherFactory();
-        factory.registerDispatchersForNames("worker-1", "worker-2", "worker-3");
         bus = BusFactory.builder().withDispatcherFactory(factory).create();
 
         final NamedAsyncDispatcher dispatcher1 = new NamedAsyncDispatcher("worker-1");
