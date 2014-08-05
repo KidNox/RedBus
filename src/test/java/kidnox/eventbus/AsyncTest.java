@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static kidnox.eventbus.internal.TestUtils.addDispatchersToFactory;
 import static org.junit.Assert.*;
 
 public class AsyncTest {
@@ -23,7 +24,7 @@ public class AsyncTest {
         final NamedAsyncDispatcher dispatcher2 = new NamedAsyncDispatcher("worker-2");
         final NamedAsyncDispatcher dispatcher3 = new NamedAsyncDispatcher("worker-3");
 
-        Utils.addDispatchersToFactory(factory, dispatcher1, dispatcher2, dispatcher3);
+        addDispatchersToFactory(factory, dispatcher1, dispatcher2, dispatcher3);
 
         @Subscriber("worker-1")
         class Worker1 extends AbsAsyncSubscriber {
@@ -170,6 +171,7 @@ public class AsyncTest {
         if(mustFail.get()) fail("obtain event after unregister");
     }
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     @Test public void produceTest() throws InterruptedException {
         final Thread thread = Thread.currentThread();
 
@@ -179,15 +181,16 @@ public class AsyncTest {
                 .withDispatcherFactory(factory)
                 .create();
 
-        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.getDispatcher(Dispatcher.WORKER);
-        final SingleThreadWorker worker = PackageLocalProvider.getSingleThreadWorker(dispatcher);
-
         @Subscriber(Dispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Event event) {
                 currentEvent = event;
+                SingleThreadWorker worker = TestUtils.getSTWorkerForName(Dispatcher.WORKER, factory);
                 checkThread(worker.getWorkerThread());
-                worker.dismiss(true);
+
+                synchronized (thread) {
+                    thread.notify();
+                }
             }
         }
 
@@ -205,7 +208,9 @@ public class AsyncTest {
         bus.register(producerClass);
         bus.register(subscriberClass);
 
-        worker.getWorkerThread().join();
+        synchronized (thread) {
+            thread.wait();
+        }
 
         assertEquals(producerClass.getProducedCount(), 1);
         assertNotNull(subscriberClass.getCurrentEvent());

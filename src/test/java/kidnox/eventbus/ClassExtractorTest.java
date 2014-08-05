@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  * Test both ClassInfoExtractorImpl and ClassInfoExtractorValidation
  * */
 @RunWith(Parameterized.class)
-public class ClassInfoExtractorTest {
+public class ClassExtractorTest {
 
     @SuppressWarnings("unchecked") @Parameterized.Parameters
     public static Collection classExtractorFactories() {
@@ -35,7 +35,7 @@ public class ClassInfoExtractorTest {
     final Factory<ClassInfoExtractor, Dispatcher.Factory> extractorFactory;
     ClassInfoExtractor classInfoExtractor;
 
-    public ClassInfoExtractorTest(Factory<ClassInfoExtractor, Dispatcher.Factory> extractorFactory) {
+    public ClassExtractorTest(Factory<ClassInfoExtractor, Dispatcher.Factory> extractorFactory) {
         this.extractorFactory = extractorFactory;
     }
 

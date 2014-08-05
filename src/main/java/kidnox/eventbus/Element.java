@@ -19,7 +19,7 @@ public abstract class Element {
 
     @Override public String toString() {
         return getClass().getSimpleName()+"{" +
-                ", target=" + target +
+                ", targetClass=" + target.getClass().getSimpleName() +
                 ", eventClass=" + eventClass.getSimpleName() +
                 ", method=" + method.getName() +
                 '}';

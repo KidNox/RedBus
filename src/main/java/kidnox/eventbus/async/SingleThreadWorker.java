@@ -48,6 +48,10 @@ public final class SingleThreadWorker implements Worker {
         return threadFactory.thread;
     }
 
+    public int getTaskCount() {
+        return executor.getQueue().size();
+    }
+
     @Override public boolean inWorkerThread() {
         return Thread.currentThread() == threadFactory.thread;
     }
