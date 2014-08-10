@@ -1,9 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.impl.BusDefaults;
-import kidnox.eventbus.internal.Event;
-import kidnox.eventbus.internal.SimpleProducer;
-import kidnox.eventbus.internal.SimpleSubscriber;
+import kidnox.eventbus.internal.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +13,7 @@ public class InheritanceTest {
     ClassInfoExtractor classInfoExtractor;
 
     @Before public void setUp() {
-        classInfoExtractor = BusDefaults.createDefaultExtractor(null);
+        classInfoExtractor = InternalFactory.createDefaultExtractor(null);
     }
 
     @Test public void overriddenSubscriberTest() {

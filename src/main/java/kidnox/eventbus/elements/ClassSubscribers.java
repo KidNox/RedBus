@@ -1,6 +1,6 @@
 package kidnox.eventbus.elements;
 
-import kidnox.eventbus.Dispatcher;
+import kidnox.eventbus.EventDispatcher;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -13,11 +13,11 @@ public final class ClassSubscribers {
         return classSubscribers == null || classSubscribers == EMPTY;
     }
 
-    public final Dispatcher dispatcher;
+    public final EventDispatcher eventDispatcher;
     public final Map<Class, Method> typedMethodsMap;
 
-    public ClassSubscribers(Dispatcher dispatcher, Map<Class, Method> typedMethodsMap) {
-        this.dispatcher = dispatcher;
+    public ClassSubscribers(EventDispatcher dispatcher, Map<Class, Method> typedMethodsMap) {
+        this.eventDispatcher = dispatcher;
         this.typedMethodsMap = typedMethodsMap;
     }
 

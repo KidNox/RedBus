@@ -1,36 +1,26 @@
 package kidnox.eventbus.elements;
 
-import kidnox.eventbus.Dispatcher;
-import kidnox.eventbus.impl.AsyncDispatcher;
-import kidnox.eventbus.utils.Utils;
+import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.ExceptionHandler;
 
 import java.lang.reflect.Method;
 
 public class EventSubscriber extends Element {
 
-    final Dispatcher dispatcher;
-    final AsyncDispatcher asyncDispatcher;
+    final EventDispatcher eventDispatcher;
 
     //Mutable, but not volatile.
     //Unregister should be called from invocation thread, otherwise invoke may be called after unregister.
     private boolean valid = true;
 
-    public EventSubscriber(Class eventClass, Object target, Method method, Dispatcher dispatcher) {
-        super(eventClass, target, method);
-        this.dispatcher = dispatcher;
-        asyncDispatcher = getAsyncDispatcher(dispatcher);
-    }
-
-    AsyncDispatcher getAsyncDispatcher(Dispatcher dispatcher) {
-        return dispatcher instanceof AsyncDispatcher ? (AsyncDispatcher) dispatcher : null;
+    public EventSubscriber(Class eventClass, Object target, Method method,
+                           EventDispatcher dispatcher, ExceptionHandler exceptionHandler) {
+        super(eventClass, target, method, exceptionHandler);
+        this.eventDispatcher = dispatcher;
     }
 
     public void receive(Object event) {
-        if (asyncDispatcher != null && asyncDispatcher.inCurrentThread()) {
-            invoke(event);
-        } else {
-            dispatcher.dispatchSubscribe(this, event);
-        }
+        eventDispatcher.dispatchSubscribe(this, event);
     }
 
     public void onUnregister() {
@@ -38,7 +28,7 @@ public class EventSubscriber extends Element {
     }
 
     @Override public Object invoke(Object event) {
-        if(valid) return Utils.invokeMethod(target, method, event);
+        if(valid) return invokeMethod(event);
         else return null; //Subscriber already unregistered here
     }
 }

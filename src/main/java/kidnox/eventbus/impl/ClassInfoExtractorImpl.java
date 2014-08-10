@@ -3,7 +3,9 @@ package kidnox.eventbus.impl;
 import kidnox.eventbus.*;
 import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
-import kidnox.eventbus.elements.ClassType;
+import kidnox.eventbus.internal.ClassType;
+import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.utils.Utils;
 
 import java.lang.annotation.Annotation;
@@ -11,19 +13,19 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-class ClassInfoExtractorImpl implements ClassInfoExtractor {
+public class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
     final Map<Class, ClassType> classToTypeMap = new HashMap<Class, ClassType>();
 
     final Map<Class, ClassSubscribers> subscribersCache = new HashMap<Class, ClassSubscribers>();
     final Map<Class, ClassProducers> producersCache = new HashMap<Class, ClassProducers>();
 
-    final Map<String, Dispatcher> dispatchersMap = new HashMap<String, Dispatcher>();
+    final Map<String, EventDispatcher> dispatchersMap = new HashMap<String, EventDispatcher>();
 
-    final Dispatcher.Factory dispatcherFactory;
+    final EventDispatcher.Factory dispatcherFactory;
 
-    ClassInfoExtractorImpl(Dispatcher.Factory factory) {
-        this.dispatcherFactory = factory == null ? BusDefaults.createDefaultDispatcherFactory() : factory;
+    public ClassInfoExtractorImpl(EventDispatcher.Factory factory) {
+        this.dispatcherFactory = factory == null ? InternalFactory.createDefaultEventDispatcherFactory() : factory;
     }
 
     @Override public ClassType getTypeOf(Class clazz) {
@@ -83,13 +85,13 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 }
             }
         }
-        final Dispatcher dispatcher = getDispatcher(value);
+        final EventDispatcher dispatcher = getDispatcher(value);
         ClassSubscribers classSubscribers = typedMethodsMap == null ?
                 ClassSubscribers.EMPTY : new ClassSubscribers(dispatcher, typedMethodsMap);
         subscribersCache.put(clazz, classSubscribers);
     }
 
-    boolean checkSubscriberConditions(Class clazz, Subscriber annotation, String value, Class first) {
+    protected boolean checkSubscriberConditions(Class clazz, Subscriber annotation, String value, Class first) {
         if(clazz == null || annotation == null) {
             return false;
         } else if (!value.equals(annotation.value())){
@@ -176,13 +178,13 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
     }
 
-    Dispatcher getDispatcher(String dispatcherName) {
-        Dispatcher dispatcher = dispatchersMap.get(dispatcherName);
+    protected EventDispatcher getDispatcher(String dispatcherName) {
+        EventDispatcher dispatcher = dispatchersMap.get(dispatcherName);
         if(dispatcher == null) {
             dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
             if(dispatcher == null) {
                 if(dispatcherName.isEmpty()) {
-                    dispatcher = BusDefaults.CURRENT_THREAD_DISPATCHER;
+                    dispatcher = InternalFactory.CURRENT_THREAD_DISPATCHER;
                 } else {
                     throw new IllegalArgumentException("Dispatcher ["+dispatcherName+"] not found");
                 }
@@ -192,7 +194,7 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return dispatcher;
     }
 
-    void throwMultiplyMethodsException(Class clazz, Class event, String what) {
+    protected void throwMultiplyMethodsException(Class clazz, Class event, String what) {
         throw new IllegalStateException(String.format("To many %s methods in instance of %s, " +
                 "for event %s, can be only one.", what, clazz.getName(), event.getName()));
     }

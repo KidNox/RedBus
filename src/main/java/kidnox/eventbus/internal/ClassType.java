@@ -1,4 +1,4 @@
-package kidnox.eventbus.elements;
+package kidnox.eventbus.internal;
 
 public enum ClassType {
     SUBSCRIBER, PRODUCER, NONE

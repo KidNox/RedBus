@@ -1,15 +1,15 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.async.AsyncDispatcherExt;
+import kidnox.eventbus.async.AsyncEventDispatcherExt;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
-import kidnox.eventbus.elements.ClassType;
+import kidnox.eventbus.internal.ClassType;
+import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.internal.bad.BadChildProducer;
 import kidnox.eventbus.internal.bad.BadChildSubscriber;
 import kidnox.eventbus.internal.bad.BadProducer;
 import kidnox.eventbus.internal.bad.BadSubscriber;
-import kidnox.eventbus.impl.BusDefaults;
 import kidnox.eventbus.internal.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,14 +35,14 @@ public class ClassExtractorTest {
                         {Factory.CLASS_INFO_EXTRACTOR_VALIDATION_FACTORY}});
     }
 
-    final Factory<ClassInfoExtractor, Dispatcher.Factory> extractorFactory;
+    final Factory<ClassInfoExtractor, EventDispatcher.Factory> extractorFactory;
     ClassInfoExtractor classInfoExtractor;
 
-    public ClassExtractorTest(Factory<ClassInfoExtractor, Dispatcher.Factory> extractorFactory) {
+    public ClassExtractorTest(Factory<ClassInfoExtractor, EventDispatcher.Factory> extractorFactory) {
         this.extractorFactory = extractorFactory;
     }
 
-    ClassInfoExtractor createExtractor(Dispatcher.Factory factory) {
+    ClassInfoExtractor createExtractor(EventDispatcher.Factory factory) {
         return extractorFactory.get(factory);
     }
 
@@ -90,7 +90,7 @@ public class ClassExtractorTest {
         classInfoExtractor.getTypeOf(SimpleSubscriber.class);
         ClassSubscribers classSubscribers = getSubscibersCache(classInfoExtractor).get(SimpleSubscriber.class);
         assertNotNull(classSubscribers);
-        assertNotNull(classSubscribers.dispatcher);
+        assertNotNull(classSubscribers.eventDispatcher);
         assertNotNull(classSubscribers.typedMethodsMap);
         assertFalse(classSubscribers.typedMethodsMap.isEmpty());
         assertFalse(ClassSubscribers.isNullOrEmpty(classSubscribers));
@@ -129,18 +129,13 @@ public class ClassExtractorTest {
         }
     }
 
-    @Test public void sameExtSubscriberTest() {
+    @Test(expected = IllegalStateException.class)
+    public void sameExtSubscriberTest() {
         @Subscriber
         class Subscriber1 extends SimpleSubscriber {
             @Subscribe public void obtainEvent2(Event event) {}
         }
-
-        try {
-            classInfoExtractor.getTypeOf(Subscriber1.class);
-            fail("to many subscribers for event");
-        } catch (RuntimeException ignored) {
-            //ignored.printStackTrace();
-        }
+        classInfoExtractor.getTypeOf(Subscriber1.class);
     }
 
     @Test public void sameProduceMethodTest() {
@@ -163,25 +158,20 @@ public class ClassExtractorTest {
         }
     }
 
-    @Test public void sameProducerExtTest() {
+    @Test(expected = IllegalStateException.class)
+    public void sameProducerExtTest() {
         @Producer
         class Producer1 extends SimpleProducer {
             @Produce public Event produceEvent2() {
                 return new Event();
             }
         }
-
-        try {
-            classInfoExtractor.getTypeOf(Producer1.class);
-            fail("to many producers for event");
-        } catch (RuntimeException ignored) {
-            //ignored.printStackTrace();
-        }
+        classInfoExtractor.getTypeOf(Producer1.class);
     }
 
     @Test public void getDispatcherTest() {
         //default factory
-        assertEquals(getDispatcher("", classInfoExtractor), BusDefaults.CURRENT_THREAD_DISPATCHER);
+        assertEquals(getDispatcher("", classInfoExtractor), InternalFactory.CURRENT_THREAD_DISPATCHER);
         try {
             getDispatcher("not-registered-dispatcher", classInfoExtractor);
             fail();
@@ -191,7 +181,7 @@ public class ClassExtractorTest {
         //AsyncDispatcherFactory
         final String name = "test-dispatcher";
         classInfoExtractor = createExtractor(new AsyncDispatcherFactory().registerDispatcherForName(name));
-        assertTrue(getDispatcher(name, classInfoExtractor) instanceof AsyncDispatcherExt);
+        assertTrue(getDispatcher(name, classInfoExtractor) instanceof AsyncEventDispatcherExt);
         try {
             getDispatcher("not-registered-dispatcher", classInfoExtractor);
             fail();

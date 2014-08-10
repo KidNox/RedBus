@@ -1,18 +1,18 @@
 package kidnox.eventbus.internal;
 
 import kidnox.eventbus.async.SingleThreadWorker;
-import kidnox.eventbus.impl.AsyncDispatcher;
+import kidnox.eventbus.impl.AsyncEventDispatcher;
 
-public class NamedAsyncDispatcher extends AsyncDispatcher {
+public class NamedAsyncEventDispatcher extends AsyncEventDispatcher {
 
     final String name;
     final SingleThreadWorker worker;
 
-    public NamedAsyncDispatcher(String name) {
+    public NamedAsyncEventDispatcher(String name) {
         this(name, new SingleThreadWorker("worker-"+name));
     }
 
-    public NamedAsyncDispatcher(String name, SingleThreadWorker worker) {
+    public NamedAsyncEventDispatcher(String name, SingleThreadWorker worker) {
         this.name = name;
         this.worker = worker;
     }

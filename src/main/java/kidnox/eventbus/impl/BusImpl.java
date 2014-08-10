@@ -5,6 +5,7 @@ import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
 import kidnox.eventbus.elements.EventProducer;
 import kidnox.eventbus.elements.EventSubscriber;
+import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.utils.Utils;
 
 import java.lang.reflect.Method;
@@ -28,16 +29,18 @@ public class BusImpl implements Bus {
     final EventLogger logger;
     final DeadEventHandler deadEventHandler;
     final Interceptor interceptor;
+    final ExceptionHandler exceptionHandler;
 
     final ClassInfoExtractor classInfoExtractor;
 
     public BusImpl(String name, ClassInfoExtractor classInfoExtractor, EventLogger logger,
-                   DeadEventHandler deadEventHandler, Interceptor interceptor) {
+                   DeadEventHandler deadEventHandler, Interceptor interceptor, ExceptionHandler exceptionHandler) {
         this.name = name;
         this.logger = logger;
         this.deadEventHandler = deadEventHandler;
         this.interceptor = interceptor;
         this.classInfoExtractor = classInfoExtractor;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override public void register(Object target) {
@@ -51,7 +54,7 @@ public class BusImpl implements Bus {
                 break;
             case NONE:
                 if(instanceToSubscribersMap.put(target, Collections.<EventSubscriber>emptyList()) != null)
-                    throwRuntimeException("register", target, " already registered");
+                    throwIllegalStateException("register", target, " already registered");
                 break;
         }
     }
@@ -68,7 +71,7 @@ public class BusImpl implements Bus {
                 break;
             case NONE:
                 if(instanceToSubscribersMap.remove(target) == null)
-                    throwRuntimeException("unregister", target, " not registered");
+                    throwIllegalStateException("unregister", target, " not registered");
                 break;
         }
     }
@@ -99,7 +102,7 @@ public class BusImpl implements Bus {
             subscribers = new LinkedList<EventSubscriber>();
             for(Entry<Class, Method> entry : classSubscribers.typedMethodsMap.entrySet()) {
                 final EventSubscriber subscriber = getEventSubscriber(entry.getKey(), target,
-                        entry.getValue(), classSubscribers.dispatcher);
+                        entry.getValue(), classSubscribers.eventDispatcher);
                 subscribers.add(subscriber);
                 if(checkProducers) {
                     final EventProducer producer = eventTypeToProducerMap.get(subscriber.eventClass);
@@ -114,7 +117,7 @@ public class BusImpl implements Bus {
             }
         }
         if (instanceToSubscribersMap.put(target, subscribers) != null)
-            throwRuntimeException("register", target, " already registered");
+            throwIllegalStateException("register", target, " already registered");
     }
 
     void registerProducer(Object target, Class targetClass) {
@@ -125,10 +128,10 @@ public class BusImpl implements Bus {
         } else {
             producers = new HashSet<EventProducer>(classProducers.typedMethodsMap.size());
             for(Entry<Class, Method> entry : classProducers.typedMethodsMap.entrySet()) {
-                final EventProducer producer = new EventProducer(entry.getKey(), target, entry.getValue());
+                final EventProducer producer = getEventProducer(entry.getKey(), target, entry.getValue());
                 if(eventTypeToProducerMap.put(producer.eventClass, producer) != null) {
-                    throwRuntimeException("register", target, " producer for event "
-                            + producer.eventClass +" already registered");
+                    throwIllegalStateException("register", target, " producer for event "
+                            + producer.eventClass + " already registered");
                 }
                 producers.add(producer);
                 final Set<EventSubscriber> subscribers = eventTypeToSubscribersMap.get(producer.eventClass);
@@ -140,12 +143,12 @@ public class BusImpl implements Bus {
             }
         }
         if (instanceToProducersMap.put(target, producers) != null)
-            throwRuntimeException("register", target, " already registered");
+            throwIllegalStateException("register", target, " already registered");
     }
 
     void unregisterSubscribers(Object target) {
         final List<EventSubscriber> subscribers = instanceToSubscribersMap.remove(target);
-        if (subscribers == null) throwRuntimeException("unregister", target, " not registered");
+        if (subscribers == null) throwIllegalStateException("unregister", target, " not registered");
         else if(!subscribers.isEmpty()){
             for (EventSubscriber subscriber : subscribers) {
                 eventTypeToSubscribersMap.get(subscriber.eventClass).remove(subscriber);
@@ -156,7 +159,7 @@ public class BusImpl implements Bus {
 
     void unregisterProducers(Object target) {
         final Set<EventProducer> producers = instanceToProducersMap.remove(target);
-        if (producers == null) throwRuntimeException("unregister", target, " not registered");
+        if (producers == null) throwIllegalStateException("unregister", target, " not registered");
         else if(!producers.isEmpty()) {
             for(EventProducer producer : producers) {
                 eventTypeToProducerMap.remove(producer.eventClass);
@@ -164,8 +167,12 @@ public class BusImpl implements Bus {
         }
     }
 
-    EventSubscriber getEventSubscriber(Class event, Object target, Method method, Dispatcher dispatcher) {
-        return new EventSubscriber(event, target, method, dispatcher);
+    EventSubscriber getEventSubscriber(Class event, Object target, Method method, EventDispatcher dispatcher) {
+        return new EventSubscriber(event, target, method, dispatcher, exceptionHandler);
+    }
+
+    EventProducer getEventProducer(Class event, Object target, Method method) {
+        return new EventProducer(event, target, method, exceptionHandler);
     }
 
     void produce(EventProducer producer, EventSubscriber subscriber) {
@@ -182,7 +189,7 @@ public class BusImpl implements Bus {
         if(logger != null) logger.logEvent(event, element, what);
     }
 
-    protected void throwRuntimeException(String action, Object cause, String message) {
+    protected void throwIllegalStateException(String action, Object cause, String message) {
         throw new IllegalStateException(action + " was failed in " + toString() + ", " + cause + message);
     }
 

@@ -146,7 +146,8 @@ public class GeneralTest {
         assertEquals(subscriber.getSubscribedCount(), 1);
     }
 
-    @Test public void registerSameProducersTest() {
+    @Test(expected = IllegalStateException.class)
+    public void registerSameProducersTest() {
         @Producer
         class Producer1 {
             @Produce public Event produceEvent() {
@@ -162,12 +163,7 @@ public class GeneralTest {
         }
 
         bus.register(new Producer1());
-        try {
-            bus.register(new Producer2());
-            fail();
-        } catch (RuntimeException ignored) {
-            //ignored.printStackTrace();
-        }
+        bus.register(new Producer2());
     }
 
     @Test public void eventInheritanceTest() {

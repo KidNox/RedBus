@@ -1,7 +1,8 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.async.AsyncDispatcherFactory;
-import kidnox.eventbus.impl.BusDefaults;
+import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.internal.bad.BadClass;
 import kidnox.eventbus.internal.bad.BadProducer2;
 import kidnox.eventbus.internal.bad.BadSubscriber2;
@@ -36,8 +37,8 @@ public class ClassExtractorValidationTest {
 
     public ClassExtractorValidationTest(BadClass testInstance) {
         this.testInstance = testInstance;
-        this.classInfoExtractor = BusDefaults.createValidationExtractor(
-                new AsyncDispatcherFactory(Dispatcher.MAIN, Dispatcher.WORKER));
+        this.classInfoExtractor = InternalFactory.createValidationExtractor(
+                new AsyncDispatcherFactory(EventDispatcher.MAIN, EventDispatcher.WORKER));
     }
 
     @Test public void validationTest() {

@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.async.AsyncDispatcherExt;
+import kidnox.eventbus.async.AsyncEventDispatcherExt;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.async.PackageLocalProvider;
 import kidnox.eventbus.async.SingleThreadWorker;
@@ -20,9 +20,9 @@ public class AsyncTest {
         AsyncDispatcherFactory factory = new AsyncDispatcherFactory();
         bus = Bus.Factory.builder().withDispatcherFactory(factory).create();
 
-        final NamedAsyncDispatcher dispatcher1 = new NamedAsyncDispatcher("worker-1");
-        final NamedAsyncDispatcher dispatcher2 = new NamedAsyncDispatcher("worker-2");
-        final NamedAsyncDispatcher dispatcher3 = new NamedAsyncDispatcher("worker-3");
+        final NamedAsyncEventDispatcher dispatcher1 = new NamedAsyncEventDispatcher("worker-1");
+        final NamedAsyncEventDispatcher dispatcher2 = new NamedAsyncEventDispatcher("worker-2");
+        final NamedAsyncEventDispatcher dispatcher3 = new NamedAsyncEventDispatcher("worker-3");
 
         addDispatchersToFactory(factory, dispatcher1, dispatcher2, dispatcher3);
 
@@ -78,7 +78,7 @@ public class AsyncTest {
 
     @Test public void asyncPost() throws InterruptedException {
         final Bus bus = Bus.Factory.createDefault();
-        final NamedAsyncDispatcher dispatcher1 = new NamedAsyncDispatcher("worker-1");
+        final NamedAsyncEventDispatcher dispatcher1 = new NamedAsyncEventDispatcher("worker-1");
 
         @Subscriber
         class SubscriberClass extends AbsAsyncSubscriber {
@@ -106,16 +106,16 @@ public class AsyncTest {
     }
 
     @Test public void testAsyncDispatcherFactory() throws InterruptedException {
-        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
+                .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder()
                 .withDispatcherFactory(factory)
                 .create();
 
-        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.getDispatcher(Dispatcher.WORKER);
+        final AsyncEventDispatcherExt dispatcher = (AsyncEventDispatcherExt) factory.getDispatcher(EventDispatcher.WORKER);
         final SingleThreadWorker worker = PackageLocalProvider.getSingleThreadWorker(dispatcher);
 
-        @Subscriber(Dispatcher.WORKER)
+        @Subscriber(EventDispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Object event) {
                 currentEvent = event;
@@ -134,19 +134,19 @@ public class AsyncTest {
     }
 
     @Test public void asyncUnregisterTest() throws InterruptedException {
-        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
+                .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder()
                 .withDispatcherFactory(factory)
                 .create();
 
-        final AsyncDispatcherExt dispatcher = (AsyncDispatcherExt) factory.getDispatcher(Dispatcher.WORKER);
+        final AsyncEventDispatcherExt dispatcher = (AsyncEventDispatcherExt) factory.getDispatcher(EventDispatcher.WORKER);
         final SingleThreadWorker worker = PackageLocalProvider.getSingleThreadWorker(dispatcher);
 
         final AtomicBoolean isRegistered = new AtomicBoolean();
         final AtomicBoolean mustFail = new AtomicBoolean(false);
 
-        @Subscriber(Dispatcher.WORKER)
+        @Subscriber(EventDispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Object event) {
                 mustFail.set(!isRegistered.get());
@@ -175,17 +175,17 @@ public class AsyncTest {
     @Test public void produceTest() throws InterruptedException {
         final Thread thread = Thread.currentThread();
 
-        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
+                .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder()
                 .withDispatcherFactory(factory)
                 .create();
 
-        @Subscriber(Dispatcher.WORKER)
+        @Subscriber(EventDispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Event event) {
                 currentEvent = event;
-                SingleThreadWorker worker = TestUtils.getSTWorkerForName(Dispatcher.WORKER, factory);
+                SingleThreadWorker worker = TestUtils.getSTWorkerForName(EventDispatcher.WORKER, factory);
                 checkThread(worker.getWorkerThread());
 
                 synchronized (thread) {

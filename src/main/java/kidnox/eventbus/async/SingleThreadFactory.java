@@ -30,7 +30,7 @@ public final class SingleThreadFactory implements ThreadFactory {
     }
 
 
-    public static class RunnableProxy implements Runnable {
+    static class RunnableProxy implements Runnable {
         volatile Runnable real;
 
         @Override public void run() {

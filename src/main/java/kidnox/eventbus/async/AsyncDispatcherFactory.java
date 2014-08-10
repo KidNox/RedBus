@@ -3,16 +3,18 @@ package kidnox.eventbus.async;
 import android.os.Handler;
 import android.os.Looper;
 
-import kidnox.eventbus.Dispatcher;
-import kidnox.eventbus.impl.AsyncDispatcher;
-import kidnox.eventbus.impl.BusDefaults;
+import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.impl.AsyncEventDispatcher;
+import kidnox.eventbus.internal.InternalFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class AsyncDispatcherFactory implements Dispatcher.Factory {
+import static kidnox.eventbus.utils.Utils.checkNotNull;
 
-    protected final Map<String, Dispatcher> dispatchersMap;
+public class AsyncDispatcherFactory implements EventDispatcher.Factory {
+
+    protected final Map<String, EventDispatcher> dispatchersMap;
     protected final Thread.UncaughtExceptionHandler exceptionHandler;
 
     public AsyncDispatcherFactory(String... dispatchers) {
@@ -25,19 +27,19 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
     }
 
     public AsyncDispatcherFactory(Thread.UncaughtExceptionHandler exceptionHandler) {
-        this(new HashMap<String, Dispatcher>(), exceptionHandler);
+        this(new HashMap<String, EventDispatcher>(), exceptionHandler);
     }
 
-    public AsyncDispatcherFactory(Map<String, Dispatcher> map, Thread.UncaughtExceptionHandler exceptionHandler) {
+    public AsyncDispatcherFactory(Map<String, EventDispatcher> map, Thread.UncaughtExceptionHandler exceptionHandler) {
         dispatchersMap = map;
         this.exceptionHandler = exceptionHandler;
     }
 
-    @Override public Dispatcher getDispatcher(String name) {
-        Dispatcher dispatcher = dispatchersMap.get(name);
+    @Override public EventDispatcher getDispatcher(String name) {
+        EventDispatcher dispatcher = dispatchersMap.get(name);
         if(dispatcher == null) {
             if(name.isEmpty()) {
-                return BusDefaults.CURRENT_THREAD_DISPATCHER;
+                return InternalFactory.CURRENT_THREAD_DISPATCHER;
             } else {
                 throw new IllegalArgumentException("Dispatcher ["+name+"] not found");
             }
@@ -45,8 +47,8 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
         return dispatcher;
     }
 
-    public AsyncDispatcherFactory addDispatcher(String key, Dispatcher dispatcher) {
-        dispatchersMap.put(key, dispatcher);
+    public AsyncDispatcherFactory addDispatcher(String key, EventDispatcher dispatcher) {
+        dispatchersMap.put(checkNotNull(key), checkNotNull(dispatcher));
         return this;
     }
 
@@ -62,31 +64,31 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
         return this;
     }
 
-    public static Dispatcher createAsyncDispatcher(String name) {
-        return new AsyncDispatcherExt(new SingleThreadWorker(name));
+    public static EventDispatcher createAsyncDispatcher(String name) {
+        return new AsyncEventDispatcherExt(new SingleThreadWorker(name));
     }
 
-    public static Dispatcher createAsyncDispatcher(String name, Thread.UncaughtExceptionHandler exceptionHandler) {
-        return new AsyncDispatcherExt(new SingleThreadWorker(name).withUncaughtExceptionHandler(exceptionHandler));
+    public static EventDispatcher createAsyncDispatcher(String name, Thread.UncaughtExceptionHandler exceptionHandler) {
+        return new AsyncEventDispatcherExt(new SingleThreadWorker(name).withUncaughtExceptionHandler(exceptionHandler));
     }
 
-    public static Dispatcher getWorkerDispatcher() {
-        return createAsyncDispatcher(Dispatcher.WORKER);
+    public static EventDispatcher getWorkerDispatcher() {
+        return createAsyncDispatcher(EventDispatcher.WORKER);
     }
 
     public static AsyncDispatcherFactory getAndroidDispatcherFactory() {
         return new AsyncDispatcherFactory(getAndroidDefaultDispatchersMap(), null);
     }
 
-    public static Map<String, Dispatcher> getAndroidDefaultDispatchersMap() {
-        Map<String, Dispatcher> map = new HashMap<String, Dispatcher>();
-        map.put(Dispatcher.MAIN, getAndroidMainDispatcher());
-        map.put(Dispatcher.WORKER, getWorkerDispatcher());
+    public static Map<String, EventDispatcher> getAndroidDefaultDispatchersMap() {
+        Map<String, EventDispatcher> map = new HashMap<String, EventDispatcher>();
+        map.put(EventDispatcher.MAIN, getAndroidMainDispatcher());
+        map.put(EventDispatcher.WORKER, getWorkerDispatcher());
         return map;
     }
 
-    public static Dispatcher getAndroidMainDispatcher() {
-        return new AsyncDispatcher() {
+    public static EventDispatcher getAndroidMainDispatcher() {
+        return new AsyncEventDispatcher() {
             final Handler handler = new Handler(Looper.getMainLooper());
             @Override protected void dispatch(Runnable runnable) {
                 handler.post(runnable);

@@ -1,6 +1,6 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.Dispatcher;
+import kidnox.eventbus.EventDispatcher;
 import kidnox.eventbus.Produce;
 import kidnox.eventbus.Subscribe;
 
@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-final class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
+public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
 
-    ClassInfoExtractorValidation(Dispatcher.Factory factory) {
+    public ClassInfoExtractorValidation(EventDispatcher.Factory factory) {
         super(factory);
     }
 

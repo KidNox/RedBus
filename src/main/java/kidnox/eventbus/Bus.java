@@ -1,12 +1,10 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.impl.BusImpl;
 import kidnox.eventbus.impl.SynchronizedBus;
+import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.utils.BusBuilder;
 import kidnox.eventbus.utils.Utils;
-
-import static kidnox.eventbus.impl.BusDefaults.*;
 
 public interface Bus {
 
@@ -19,17 +17,13 @@ public interface Bus {
 
     public static final class Factory {
 
-        public static Bus createBus(String name, int type, ClassInfoExtractor classInfoExtractor,
-                             DeadEventHandler deadEventHandler, EventLogger eventLogger, Interceptor interceptor) {
-            switch (type) {
-                case NO_SYNC_BUS:
-                    return new BusImpl(name, classInfoExtractor, eventLogger, deadEventHandler, interceptor);
-                case SYNCHRONIZED_BUS:
-                    return new SynchronizedBus(name, classInfoExtractor, eventLogger, deadEventHandler, interceptor);
-                case ASYNC_BUS:
-                    return new AsyncBus(name, classInfoExtractor, eventLogger, deadEventHandler, interceptor);
-                default:
-                    throw new IllegalArgumentException();
+        public static Bus createBus(String name, boolean sync, ClassInfoExtractor extractor,
+                             DeadEventHandler deadEventHandler, EventLogger eventLogger,
+                             Interceptor interceptor, ExceptionHandler exHandler) {
+            if(sync) {
+                return new SynchronizedBus(name, extractor, eventLogger, deadEventHandler, interceptor, exHandler);
+            } else {
+                return new BusImpl(name, extractor, eventLogger, deadEventHandler, interceptor, exHandler);
             }
         }
 

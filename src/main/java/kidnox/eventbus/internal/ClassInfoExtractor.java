@@ -1,8 +1,7 @@
-package kidnox.eventbus;
+package kidnox.eventbus.internal;
 
 import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
-import kidnox.eventbus.elements.ClassType;
 
 public interface ClassInfoExtractor {
 
