@@ -31,7 +31,7 @@ public class RegisterUnregisterTest {
     }
 
     @Before public void setUp() throws Exception {
-        bus = BusFactory.getDefault();
+        bus = Bus.Factory.createDefault();
     }
 
     @Test public void registerUnregisterTest() {

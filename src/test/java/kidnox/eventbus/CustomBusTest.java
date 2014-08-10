@@ -1,7 +1,7 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.impl.BusImpl;
-import kidnox.eventbus.impl.EventSubscriber;
+import kidnox.eventbus.elements.EventSubscriber;
 import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.internal.*;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class CustomBusTest {
 
     @Test public void deadEventHandlerTest() {
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
-        bus = BusFactory.builder().withDeadEventHandler(deadEventHandler).create();
+        bus = Bus.Factory.builder().withDeadEventHandler(deadEventHandler).create();
 
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
@@ -34,9 +34,9 @@ public class CustomBusTest {
     }
 
     @Test public void dispatcherFactoryTest() {
-        BusImpl bus = (BusImpl) BusFactory.builder().withDispatcherFactory(new Dispatcher.Factory() {
+        BusImpl bus = (BusImpl) Bus.Factory.builder().withDispatcherFactory(new Dispatcher.Factory() {
             @Override public Dispatcher getDispatcher(String name) {
-                fail("must not be called");
+                fail("must not be called");//TODO
                 return null;
             }
         }).create();
@@ -48,8 +48,7 @@ public class CustomBusTest {
         bus.unregister(target);
 
         final SimpleDispatcher dispatcher = new SimpleDispatcher();
-        BusFactory.Builder builder = BusFactory.builder();
-        bus = (BusImpl) builder.withDispatcherFactory(new Dispatcher.Factory() {
+        bus = (BusImpl) Bus.Factory.builder().withDispatcherFactory(new Dispatcher.Factory() {
             @Override public Dispatcher getDispatcher(String dispatcherName) {
                 return dispatcher;
             }
@@ -71,7 +70,7 @@ public class CustomBusTest {
 
     @Test public void eventLoggerTest() {
         final EventLoggerImpl logger = new EventLoggerImpl();
-        bus = BusFactory.builder().withEventLogger(logger).create();
+        bus = Bus.Factory.builder().withEventLogger(logger).create();
 
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);

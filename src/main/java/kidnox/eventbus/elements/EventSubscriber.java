@@ -1,7 +1,7 @@
-package kidnox.eventbus.impl;
+package kidnox.eventbus.elements;
 
 import kidnox.eventbus.Dispatcher;
-import kidnox.eventbus.Element;
+import kidnox.eventbus.impl.AsyncDispatcher;
 import kidnox.eventbus.utils.Utils;
 
 import java.lang.reflect.Method;
@@ -15,7 +15,7 @@ public class EventSubscriber extends Element {
     //Unregister should be called from invocation thread, otherwise invoke may be called after unregister.
     private boolean valid = true;
 
-    EventSubscriber(Class eventClass, Object target, Method method, Dispatcher dispatcher) {
+    public EventSubscriber(Class eventClass, Object target, Method method, Dispatcher dispatcher) {
         super(eventClass, target, method);
         this.dispatcher = dispatcher;
         asyncDispatcher = getAsyncDispatcher(dispatcher);

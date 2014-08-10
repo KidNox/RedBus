@@ -1,4 +1,6 @@
-package kidnox.eventbus;
+package kidnox.eventbus.elements;
+
+import kidnox.eventbus.Dispatcher;
 
 import java.lang.reflect.Method;
 import java.util.Map;

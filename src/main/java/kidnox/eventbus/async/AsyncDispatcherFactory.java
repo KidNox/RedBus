@@ -92,7 +92,7 @@ public class AsyncDispatcherFactory implements Dispatcher.Factory {
                 handler.post(runnable);
             }
 
-            @Override protected boolean inCurrentThread() {
+            @Override public boolean inCurrentThread() {
                 return Looper.myLooper() == Looper.getMainLooper();
             }
         };

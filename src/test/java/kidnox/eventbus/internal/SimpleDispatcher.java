@@ -1,7 +1,7 @@
 package kidnox.eventbus.internal;
 
 import kidnox.eventbus.Dispatcher;
-import kidnox.eventbus.impl.EventSubscriber;
+import kidnox.eventbus.elements.EventSubscriber;
 
 public class SimpleDispatcher implements Dispatcher {
 

@@ -18,7 +18,7 @@ public class AsyncTest {
 
     @Test public void baseAsyncTest() throws InterruptedException {
         AsyncDispatcherFactory factory = new AsyncDispatcherFactory();
-        bus = BusFactory.builder().withDispatcherFactory(factory).create();
+        bus = Bus.Factory.builder().withDispatcherFactory(factory).create();
 
         final NamedAsyncDispatcher dispatcher1 = new NamedAsyncDispatcher("worker-1");
         final NamedAsyncDispatcher dispatcher2 = new NamedAsyncDispatcher("worker-2");
@@ -77,7 +77,7 @@ public class AsyncTest {
     }
 
     @Test public void asyncPost() throws InterruptedException {
-        final Bus bus = BusFactory.getDefault();
+        final Bus bus = Bus.Factory.createDefault();
         final NamedAsyncDispatcher dispatcher1 = new NamedAsyncDispatcher("worker-1");
 
         @Subscriber
@@ -108,7 +108,7 @@ public class AsyncTest {
     @Test public void testAsyncDispatcherFactory() throws InterruptedException {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
-        final Bus bus = BusFactory.builder()
+        final Bus bus = Bus.Factory.builder()
                 .withDispatcherFactory(factory)
                 .create();
 
@@ -136,7 +136,7 @@ public class AsyncTest {
     @Test public void asyncUnregisterTest() throws InterruptedException {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
-        final Bus bus = BusFactory.builder()
+        final Bus bus = Bus.Factory.builder()
                 .withDispatcherFactory(factory)
                 .create();
 
@@ -177,7 +177,7 @@ public class AsyncTest {
 
         final Dispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
-        final Bus bus = BusFactory.builder()
+        final Bus bus = Bus.Factory.builder()
                 .withDispatcherFactory(factory)
                 .create();
 

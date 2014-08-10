@@ -1,9 +1,8 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.ClassInfoExtractor;
-import kidnox.eventbus.DeadEventHandler;
-import kidnox.eventbus.Dispatcher;
-import kidnox.eventbus.EventLogger;
+import kidnox.eventbus.*;
+import kidnox.eventbus.elements.AsyncEventSubscriber;
+import kidnox.eventbus.elements.EventSubscriber;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
@@ -14,9 +13,9 @@ public class AsyncBus extends BusImpl {
 
     public final Executor busExecutor;
 
-    public AsyncBus(String name, ClassInfoExtractor classInfoExtractor,
-                    EventLogger logger, DeadEventHandler deadEventHandler) {
-        super(name, classInfoExtractor, logger, deadEventHandler);
+    public AsyncBus(String name, ClassInfoExtractor classInfoExtractor, EventLogger logger,
+                    DeadEventHandler deadEventHandler, Interceptor interceptor) {
+        super(name, classInfoExtractor, logger, deadEventHandler, interceptor);
         busExecutor = Executors.newSingleThreadExecutor();
     }
 

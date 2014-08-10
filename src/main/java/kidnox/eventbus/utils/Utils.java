@@ -3,6 +3,7 @@ package kidnox.eventbus.utils;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+/**internal*/
 public final class Utils {
 
     public static <T> T checkNotNull(T instance) {
@@ -24,6 +25,10 @@ public final class Utils {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static BusBuilder getBuilder() {
+        return new BusBuilder();
     }
 
 

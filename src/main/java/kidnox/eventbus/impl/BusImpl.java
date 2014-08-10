@@ -1,6 +1,10 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
+import kidnox.eventbus.elements.ClassProducers;
+import kidnox.eventbus.elements.ClassSubscribers;
+import kidnox.eventbus.elements.EventProducer;
+import kidnox.eventbus.elements.EventSubscriber;
 import kidnox.eventbus.utils.Utils;
 
 import java.lang.reflect.Method;
@@ -10,8 +14,9 @@ import static java.util.Map.Entry;
 
 public class BusImpl implements Bus {
 
-    public static final String POST = "post";
-    public static final String PRODUCE = "produce";
+    public static final String POST         = "post";
+    public static final String PRODUCE      = "produce";
+    public static final String INTERCEPT    = "intercept";
 
     final Map<Object, List<EventSubscriber>> instanceToSubscribersMap = new HashMap<Object, List<EventSubscriber>>();
     final Map<Class, Set<EventSubscriber>> eventTypeToSubscribersMap = new HashMap<Class, Set<EventSubscriber>>();
@@ -22,14 +27,16 @@ public class BusImpl implements Bus {
     final String name;
     final EventLogger logger;
     final DeadEventHandler deadEventHandler;
+    final Interceptor interceptor;
 
     final ClassInfoExtractor classInfoExtractor;
 
-    public BusImpl(String name, ClassInfoExtractor classInfoExtractor,
-                   EventLogger logger, DeadEventHandler deadEventHandler) {
+    public BusImpl(String name, ClassInfoExtractor classInfoExtractor, EventLogger logger,
+                   DeadEventHandler deadEventHandler, Interceptor interceptor) {
         this.name = name;
         this.logger = logger;
         this.deadEventHandler = deadEventHandler;
+        this.interceptor = interceptor;
         this.classInfoExtractor = classInfoExtractor;
     }
 
@@ -68,6 +75,10 @@ public class BusImpl implements Bus {
 
     @Override public void post(Object event) {
         Set<EventSubscriber> set = eventTypeToSubscribersMap.get(event.getClass());
+        if(interceptor != null && interceptor.intercept(event)) {
+            logEvent(event, set, INTERCEPT);
+            return;
+        }
         logEvent(event, set, POST);
         if (Utils.notEmpty(set)) {
             for (EventSubscriber subscriber : set) {
@@ -159,6 +170,10 @@ public class BusImpl implements Bus {
 
     void produce(EventProducer producer, EventSubscriber subscriber) {
         Object event = producer.invoke(null);
+        if(interceptor != null && interceptor.intercept(event)) {
+            logEvent(event, subscriber, INTERCEPT);
+            return;
+        }
         logEvent(event, subscriber, PRODUCE);
         subscriber.receive(event);
     }

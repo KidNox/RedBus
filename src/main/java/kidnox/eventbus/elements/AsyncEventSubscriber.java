@@ -1,6 +1,7 @@
-package kidnox.eventbus.impl;
+package kidnox.eventbus.elements;
 
 import kidnox.eventbus.Dispatcher;
+import kidnox.eventbus.impl.AsyncDispatcher;
 import kidnox.eventbus.utils.Utils;
 
 import java.lang.reflect.Method;
@@ -10,7 +11,7 @@ public final class AsyncEventSubscriber extends EventSubscriber {
 
     private volatile boolean valid = true;
 
-    protected AsyncEventSubscriber(Class eventClass, Object target, Method method, Dispatcher dispatcher) {
+    public AsyncEventSubscriber(Class eventClass, Object target, Method method, Dispatcher dispatcher) {
         super(eventClass, target, method, dispatcher);
     }
 

@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.impl.EventSubscriber;
+import kidnox.eventbus.elements.EventSubscriber;
 
 public interface Dispatcher {
 

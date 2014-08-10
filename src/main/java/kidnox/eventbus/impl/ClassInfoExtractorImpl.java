@@ -1,6 +1,9 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
+import kidnox.eventbus.elements.ClassProducers;
+import kidnox.eventbus.elements.ClassSubscribers;
+import kidnox.eventbus.elements.ClassType;
 import kidnox.eventbus.utils.Utils;
 
 import java.lang.annotation.Annotation;
@@ -80,7 +83,6 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 }
             }
         }
-
         final Dispatcher dispatcher = getDispatcher(value);
         ClassSubscribers classSubscribers = typedMethodsMap == null ?
                 ClassSubscribers.EMPTY : new ClassSubscribers(dispatcher, typedMethodsMap);
@@ -123,7 +125,6 @@ class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 }
             }
         }
-
         ClassProducers classProducers = typedMethodsMap == null ?
                 ClassProducers.EMPTY : new ClassProducers(typedMethodsMap);
         producersCache.put(clazz, classProducers);

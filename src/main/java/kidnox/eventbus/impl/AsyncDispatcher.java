@@ -1,6 +1,7 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.Dispatcher;
+import kidnox.eventbus.elements.EventSubscriber;
 
 public abstract class AsyncDispatcher implements Dispatcher {
 
@@ -10,7 +11,7 @@ public abstract class AsyncDispatcher implements Dispatcher {
         dispatch(getRunnableSubscription(subscriber, event));
     }
 
-    protected boolean inCurrentThread(){
+    public boolean inCurrentThread(){
         return false;
     }
 

@@ -1,13 +1,12 @@
-package kidnox.eventbus.impl;
+package kidnox.eventbus.elements;
 
-import kidnox.eventbus.Element;
 import kidnox.eventbus.utils.Utils;
 
 import java.lang.reflect.Method;
 
 public final class EventProducer extends Element {
 
-    EventProducer(Class eventClass, Object target, Method method) {
+    public EventProducer(Class eventClass, Object target, Method method) {
         super(eventClass, target, method);
     }
 

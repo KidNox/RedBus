@@ -1,6 +1,10 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
+import kidnox.eventbus.elements.ClassProducers;
+import kidnox.eventbus.elements.ClassSubscribers;
+import kidnox.eventbus.elements.ClassType;
+import kidnox.eventbus.elements.EventSubscriber;
 
 import java.util.List;
 import java.util.Map;

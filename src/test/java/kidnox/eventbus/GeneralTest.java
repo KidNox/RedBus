@@ -17,7 +17,7 @@ public class GeneralTest {
     private Bus bus;
 
     @Before public void setUp() throws Exception {
-        bus = BusFactory.getDefault();
+        bus = Bus.Factory.createDefault();
     }
 
     @Test public void baseTest() {

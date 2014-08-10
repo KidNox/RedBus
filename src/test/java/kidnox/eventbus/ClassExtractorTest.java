@@ -2,6 +2,9 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.async.AsyncDispatcherExt;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
+import kidnox.eventbus.elements.ClassProducers;
+import kidnox.eventbus.elements.ClassSubscribers;
+import kidnox.eventbus.elements.ClassType;
 import kidnox.eventbus.internal.bad.BadChildProducer;
 import kidnox.eventbus.internal.bad.BadChildSubscriber;
 import kidnox.eventbus.internal.bad.BadProducer;
