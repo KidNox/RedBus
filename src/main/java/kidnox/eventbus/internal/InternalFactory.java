@@ -19,12 +19,9 @@ public final class InternalFactory {
         }
     };
 
-    public static ClassInfoExtractor createDefaultExtractor(EventDispatcher.Factory factory) {
-        return new ClassInfoExtractorImpl(factory);
-    }
-
-    public static ClassInfoExtractor createValidationExtractor(EventDispatcher.Factory factory) {
-        return new ClassInfoExtractorValidation(factory);
+    public static ClassInfoExtractor createClassInfoExtractor(EventDispatcher.Factory factory, boolean validate) {
+        if(validate) return new ClassInfoExtractorValidation(factory);
+        else return new ClassInfoExtractorImpl(factory);
     }
 
     public static EventDispatcher.Factory createDefaultEventDispatcherFactory() {

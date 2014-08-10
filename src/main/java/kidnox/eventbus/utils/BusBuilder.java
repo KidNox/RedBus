@@ -34,11 +34,6 @@ public final class BusBuilder {
         return this;
     }
 
-//        public Builder asyncBus() {
-//            this.type = ASYNC_BUS;
-//            return this;
-//        }
-
     public BusBuilder withEventLogger(EventLogger eventLogger) {
         this.eventLogger = checkNotNull(eventLogger);
         return this;
@@ -75,8 +70,7 @@ public final class BusBuilder {
     }
 
     public Bus create() {
-        classInfoExtractor = validate ? InternalFactory.createValidationExtractor(dispatcherFactory)
-                : InternalFactory.createDefaultExtractor(dispatcherFactory);
+        classInfoExtractor = InternalFactory.createClassInfoExtractor(dispatcherFactory, validate);
         return Bus.Factory.createBus(name, sync, classInfoExtractor, deadEventHandler,
                 eventLogger, interceptor, exceptionHandler);
     }

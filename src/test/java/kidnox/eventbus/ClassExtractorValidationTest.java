@@ -37,8 +37,8 @@ public class ClassExtractorValidationTest {
 
     public ClassExtractorValidationTest(BadClass testInstance) {
         this.testInstance = testInstance;
-        this.classInfoExtractor = InternalFactory.createValidationExtractor(
-                new AsyncDispatcherFactory(EventDispatcher.MAIN, EventDispatcher.WORKER));
+        this.classInfoExtractor = InternalFactory.createClassInfoExtractor(
+                new AsyncDispatcherFactory(EventDispatcher.MAIN, EventDispatcher.WORKER), true);
     }
 
     @Test public void validationTest() {
