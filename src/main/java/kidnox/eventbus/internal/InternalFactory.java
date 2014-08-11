@@ -1,4 +1,4 @@
-package kidnox.eventbus.test;
+package kidnox.eventbus.internal;
 
 import kidnox.eventbus.EventDispatcher;
 import kidnox.eventbus.EventLogger;

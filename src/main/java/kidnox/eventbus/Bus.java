@@ -2,7 +2,7 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.impl.BusImpl;
 import kidnox.eventbus.impl.SynchronizedBus;
-import kidnox.eventbus.test.ClassInfoExtractor;
+import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.util.BusBuilder;
 import kidnox.eventbus.util.Utils;
 

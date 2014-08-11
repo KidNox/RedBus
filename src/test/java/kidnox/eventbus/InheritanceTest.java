@@ -2,6 +2,8 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
+import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Test;

@@ -5,7 +5,7 @@ import android.os.Looper;
 
 import kidnox.eventbus.EventDispatcher;
 import kidnox.eventbus.impl.AsyncEventDispatcher;
-import kidnox.eventbus.test.InternalFactory;
+import kidnox.eventbus.internal.InternalFactory;
 
 import java.util.HashMap;
 import java.util.Map;

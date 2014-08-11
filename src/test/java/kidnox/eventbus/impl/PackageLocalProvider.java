@@ -3,9 +3,9 @@ package kidnox.eventbus.impl;
 import kidnox.eventbus.*;
 import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
-import kidnox.eventbus.test.ClassType;
+import kidnox.eventbus.internal.ClassType;
 import kidnox.eventbus.elements.EventSubscriber;
-import kidnox.eventbus.test.ClassInfoExtractor;
+import kidnox.eventbus.internal.ClassInfoExtractor;
 
 import java.util.List;
 import java.util.Map;

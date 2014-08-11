@@ -2,8 +2,8 @@ package kidnox.eventbus.util;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
-import kidnox.eventbus.test.ClassInfoExtractor;
-import kidnox.eventbus.test.InternalFactory;
+import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.InternalFactory;
 
 public final class BusBuilder {
 

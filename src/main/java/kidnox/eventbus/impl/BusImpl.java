@@ -5,8 +5,8 @@ import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
 import kidnox.eventbus.elements.EventProducer;
 import kidnox.eventbus.elements.EventSubscriber;
-import kidnox.eventbus.test.ClassInfoExtractor;
-import kidnox.eventbus.test.InternalFactory;
+import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.util.Utils;
 
 import java.lang.reflect.Method;
