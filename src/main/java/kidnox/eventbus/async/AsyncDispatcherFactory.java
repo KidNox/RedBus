@@ -5,12 +5,12 @@ import android.os.Looper;
 
 import kidnox.eventbus.EventDispatcher;
 import kidnox.eventbus.impl.AsyncEventDispatcher;
-import kidnox.eventbus.internal.InternalFactory;
+import kidnox.eventbus.test.InternalFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static kidnox.eventbus.utils.Utils.checkNotNull;
+import static kidnox.eventbus.util.Utils.checkNotNull;
 
 public class AsyncDispatcherFactory implements EventDispatcher.Factory {
 

@@ -4,12 +4,12 @@ import kidnox.eventbus.async.AsyncEventDispatcherExt;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.async.PackageLocalProvider;
 import kidnox.eventbus.async.SingleThreadWorker;
-import kidnox.eventbus.internal.*;
+import kidnox.eventbus.test.*;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static kidnox.eventbus.internal.TestUtils.addDispatchersToFactory;
+import static kidnox.eventbus.test.TestUtils.addDispatchersToFactory;
 import static org.junit.Assert.*;
 
 public class AsyncTest {
@@ -212,7 +212,7 @@ public class AsyncTest {
             thread.wait();
         }
 
-        assertEquals(producerClass.getProducedCount(), 1);
+        assertEquals(1, producerClass.getProducedCount());
         assertNotNull(subscriberClass.getCurrentEvent());
     }
 

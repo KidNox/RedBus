@@ -1,7 +1,7 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.ExceptionHandler;
-import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.test.ClassInfoExtractor;
 import kidnox.eventbus.DeadEventHandler;
 import kidnox.eventbus.EventLogger;
 import kidnox.eventbus.Interceptor;

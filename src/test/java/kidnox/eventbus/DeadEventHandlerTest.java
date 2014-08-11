@@ -1,8 +1,8 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.Event;
-import kidnox.eventbus.internal.SimpleDeadEventHandler;
-import kidnox.eventbus.internal.SimpleSubscriber;
+import kidnox.eventbus.test.Event;
+import kidnox.eventbus.test.SimpleDeadEventHandler;
+import kidnox.eventbus.test.SimpleSubscriber;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNull;
 
 public class DeadEventHandlerTest {
 
-    @Test public void deadEventHandlerTest() {
+    @Test public void deadEventPostTest() {
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
         Bus bus = Bus.Factory.builder().withDeadEventHandler(deadEventHandler).create();
 

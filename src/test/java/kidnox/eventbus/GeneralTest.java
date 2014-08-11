@@ -1,8 +1,8 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.*;
-import kidnox.eventbus.internal.bad.BadSubscriber;
-import kidnox.eventbus.internal.bad.BadSubscriber2;
+import kidnox.eventbus.test.*;
+import kidnox.eventbus.test.bad.BadSubscriber;
+import kidnox.eventbus.test.bad.BadSubscriber2;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,9 +68,9 @@ public class GeneralTest {
         assertEquals(event, subscriber2.getCurrentEvent());
         assertEquals(event, subscriber3.getCurrentEvent());
 
-        assertEquals(subscriber1.getSubscribedCount(), 1);
-        assertEquals(subscriber2.getSubscribedCount(), 1);
-        assertEquals(subscriber3.getSubscribedCount(), 1);
+        assertEquals(1, subscriber1.getSubscribedCount());
+        assertEquals(1, subscriber2.getSubscribedCount());
+        assertEquals(1, subscriber3.getSubscribedCount());
     }
 
     @Test public void producerTest() {
@@ -85,7 +85,7 @@ public class GeneralTest {
         bus.unregister(producer);
         bus.unregister(subscriber);
 
-        assertEquals(subscriber.getSubscribedCount(), 1);
+        assertEquals(1, subscriber.getSubscribedCount());
 
         subscriber = new SimpleSubscriber();
 
@@ -93,7 +93,7 @@ public class GeneralTest {
         bus.register(producer);
 
         assertNotNull(subscriber.getCurrentEvent());
-        assertEquals(producer.getProducedCount(), 2);
+        assertEquals(2, producer.getProducedCount());
     }
 
     @Test public void largeSubscriberTest() {
@@ -129,21 +129,21 @@ public class GeneralTest {
     @Test public void registerProducerWithoutSubscribersTest() {
         SimpleProducer producer = new SimpleProducer();
         bus.register(producer);
-        assertEquals(producer.getProducedCount(), 0);
+        assertEquals(0, producer.getProducedCount());
         bus.post(new Event());
         bus.register(new Object());
         bus.post(new Object());
-        assertEquals(producer.getProducedCount(), 0);
+        assertEquals(0, producer.getProducedCount());
 
         bus.unregister(producer);
-        assertEquals(producer.getProducedCount(), 0);
+        assertEquals(0, producer.getProducedCount());
 
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
-        assertEquals(producer.getProducedCount(), 0);
-        assertEquals(subscriber.getSubscribedCount(), 0);
+        assertEquals(0, producer.getProducedCount());
+        assertEquals(0, subscriber.getSubscribedCount());
         bus.post(new Event());
-        assertEquals(subscriber.getSubscribedCount(), 1);
+        assertEquals(1, subscriber.getSubscribedCount());
     }
 
     @Test(expected = IllegalStateException.class)

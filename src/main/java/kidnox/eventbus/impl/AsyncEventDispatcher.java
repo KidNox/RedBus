@@ -18,7 +18,8 @@ public abstract class AsyncEventDispatcher implements EventDispatcher {
     }
 
     @Override public void dispatchProduce(EventProducer eventProducer, EventSubscriber eventSubscriber) {
-
+        //TODO
+        eventSubscriber.receive(eventProducer.invoke(null));
     }
 
     public boolean inCurrentThread(){
@@ -33,7 +34,7 @@ public abstract class AsyncEventDispatcher implements EventDispatcher {
             }
         };
     }
-
+    //TODO
     static Runnable getRunnableProduction(final EventProducer eventProducer, final EventSubscriber eventSubscriber) {
         return new Runnable() {
             @Override public void run() {

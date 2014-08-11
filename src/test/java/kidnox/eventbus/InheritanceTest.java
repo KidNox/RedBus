@@ -1,12 +1,15 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.*;
+import kidnox.eventbus.elements.ClassProducers;
+import kidnox.eventbus.elements.ClassSubscribers;
+import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import static kidnox.eventbus.impl.PackageLocalProvider.getProducersCache;
 import static kidnox.eventbus.impl.PackageLocalProvider.getSubscibersCache;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class InheritanceTest {
 
@@ -23,7 +26,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getTypeOf(SubscriberExt.class);
-        assertEquals(getSubscibersCache(classInfoExtractor).size(), 1);
+        assertEquals(1, getSubscibersCache(classInfoExtractor).size());
     }
 
     @Test public void overriddenProducerTest() {
@@ -34,7 +37,51 @@ public class InheritanceTest {
             }
         }
         classInfoExtractor.getTypeOf(ProducerExt.class);
-        assertEquals(getProducersCache(classInfoExtractor).size(), 1);
+        assertEquals(1, getProducersCache(classInfoExtractor).size());
+    }
+
+    @Test public void overriddenSubscriberTest2() {
+        @Subscriber
+        class SubscriberExt extends SimpleSubscriber {}
+
+        classInfoExtractor.getTypeOf(SubscriberExt.class);
+        assertEquals(1, getSubscibersCache(classInfoExtractor).size());
+        assertFalse(ClassSubscribers.isNullOrEmpty(
+                getSubscibersCache(classInfoExtractor).entrySet().iterator().next().getValue()));
+    }
+
+    @Test public void overriddenProducerTest2() {
+        @Producer
+        class ProducerExt extends SimpleProducer {}
+
+        classInfoExtractor.getTypeOf(ProducerExt.class);
+        assertEquals(1, getProducersCache(classInfoExtractor).size());
+        assertFalse(ClassProducers.isNullOrEmpty(
+                getProducersCache(classInfoExtractor).entrySet().iterator().next().getValue()));
+    }
+
+    @Test public void overriddenSubscriberTest3() {
+        @Subscriber
+        class SubscriberExt extends SimpleSubscriber {
+            @Override public void obtainEvent(Event event) {
+                super.obtainEvent(event);
+            }
+        }
+
+        classInfoExtractor.getTypeOf(SubscriberExt.class);
+        assertEquals(1, getSubscibersCache(classInfoExtractor).size());
+    }
+
+    @Test public void overriddenProducerTest3() {
+        @Producer
+        class ProducerExt extends SimpleProducer {
+            @Override public Event produceEvent() {
+                return super.produceEvent();
+            }
+        }
+
+        classInfoExtractor.getTypeOf(ProducerExt.class);
+        assertEquals(1, getProducersCache(classInfoExtractor).size());
     }
 
     @Test public void subscriberInheritanceTest() {
@@ -44,7 +91,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getTypeOf(Subscriber1.class);
-        assertEquals(getSubscibersCache(classInfoExtractor).get(Subscriber1.class).size(), 2);
+        assertEquals(2, getSubscibersCache(classInfoExtractor).get(Subscriber1.class).size());
     }
 
     @Test public void subscriberInheritanceTest2() {
@@ -58,7 +105,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getTypeOf(Subscriber2.class);
-        assertEquals(getSubscibersCache(classInfoExtractor).get(Subscriber2.class).size(), 1);
+        assertEquals(1, getSubscibersCache(classInfoExtractor).get(Subscriber2.class).size());
     }
 
     @Test public void subscribeInheritanceTest3() {
@@ -72,7 +119,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getTypeOf(Subscriber2.class);
-        assertEquals(getSubscibersCache(classInfoExtractor).get(Subscriber2.class).size(), 1);
+        assertEquals(1, getSubscibersCache(classInfoExtractor).get(Subscriber2.class).size());
     }
 
     @Test public void producerInheritanceTest() {
@@ -84,7 +131,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getTypeOf(Producer1.class);
-        assertEquals(getProducersCache(classInfoExtractor).get(Producer1.class).size(), 2);
+        assertEquals(2, getProducersCache(classInfoExtractor).get(Producer1.class).size());
     }
 
     @Test public void producerInheritanceTest2() {
@@ -102,7 +149,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getTypeOf(Producer2.class);
-        assertEquals(getProducersCache(classInfoExtractor).get(Producer2.class).size(), 1);
+        assertEquals(1, getProducersCache(classInfoExtractor).get(Producer2.class).size());
     }
 
     @Test public void producerInheritanceTest3() {
@@ -120,7 +167,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getTypeOf(Producer2.class);
-        assertEquals(getProducersCache(classInfoExtractor).get(Producer2.class).size(), 1);
+        assertEquals(1, getProducersCache(classInfoExtractor).get(Producer2.class).size());
     }
 
 }

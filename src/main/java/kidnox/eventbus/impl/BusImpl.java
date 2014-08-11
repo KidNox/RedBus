@@ -5,8 +5,9 @@ import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
 import kidnox.eventbus.elements.EventProducer;
 import kidnox.eventbus.elements.EventSubscriber;
-import kidnox.eventbus.internal.ClassInfoExtractor;
-import kidnox.eventbus.utils.Utils;
+import kidnox.eventbus.test.ClassInfoExtractor;
+import kidnox.eventbus.test.InternalFactory;
+import kidnox.eventbus.util.Utils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -36,7 +37,7 @@ public class BusImpl implements Bus {
     public BusImpl(String name, ClassInfoExtractor classInfoExtractor, EventLogger logger,
                    DeadEventHandler deadEventHandler, Interceptor interceptor, ExceptionHandler exceptionHandler) {
         this.name = name;
-        this.logger = logger;
+        this.logger = logger == null ? InternalFactory.getStubLogger() : logger;
         this.deadEventHandler = deadEventHandler;
         this.interceptor = interceptor;
         this.classInfoExtractor = classInfoExtractor;
@@ -59,7 +60,6 @@ public class BusImpl implements Bus {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override public void unregister(Object target) {
         final Class targetClass = target.getClass();
         switch (classInfoExtractor.getTypeOf(targetClass)) {
@@ -79,10 +79,10 @@ public class BusImpl implements Bus {
     @Override public void post(Object event) {
         Set<EventSubscriber> set = eventTypeToSubscribersMap.get(event.getClass());
         if(interceptor != null && interceptor.intercept(event)) {
-            logEvent(event, set, INTERCEPT);
+            logger.logEvent(event, set, INTERCEPT);
             return;
         }
-        logEvent(event, set, POST);
+        logger.logEvent(event, set, POST);
         if (Utils.notEmpty(set)) {
             for (EventSubscriber subscriber : set) {
                 subscriber.receive(event);
@@ -105,8 +105,13 @@ public class BusImpl implements Bus {
                         entry.getValue(), classSubscribers.eventDispatcher);
                 subscribers.add(subscriber);
                 if(checkProducers) {
-                    final EventProducer producer = eventTypeToProducerMap.get(subscriber.eventClass);
-                    if(producer != null) produce(producer, subscriber);
+                    EventProducer producer = eventTypeToProducerMap.get(subscriber.eventClass);
+                    if(producer != null) {
+                        final Object event = produceEvent(producer, subscriber);
+                        if(event != null) {
+                            subscriber.receive(event);
+                        }
+                    }
                 }
                 Set<EventSubscriber> set = eventTypeToSubscribersMap.get(subscriber.eventClass);
                 if (set == null) {
@@ -136,8 +141,10 @@ public class BusImpl implements Bus {
                 producers.add(producer);
                 final Set<EventSubscriber> subscribers = eventTypeToSubscribersMap.get(producer.eventClass);
                 if(Utils.notEmpty(subscribers)) {
+                    final Object event = produceEvent(producer, subscribers);
+                    if(event == null) continue;
                     for(EventSubscriber subscriber : subscribers) {
-                        produce(producer, subscriber);
+                        subscriber.receive(event);
                     }
                 }
             }
@@ -175,18 +182,14 @@ public class BusImpl implements Bus {
         return new EventProducer(event, target, method, exceptionHandler);
     }
 
-    void produce(EventProducer producer, EventSubscriber subscriber) {
-        Object event = producer.invoke(null);
-        if(interceptor != null && interceptor.intercept(event)) {
-            logEvent(event, subscriber, INTERCEPT);
-            return;
+    Object produceEvent(EventProducer producer, Object target) {
+        final Object event = producer.invoke(null);
+        if(event != null && interceptor != null && interceptor.intercept(event)) {
+            logger.logEvent(event, target, INTERCEPT);
+            return null;
         }
-        logEvent(event, subscriber, PRODUCE);
-        subscriber.receive(event);
-    }
-
-    void logEvent(Object event, Object element, String what) {
-        if(logger != null) logger.logEvent(event, element, what);
+        logger.logEvent(event, target, PRODUCE);
+        return event;
     }
 
     protected void throwIllegalStateException(String action, Object cause, String message) {

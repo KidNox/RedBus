@@ -1,7 +1,11 @@
 package kidnox.eventbus;
 
+import kidnox.eventbus.test.MutableProducer;
+import kidnox.eventbus.test.SimpleSubscriber;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class NullsTest {
 
@@ -26,5 +30,16 @@ public class NullsTest {
         bus.unregister(null);
     }
 
+    //ignore null events from producers
+    @Test public void nullProduce() {
+        MutableProducer mutableProducer = new MutableProducer();
+        SimpleSubscriber simpleSubscriber = new SimpleSubscriber();
+        mutableProducer.setEvent(null);
+        bus.register(simpleSubscriber);
+        bus.register(mutableProducer);
+
+        assertEquals(mutableProducer.getProducedCount(), 1);
+        assertEquals(simpleSubscriber.getSubscribedCount(), 0);
+    }
 
 }

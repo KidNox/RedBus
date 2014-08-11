@@ -3,9 +3,9 @@ package kidnox.eventbus;
 import kidnox.eventbus.elements.EventSubscriber;
 import kidnox.eventbus.impl.BusImpl;
 import kidnox.eventbus.impl.PackageLocalProvider;
-import kidnox.eventbus.internal.Event;
-import kidnox.eventbus.internal.SimpleEventDispatcher;
-import kidnox.eventbus.internal.SimpleSubscriber;
+import kidnox.eventbus.test.Event;
+import kidnox.eventbus.test.SimpleEventDispatcher;
+import kidnox.eventbus.test.SimpleSubscriber;
 import org.junit.Test;
 
 import java.util.List;

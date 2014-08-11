@@ -1,11 +1,11 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.async.AsyncDispatcherFactory;
-import kidnox.eventbus.internal.ClassInfoExtractor;
-import kidnox.eventbus.internal.InternalFactory;
-import kidnox.eventbus.internal.bad.BadClass;
-import kidnox.eventbus.internal.bad.BadProducer2;
-import kidnox.eventbus.internal.bad.BadSubscriber2;
+import kidnox.eventbus.test.ClassInfoExtractor;
+import kidnox.eventbus.test.InternalFactory;
+import kidnox.eventbus.test.bad.BadClass;
+import kidnox.eventbus.test.bad.BadProducer2;
+import kidnox.eventbus.test.bad.BadSubscriber2;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

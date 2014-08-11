@@ -2,7 +2,7 @@ package kidnox.eventbus.async;
 
 import kidnox.eventbus.impl.AsyncEventDispatcher;
 
-import static kidnox.eventbus.utils.Utils.checkNotNull;
+import static kidnox.eventbus.util.Utils.checkNotNull;
 
 public final class AsyncEventDispatcherExt extends AsyncEventDispatcher {
 

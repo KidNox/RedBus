@@ -4,13 +4,13 @@ import kidnox.eventbus.async.AsyncEventDispatcherExt;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
-import kidnox.eventbus.internal.ClassType;
-import kidnox.eventbus.internal.InternalFactory;
-import kidnox.eventbus.internal.bad.BadChildProducer;
-import kidnox.eventbus.internal.bad.BadChildSubscriber;
-import kidnox.eventbus.internal.bad.BadProducer;
-import kidnox.eventbus.internal.bad.BadSubscriber;
-import kidnox.eventbus.internal.*;
+import kidnox.eventbus.test.ClassType;
+import kidnox.eventbus.test.InternalFactory;
+import kidnox.eventbus.test.bad.BadChildProducer;
+import kidnox.eventbus.test.bad.BadChildSubscriber;
+import kidnox.eventbus.test.bad.BadProducer;
+import kidnox.eventbus.test.bad.BadSubscriber;
+import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,9 +81,9 @@ public class ClassExtractorTest {
         classType = classInfoExtractor.getTypeOf(BadChildProducer.class);
         assertEquals(classType, ClassType.NONE);
 
-        assertEquals(getClassToTypeMap(classInfoExtractor).size(), 4);
-        assertEquals(getSubscibersCache(classInfoExtractor).size(), 0);
-        assertEquals(getProducersCache(classInfoExtractor).size(), 0);
+        assertEquals(4, getClassToTypeMap(classInfoExtractor).size());
+        assertEquals(0, getSubscibersCache(classInfoExtractor).size());
+        assertEquals(0, getProducersCache(classInfoExtractor).size());
     }
 
     @Test public void subscribersCacheTest() {
@@ -97,7 +97,7 @@ public class ClassExtractorTest {
 
         classInfoExtractor.getTypeOf(LargeSubscriber.class);
         classSubscribers = getSubscibersCache(classInfoExtractor).get(LargeSubscriber.class);
-        assertEquals(classSubscribers.typedMethodsMap.size(), 4);
+        assertEquals(4, classSubscribers.typedMethodsMap.size());
     }
 
     @Test public void producersCacheTest() {
@@ -110,7 +110,7 @@ public class ClassExtractorTest {
 
         classInfoExtractor.getTypeOf(LargeProducer.class);
         classProducers = getProducersCache(classInfoExtractor).get(LargeProducer.class);
-        assertEquals(classProducers.typedMethodsMap.size(), 4);
+        assertEquals(4, classProducers.typedMethodsMap.size());
     }
 
     @Test public void sameSubscribeMethodTest() {
@@ -196,10 +196,10 @@ public class ClassExtractorTest {
         getDispatcher("test-1", classInfoExtractor);
         getDispatcher("test-2", classInfoExtractor);
         getDispatcher("test-3", classInfoExtractor);
-        assertEquals(getDispatchersMap(classInfoExtractor).size(), 3);
+        assertEquals(3, getDispatchersMap(classInfoExtractor).size());
 
         getDispatcher("", classInfoExtractor);
-        assertEquals(getDispatchersMap(classInfoExtractor).size(), 4);
+        assertEquals(4, getDispatchersMap(classInfoExtractor).size());
     }
 
 }

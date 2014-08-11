@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.Provider;
+import kidnox.eventbus.test.Provider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

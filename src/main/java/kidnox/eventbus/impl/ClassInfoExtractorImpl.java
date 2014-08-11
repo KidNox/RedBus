@@ -3,10 +3,10 @@ package kidnox.eventbus.impl;
 import kidnox.eventbus.*;
 import kidnox.eventbus.elements.ClassProducers;
 import kidnox.eventbus.elements.ClassSubscribers;
-import kidnox.eventbus.internal.ClassType;
-import kidnox.eventbus.internal.ClassInfoExtractor;
-import kidnox.eventbus.internal.InternalFactory;
-import kidnox.eventbus.utils.Utils;
+import kidnox.eventbus.test.ClassType;
+import kidnox.eventbus.test.ClassInfoExtractor;
+import kidnox.eventbus.test.InternalFactory;
+import kidnox.eventbus.util.Utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

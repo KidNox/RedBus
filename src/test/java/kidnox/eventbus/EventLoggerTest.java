@@ -1,15 +1,19 @@
 package kidnox.eventbus;
 
+import kidnox.eventbus.elements.EventSubscriber;
 import kidnox.eventbus.impl.BusImpl;
-import kidnox.eventbus.internal.*;
+import kidnox.eventbus.impl.EventInterceptor;
+import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 public class EventLoggerTest {
+
+    public static final Event EVENT = new Event();
 
     EventLoggerImpl eventLogger;
     Bus bus;
@@ -22,20 +26,20 @@ public class EventLoggerTest {
     @Test public void elementsTest() {
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
-        bus.post(new Event());
+        bus.post(EVENT);
 
         assertNotNull(eventLogger.getWhat());
         assertNotNull(eventLogger.getEvent());
-        assertNotNull(eventLogger.getElement());
+        assertNotNull(eventLogger.getTarget());
     }
 
     @Test public void nullElementTest() {
-        bus.post(new Object());
-        assertNull(eventLogger.getElement());
+        bus.post(EVENT);
+        assertNull(eventLogger.getTarget());
     }
 
     @Test public void postActionTest() {
-        bus.post(new Event());
+        bus.post(EVENT);
         assertEquals(BusImpl.POST, eventLogger.getWhat());
     }
 
@@ -46,11 +50,62 @@ public class EventLoggerTest {
         bus.register(subscriber);
 
         assertEquals(BusImpl.PRODUCE, eventLogger.getWhat());
+        assertNotNull(eventLogger.getEvent());
+    }
+
+    @Test public void nullProduceLogTest() {
+        MutableProducer mutableProducer = new MutableProducer();
+        mutableProducer.setEvent(null);
+        SimpleSubscriber simpleSubscriber = new SimpleSubscriber();
+        bus.register(mutableProducer);
+        bus.register(simpleSubscriber);
+
+        assertEquals(BusImpl.PRODUCE, eventLogger.getWhat());
+        assertNull(eventLogger.getEvent());
+        assertNotNull(eventLogger.getTarget());
     }
 
     @Test public  void interceptActionTest() {
-        EventInterceptor interceptor = new EventInterceptor();
+        bus = Bus.Factory.builder().withEventLogger(eventLogger)
+                .withInterceptor(new EventInterceptor(Event.class)).create();
+        bus.post(EVENT);
 
+        assertEquals(BusImpl.INTERCEPT, eventLogger.getWhat());
+        assertNotNull(eventLogger.getEvent());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test public void targetsTest() {
+        SimpleSubscriber subscriber1 = new SimpleSubscriber();
+        SimpleSubscriber subscriber2 = new SimpleSubscriber();
+        bus.register(subscriber1);
+        bus.register(subscriber2);
+
+        bus.post(EVENT);
+        assertTrue(eventLogger.getTarget() instanceof Set);
+        Set<EventSubscriber> set = (Set<EventSubscriber>) eventLogger.getTarget();
+        assertEquals(2, set.size());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test public void targetsTest2() {
+        SimpleSubscriber subscriber = new SimpleSubscriber();
+        SimpleProducer producer = new SimpleProducer();
+        bus.register(subscriber);
+        bus.register(producer);
+
+        assertTrue(eventLogger.getTarget() instanceof Set);
+        Set<EventSubscriber> set = (Set<EventSubscriber>) eventLogger.getTarget();
+        assertEquals(1, set.size());
+    }
+
+    @Test public void targetTest() {
+        SimpleSubscriber subscriber = new SimpleSubscriber();
+        SimpleProducer producer = new SimpleProducer();
+        bus.register(producer);
+        bus.register(subscriber);
+
+        assertTrue(eventLogger.getTarget() instanceof EventSubscriber);
     }
 
 }
