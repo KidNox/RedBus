@@ -2,11 +2,16 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.impl.BusImpl;
 import kidnox.eventbus.impl.SynchronizedBus;
+import kidnox.eventbus.internal.BusService;
 import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.util.BusBuilder;
-import kidnox.eventbus.util.Utils;
 
 public interface Bus {
+
+    String POST         = "post";
+    String PRODUCE      = "produce";
+    String INTERCEPT    = "intercept";
 
     void register(Object target);
 
@@ -17,13 +22,15 @@ public interface Bus {
 
     public static final class Factory {
 
-        public static Bus createBus(String name, boolean sync, ClassInfoExtractor extractor,
-                             DeadEventHandler deadEventHandler, EventLogger eventLogger,
-                             Interceptor interceptor, ExceptionHandler exHandler) {
-            if(sync) {
-                return new SynchronizedBus(name, extractor, eventLogger, deadEventHandler, interceptor, exHandler);
+        public static Bus createBus(String name, boolean singleThread, ClassInfoExtractor extractor,
+                             EventDispatcher.Factory dispatcherFactory, DeadEventHandler deadEventHandler,
+                             EventLogger eventLogger, Interceptor interceptor, ExceptionHandler exHandler) {
+            BusService busService = InternalFactory.createBusService(dispatcherFactory, eventLogger,
+                    deadEventHandler, interceptor, exHandler);
+            if(singleThread) {
+                return new BusImpl(name, busService, extractor);
             } else {
-                return new BusImpl(name, extractor, eventLogger, deadEventHandler, interceptor, exHandler);
+                return new SynchronizedBus(name, busService, extractor);
             }
         }
 
@@ -32,7 +39,7 @@ public interface Bus {
         }
 
         public static BusBuilder builder() {
-            return Utils.getBuilder();
+            return BusBuilder.get();
         }
 
         //no instance

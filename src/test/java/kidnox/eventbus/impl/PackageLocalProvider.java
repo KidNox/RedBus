@@ -1,14 +1,8 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.*;
-import kidnox.eventbus.elements.ClassProducers;
-import kidnox.eventbus.elements.ClassSubscribers;
-import kidnox.eventbus.internal.ClassType;
 import kidnox.eventbus.elements.EventSubscriber;
-import kidnox.eventbus.internal.ClassInfoExtractor;
 
 import java.util.List;
-import java.util.Map;
 
 public class PackageLocalProvider {
 
@@ -16,7 +10,7 @@ public class PackageLocalProvider {
         return bus.instanceToSubscribersMap.get(target);
     }
 
-    public static Map<Class, ClassType> getClassToTypeMap(ClassInfoExtractor classInfoExtractor) {
+/*    public static Map<Class, ClassType> getClassToTypeMap(ClassInfoExtractor classInfoExtractor) {
         return ((ClassInfoExtractorImpl)classInfoExtractor).classToTypeMap;
     }
 
@@ -34,6 +28,6 @@ public class PackageLocalProvider {
 
     public static EventDispatcher getDispatcher(String name, ClassInfoExtractor classInfoExtractor) {
         return ((ClassInfoExtractorImpl)classInfoExtractor).getDispatcher(name);
-    }
+    }*/
 
 }

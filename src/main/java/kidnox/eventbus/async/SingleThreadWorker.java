@@ -2,7 +2,7 @@ package kidnox.eventbus.async;
 
 import java.util.concurrent.*;
 
-import static kidnox.eventbus.util.Utils.checkNotNull;
+import static kidnox.eventbus.internal.Utils.checkNotNull;
 
 public final class SingleThreadWorker implements Worker {
 

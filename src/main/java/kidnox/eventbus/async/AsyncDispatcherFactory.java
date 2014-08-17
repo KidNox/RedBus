@@ -10,7 +10,7 @@ import kidnox.eventbus.internal.InternalFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static kidnox.eventbus.util.Utils.checkNotNull;
+import static kidnox.eventbus.internal.Utils.checkNotNull;
 
 public class AsyncDispatcherFactory implements EventDispatcher.Factory {
 
@@ -94,7 +94,7 @@ public class AsyncDispatcherFactory implements EventDispatcher.Factory {
                 handler.post(runnable);
             }
 
-            @Override public boolean inCurrentThread() {
+            @Override public boolean isDispatcherThread() {
                 return Looper.myLooper() == Looper.getMainLooper();
             }
         };

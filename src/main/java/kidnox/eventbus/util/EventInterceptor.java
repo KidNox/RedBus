@@ -1,4 +1,4 @@
-package kidnox.eventbus.impl;
+package kidnox.eventbus.util;
 
 import kidnox.eventbus.Interceptor;
 

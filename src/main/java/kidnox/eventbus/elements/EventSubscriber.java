@@ -5,13 +5,13 @@ import kidnox.eventbus.ExceptionHandler;
 
 import java.lang.reflect.Method;
 
-public class EventSubscriber extends Element {
+public class EventSubscriber extends AbstractElement {
 
     final EventDispatcher eventDispatcher;
 
     //Mutable, but not volatile.
-    //Unregister should be called from invocation thread, otherwise invoke may be called after unregister.
-    private boolean valid = true;//TODO we really need this?
+    //Unregister should be called from eventDispatcher thread, otherwise invoke may be called after unregister.
+    private boolean valid = true;
 
     public EventSubscriber(Class eventClass, Object target, Method method,
                            EventDispatcher dispatcher, ExceptionHandler exceptionHandler) {

@@ -4,12 +4,13 @@ import kidnox.eventbus.*;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
+import kidnox.eventbus.internal.Utils;
 
 public final class BusBuilder {
 
     String name = "";
     boolean validate = false;
-    boolean sync = true;
+    boolean singleThread = false;
 
     EventLogger eventLogger = null;
     DeadEventHandler deadEventHandler = null;
@@ -22,13 +23,17 @@ public final class BusBuilder {
     BusBuilder() {
     }
 
+    public static BusBuilder get() {
+        return new BusBuilder();
+    }
+
     public BusBuilder withName(String name) {
         this.name = Utils.checkNotNull(name);
         return this;
     }
 
-    public BusBuilder notSynchronized() {
-        this.sync = false;
+    public BusBuilder forSingleThread() {
+        this.singleThread = true;
         return this;
     }
 
@@ -52,7 +57,7 @@ public final class BusBuilder {
         return this;
     }
 
-    public BusBuilder withDispatcherFactory(EventDispatcher.Factory factory) {
+    public BusBuilder withEventDispatcherFactory(EventDispatcher.Factory factory) {
         this.dispatcherFactory = Utils.checkNotNull(factory);
         return this;
     }
@@ -68,8 +73,8 @@ public final class BusBuilder {
     }
 
     public Bus create() {
-        classInfoExtractor = InternalFactory.createClassInfoExtractor(dispatcherFactory, validate);
-        return Bus.Factory.createBus(name, sync, classInfoExtractor, deadEventHandler,
+        classInfoExtractor = InternalFactory.createClassInfoExtractor(validate);
+        return Bus.Factory.createBus(name, singleThread, classInfoExtractor, dispatcherFactory, deadEventHandler,
                 eventLogger, interceptor, exceptionHandler);
     }
 

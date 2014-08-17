@@ -25,7 +25,7 @@ public class NamedAsyncEventDispatcher extends AsyncEventDispatcher {
         worker.execute(runnable);
     }
 
-    @Override public boolean inCurrentThread() {
+    @Override public boolean isDispatcherThread() {
         return worker.inWorkerThread();
     }
 

@@ -15,10 +15,10 @@ public class SimpleEventDispatcher implements EventDispatcher {
         currentEvent = event;
     }
 
-    @Override public void dispatchProduce(EventProducer eventProducer, EventSubscriber eventSubscriber) {
-        currentProducer = eventProducer;
-        currentSubscriber = eventSubscriber;
-    }
+//    @Override public void dispatchProduction(EventProducer eventProducer, EventSubscriber eventSubscriber) {
+//        currentProducer = eventProducer;
+//        currentSubscriber = eventSubscriber;
+//    }
 
     public EventSubscriber getCurrentSubscriber() {
         return currentSubscriber;

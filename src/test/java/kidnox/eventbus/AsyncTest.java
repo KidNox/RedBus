@@ -18,7 +18,7 @@ public class AsyncTest {
 
     @Test public void baseAsyncTest() throws InterruptedException {
         AsyncDispatcherFactory factory = new AsyncDispatcherFactory();
-        bus = Bus.Factory.builder().withDispatcherFactory(factory).create();
+        bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
 
         final NamedAsyncEventDispatcher dispatcher1 = new NamedAsyncEventDispatcher("worker-1");
         final NamedAsyncEventDispatcher dispatcher2 = new NamedAsyncEventDispatcher("worker-2");
@@ -109,7 +109,7 @@ public class AsyncTest {
         final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder()
-                .withDispatcherFactory(factory)
+                .withEventDispatcherFactory(factory)
                 .create();
 
         final AsyncEventDispatcherExt dispatcher = (AsyncEventDispatcherExt) factory.getDispatcher(EventDispatcher.WORKER);
@@ -137,7 +137,7 @@ public class AsyncTest {
         final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder()
-                .withDispatcherFactory(factory)
+                .withEventDispatcherFactory(factory)
                 .create();
 
         final AsyncEventDispatcherExt dispatcher = (AsyncEventDispatcherExt) factory.getDispatcher(EventDispatcher.WORKER);
@@ -178,7 +178,7 @@ public class AsyncTest {
         final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder()
-                .withDispatcherFactory(factory)
+                .withEventDispatcherFactory(factory)
                 .create();
 
         @Subscriber(EventDispatcher.WORKER)

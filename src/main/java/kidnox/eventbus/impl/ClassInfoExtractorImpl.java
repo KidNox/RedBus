@@ -1,65 +1,41 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.elements.ClassProducers;
-import kidnox.eventbus.elements.ClassSubscribers;
+import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.ClassType;
 import kidnox.eventbus.internal.ClassInfoExtractor;
-import kidnox.eventbus.internal.InternalFactory;
-import kidnox.eventbus.util.Utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import static kidnox.eventbus.internal.Utils.*;
+
 public class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
-    final Map<Class, ClassType> classToTypeMap = new HashMap<Class, ClassType>();
+    final Map<Class, ClassInfo> classToInfoMap = newHashMap();
 
-    final Map<Class, ClassSubscribers> subscribersCache = new HashMap<Class, ClassSubscribers>();
-    final Map<Class, ClassProducers> producersCache = new HashMap<Class, ClassProducers>();
+    @Override public ClassInfo getClassInfo(Class clazz) {
+        ClassInfo info = classToInfoMap.get(clazz);
+        if(info != null) return info;
 
-    final Map<String, EventDispatcher> dispatchersMap = new HashMap<String, EventDispatcher>();
-
-    final EventDispatcher.Factory dispatcherFactory;
-
-    public ClassInfoExtractorImpl(EventDispatcher.Factory factory) {
-        this.dispatcherFactory = factory == null ? InternalFactory.createDefaultEventDispatcherFactory() : factory;
-    }
-
-    @Override public ClassType getTypeOf(Class clazz) {
-        ClassType type = classToTypeMap.get(clazz);
-        if(type != null) return type;
-
-        type = ClassType.NONE;
         final Annotation[] annotations = clazz.getAnnotations();
-        if(!Utils.isNullOrEmpty(annotations)) {
+        if(!isNullOrEmpty(annotations)) {
             for (Annotation annotation : annotations) {
                 if(annotation instanceof Subscriber) {
-                    type = ClassType.SUBSCRIBER;
-                    saveSubscribers((Subscriber) annotation, clazz);
-                    break;
+                    return extractSubscribers(clazz, (Subscriber) annotation);
                 } else if (annotation instanceof Producer) {
-                    type = ClassType.PRODUCER;
-                    saveProducers((Producer) annotation, clazz);
-                    break;
+                    return extractProducers(clazz, (Producer) annotation);
                 }
             }
         }
-        classToTypeMap.put(clazz, type);
-        return type;
+        info = new ClassInfo(clazz);
+        classToInfoMap.put(clazz, info);
+        return info;
     }
 
-    @Override public ClassSubscribers getClassSubscribers(Class clazz) {
-        return subscribersCache.get(clazz);
-    }
-
-    @Override public ClassProducers getClassProducers(Class clazz) {
-        return producersCache.get(clazz);
-    }
-
-    protected void saveSubscribers(Subscriber annotation, Class clazz) {
+    protected ClassInfo extractSubscribers(Class clazz, Subscriber annotation) {
         Map<Class, Method> typedMethodsMap = null;
         final String value = annotation.value();
 
@@ -85,10 +61,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 }
             }
         }
-        final EventDispatcher dispatcher = getDispatcher(value);
-        ClassSubscribers classSubscribers = typedMethodsMap == null ?
-                ClassSubscribers.EMPTY : new ClassSubscribers(dispatcher, typedMethodsMap);
-        subscribersCache.put(clazz, classSubscribers);
+        return new ClassInfo(clazz, ClassType.SUBSCRIBER, value, typedMethodsMap);
     }
 
     protected boolean checkSubscriberConditions(Class clazz, Subscriber annotation, String value, Class first) {
@@ -103,7 +76,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         }
     }
 
-    protected void saveProducers(Producer annotation, Class clazz) {
+    protected ClassInfo extractProducers(Class clazz, Producer annotation) {
         Map<Class, Method> typedMethodsMap = null;
         for(Class mClass = clazz; clazz != null && annotation != null; mClass = mClass.getSuperclass(),
                 annotation = (Producer) mClass.getAnnotation(Producer.class)) {
@@ -127,9 +100,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 }
             }
         }
-        ClassProducers classProducers = typedMethodsMap == null ?
-                ClassProducers.EMPTY : new ClassProducers(typedMethodsMap);
-        producersCache.put(clazz, classProducers);
+        return new ClassInfo(clazz, ClassType.PRODUCER, null, typedMethodsMap);
     }
 
     protected Map<Class, Method> getSubscribedMethods(Class clazz){
@@ -146,7 +117,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
             if(method.isAnnotationPresent(Subscribe.class)){
                 if(classToMethodMap == null)
-                    classToMethodMap = new HashMap<Class, Method>();
+                    classToMethodMap = newHashMap(4);
 
                 if(classToMethodMap.put(params[0], method) != null)
                     throwMultiplyMethodsException(clazz, params[0], "subscribe");
@@ -169,29 +140,13 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
             if(method.isAnnotationPresent(Produce.class)){
                 if(classToMethodMap == null)
-                    classToMethodMap = new HashMap<Class, Method>();
+                    classToMethodMap = newHashMap(4);
 
                 if(classToMethodMap.put(returnType, method) != null)
                     throwMultiplyMethodsException(clazz, returnType, "produce");
             }
         }
         return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
-    }
-
-    protected EventDispatcher getDispatcher(String dispatcherName) {
-        EventDispatcher dispatcher = dispatchersMap.get(dispatcherName);
-        if(dispatcher == null) {
-            dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
-            if(dispatcher == null) {
-                if(dispatcherName.isEmpty()) {
-                    dispatcher = InternalFactory.CURRENT_THREAD_DISPATCHER;
-                } else {
-                    throw new IllegalArgumentException("Dispatcher ["+dispatcherName+"] not found");
-                }
-            }
-            dispatchersMap.put(dispatcherName, dispatcher);
-        }
-        return dispatcher;
     }
 
     protected void throwMultiplyMethodsException(Class clazz, Class event, String what) {

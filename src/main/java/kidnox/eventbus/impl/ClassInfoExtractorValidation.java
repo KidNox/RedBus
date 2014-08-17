@@ -1,20 +1,16 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.EventDispatcher;
 import kidnox.eventbus.Produce;
 import kidnox.eventbus.Subscribe;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
-public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
+import static kidnox.eventbus.internal.Utils.newHashMap;
 
-    public ClassInfoExtractorValidation(EventDispatcher.Factory factory) {
-        super(factory);
-    }
+public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
 
     @Override protected Map<Class, Method> getSubscribedMethods(Class clazz) {
         Map<Class, Method> classToMethodMap = null;
@@ -34,7 +30,7 @@ public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
                             + " with @Subscribe must require a single argument.");
 
                 if (classToMethodMap == null)
-                    classToMethodMap = new HashMap<Class, Method>();
+                    classToMethodMap = newHashMap(4);
 
                 final Class eventClass = params[0];
                 if (eventClass.isInterface())
@@ -63,7 +59,7 @@ public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
                             + " with @Produce must require zero arguments.");
 
                 if (classToMethodMap == null)
-                    classToMethodMap = new HashMap<Class, Method>();
+                    classToMethodMap = newHashMap(4);
 
                 if (returnType.isInterface())
                     throw new IllegalArgumentException("Method " + method + " can't produce interface.");

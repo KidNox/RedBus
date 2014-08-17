@@ -2,7 +2,7 @@ package kidnox.eventbus.async;
 
 import kidnox.eventbus.impl.AsyncEventDispatcher;
 
-import static kidnox.eventbus.util.Utils.checkNotNull;
+import static kidnox.eventbus.internal.Utils.checkNotNull;
 
 public final class AsyncEventDispatcherExt extends AsyncEventDispatcher {
 
@@ -16,7 +16,7 @@ public final class AsyncEventDispatcherExt extends AsyncEventDispatcher {
         worker.execute(runnable);
     }
 
-    @Override public boolean inCurrentThread() {
+    @Override public boolean isDispatcherThread() {
         return worker.inWorkerThread();
     }
 

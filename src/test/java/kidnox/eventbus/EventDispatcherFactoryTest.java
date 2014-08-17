@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class EventDispatcherFactoryTest {
 
     @Test public void dispatcherFactoryTest() {
-        BusImpl bus = (BusImpl) Bus.Factory.builder().withDispatcherFactory(new EventDispatcher.Factory() {
+        BusImpl bus = (BusImpl) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
             @Override public EventDispatcher getDispatcher(String name) {
                 fail("must not be called");//TODO
                 return null;
@@ -29,7 +29,7 @@ public class EventDispatcherFactoryTest {
         bus.unregister(target);
 
         final SimpleEventDispatcher dispatcher = new SimpleEventDispatcher();
-        bus = (BusImpl) Bus.Factory.builder().withDispatcherFactory(new EventDispatcher.Factory() {
+        bus = (BusImpl) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
             @Override public EventDispatcher getDispatcher(String dispatcherName) {
                 return dispatcher;
             }
@@ -44,7 +44,7 @@ public class EventDispatcherFactoryTest {
         Event event = new Event();
         bus.post(event);
 
-        assertNotNull("dispatchSubscribe not called, event null", dispatcher.getCurrentEvent());
+        assertNotNull("dispatch not called, event null", dispatcher.getCurrentEvent());
         assertEquals("wrong event in dispatcher", event, dispatcher.getCurrentEvent());
         assertTrue("wrong event subscriber in dispatcher", eventSubscribers.contains(dispatcher.getCurrentSubscriber()));
     }

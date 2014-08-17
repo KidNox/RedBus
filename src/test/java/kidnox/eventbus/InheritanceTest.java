@@ -1,3 +1,4 @@
+/*
 package kidnox.eventbus;
 
 import kidnox.eventbus.elements.ClassProducers;
@@ -173,3 +174,4 @@ public class InheritanceTest {
     }
 
 }
+*/

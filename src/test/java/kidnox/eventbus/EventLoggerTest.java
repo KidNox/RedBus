@@ -2,7 +2,7 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.elements.EventSubscriber;
 import kidnox.eventbus.impl.BusImpl;
-import kidnox.eventbus.impl.EventInterceptor;
+import kidnox.eventbus.util.EventInterceptor;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Test;

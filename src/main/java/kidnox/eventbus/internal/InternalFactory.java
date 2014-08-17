@@ -1,28 +1,29 @@
 package kidnox.eventbus.internal;
 
-import kidnox.eventbus.EventDispatcher;
-import kidnox.eventbus.EventLogger;
-import kidnox.eventbus.elements.EventProducer;
+import kidnox.eventbus.*;
 import kidnox.eventbus.elements.EventSubscriber;
+import kidnox.eventbus.impl.BusServiceImpl;
 import kidnox.eventbus.impl.ClassInfoExtractorImpl;
 import kidnox.eventbus.impl.ClassInfoExtractorValidation;
 
 public final class InternalFactory {
 
+    public static ClassInfoExtractor createClassInfoExtractor(boolean validate) {
+        if(validate) return new ClassInfoExtractorValidation();
+        else return new ClassInfoExtractorImpl();
+    }
+
+    public static BusService createBusService(EventDispatcher.Factory factory, EventLogger logger,
+                                              DeadEventHandler deadEventHandler, Interceptor interceptor,
+                                              ExceptionHandler exceptionHandler) {
+        return new BusServiceImpl(factory, logger, deadEventHandler, interceptor, exceptionHandler);
+    }
+
     public static final EventDispatcher CURRENT_THREAD_DISPATCHER = new EventDispatcher() {
         @Override public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
             subscriber.invoke(event);
         }
-
-        @Override public void dispatchProduce(EventProducer eventProducer, EventSubscriber eventSubscriber) {
-            eventSubscriber.invoke(eventProducer.invoke(null));
-        }
     };
-
-    public static ClassInfoExtractor createClassInfoExtractor(EventDispatcher.Factory factory, boolean validate) {
-        if(validate) return new ClassInfoExtractorValidation(factory);
-        else return new ClassInfoExtractorImpl(factory);
-    }
 
     public static EventDispatcher.Factory createDefaultEventDispatcherFactory() {
         return new EventDispatcher.Factory() {

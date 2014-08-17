@@ -1,3 +1,4 @@
+/*
 package kidnox.eventbus;
 
 import kidnox.eventbus.async.AsyncDispatcherFactory;
@@ -123,3 +124,4 @@ public class ClassExtractorValidationTest {
 
 
 }
+*/

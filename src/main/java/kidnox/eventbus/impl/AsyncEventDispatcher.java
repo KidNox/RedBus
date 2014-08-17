@@ -10,19 +10,14 @@ public abstract class AsyncEventDispatcher implements EventDispatcher {
     protected abstract void dispatch(Runnable runnable);
 
     @Override public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
-        if(inCurrentThread()) {
+        if(isDispatcherThread()) {
             subscriber.invoke(event);
         } else {
             dispatch(getRunnableSubscription(subscriber, event));
         }
     }
 
-    @Override public void dispatchProduce(EventProducer eventProducer, EventSubscriber eventSubscriber) {
-        //TODO
-        eventSubscriber.receive(eventProducer.invoke(null));
-    }
-
-    public boolean inCurrentThread(){
+    public boolean isDispatcherThread(){
         return false;
     }
 
@@ -34,7 +29,7 @@ public abstract class AsyncEventDispatcher implements EventDispatcher {
             }
         };
     }
-    //TODO
+
     static Runnable getRunnableProduction(final EventProducer eventProducer, final EventSubscriber eventSubscriber) {
         return new Runnable() {
             @Override public void run() {

@@ -5,7 +5,7 @@ import kidnox.eventbus.ExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public abstract class Element {
+public abstract class AbstractElement {
 
     public final Class eventClass;
     public final Object target;
@@ -13,7 +13,7 @@ public abstract class Element {
 
     final ExceptionHandler exceptionHandler;
 
-    protected Element(Class eventClass, Object target, Method method, ExceptionHandler exceptionHandler) {
+    protected AbstractElement(Class eventClass, Object target, Method method, ExceptionHandler exceptionHandler) {
         this.eventClass = eventClass;
         this.target = target;
         this.method = method;
@@ -23,12 +23,12 @@ public abstract class Element {
 
     public abstract Object invoke(Object event);
 
-    protected Object invokeMethod(Object... arg) {
+    protected Object invokeMethod(Object... args) {
         try {
-            return method.invoke(target, arg);
+            return method.invoke(target, args);
         } catch (InvocationTargetException e) {
             if(exceptionHandler != null &&
-                    exceptionHandler.handle(e.getCause(), target, arg.length == 0 ? null : arg[0])) {
+                    exceptionHandler.handle(e.getCause(), target, args.length == 0 ? null : args[0])) {
                 return null;
             } else {
                 throw new RuntimeException(e.getCause());

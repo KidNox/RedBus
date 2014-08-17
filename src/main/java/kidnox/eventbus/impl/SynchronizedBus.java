@@ -1,16 +1,12 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.ExceptionHandler;
+import kidnox.eventbus.internal.BusService;
 import kidnox.eventbus.internal.ClassInfoExtractor;
-import kidnox.eventbus.DeadEventHandler;
-import kidnox.eventbus.EventLogger;
-import kidnox.eventbus.Interceptor;
 
 public class SynchronizedBus extends BusImpl {
 
-    public SynchronizedBus(String name, ClassInfoExtractor classInfoExtractor, EventLogger logger,
-                           DeadEventHandler deadEventHandler, Interceptor interceptor, ExceptionHandler exHandler) {
-        super(name, classInfoExtractor, logger, deadEventHandler, interceptor, exHandler);
+    public SynchronizedBus(String name, BusService busService, ClassInfoExtractor classInfoExtractor) {
+        super(name, busService, classInfoExtractor);
     }
 
     @Override public synchronized void register(Object target) {
