@@ -1,5 +1,8 @@
 package kidnox.eventbus.test;
 
+import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.InternalFactory;
+
 public interface Provider<T> {
 
     T get();
@@ -21,5 +24,19 @@ public interface Provider<T> {
             return new SimpleNone();
         }
     };
+
+    Provider<ClassInfoExtractor> CLASS_INFO_EXTRACTOR_PROVIDER =
+            new Provider<ClassInfoExtractor>() {
+                @Override public ClassInfoExtractor get() {
+                    return InternalFactory.createClassInfoExtractor(false);
+                }
+            };
+
+    Provider<ClassInfoExtractor> CLASS_INFO_EXTRACTOR_VALIDATION_PROVIDER =
+            new Provider<ClassInfoExtractor>() {
+                @Override public ClassInfoExtractor get() {
+                    return InternalFactory.createClassInfoExtractor(true);
+                }
+            };
 
 }

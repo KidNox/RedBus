@@ -24,13 +24,13 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         if(!isNullOrEmpty(annotations)) {
             for (Annotation annotation : annotations) {
                 if(annotation instanceof Subscriber) {
-                    return extractSubscribers(clazz, (Subscriber) annotation);
+                    info =  extractSubscribers(clazz, (Subscriber) annotation);
                 } else if (annotation instanceof Producer) {
-                    return extractProducers(clazz, (Producer) annotation);
+                    info = extractProducers(clazz, (Producer) annotation);
                 }
             }
         }
-        info = new ClassInfo(clazz);
+        if(info == null) info = new ClassInfo(clazz);
         classToInfoMap.put(clazz, info);
         return info;
     }

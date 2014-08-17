@@ -1,4 +1,3 @@
-/*
 package kidnox.eventbus;
 
 import kidnox.eventbus.async.AsyncDispatcherFactory;
@@ -39,12 +38,12 @@ public class ClassExtractorValidationTest {
     public ClassExtractorValidationTest(BadClass testInstance) {
         this.testInstance = testInstance;
         this.classInfoExtractor = InternalFactory.createClassInfoExtractor(
-                new AsyncDispatcherFactory(EventDispatcher.MAIN, EventDispatcher.WORKER), true);
+                /*new AsyncDispatcherFactory(EventDispatcher.MAIN, EventDispatcher.WORKER),*/ true);
     }
 
     @Test public void validationTest() {
         try {
-            classInfoExtractor.getTypeOf(testInstance.getClass());
+            classInfoExtractor.getClassInfo(testInstance.getClass());
             fail(testInstance.cause);
         } catch (RuntimeException ignored) {
             //ignored.printStackTrace();
@@ -124,4 +123,3 @@ public class ClassExtractorValidationTest {
 
 
 }
-*/
