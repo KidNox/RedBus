@@ -1,7 +1,7 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.elements.EventSubscriber;
-import kidnox.eventbus.impl.BusImpl;
+import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.util.EventInterceptor;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class EventLoggerTest {
 
     @Test public void postActionTest() {
         bus.post(EVENT);
-        assertEquals(BusImpl.POST, eventLogger.getWhat());
+        assertEquals(AsyncBus.POST, eventLogger.getWhat());
     }
 
     @Test public void produceActionTest() {
@@ -49,7 +49,7 @@ public class EventLoggerTest {
         bus.register(producer);
         bus.register(subscriber);
 
-        assertEquals(BusImpl.PRODUCE, eventLogger.getWhat());
+        assertEquals(AsyncBus.PRODUCE, eventLogger.getWhat());
         assertNotNull(eventLogger.getEvent());
     }
 
@@ -60,7 +60,7 @@ public class EventLoggerTest {
         bus.register(mutableProducer);
         bus.register(simpleSubscriber);
 
-        assertEquals(BusImpl.PRODUCE, eventLogger.getWhat());
+        assertEquals(AsyncBus.PRODUCE, eventLogger.getWhat());
         assertNull(eventLogger.getEvent());
         assertNotNull(eventLogger.getTarget());
     }
@@ -68,9 +68,10 @@ public class EventLoggerTest {
     @Test public  void interceptActionTest() {
         bus = Bus.Factory.builder().withEventLogger(eventLogger)
                 .withInterceptor(new EventInterceptor(Event.class)).create();
+        bus.register(new SimpleSubscriber());
         bus.post(EVENT);
 
-        assertEquals(BusImpl.INTERCEPT, eventLogger.getWhat());
+        assertEquals(AsyncBus.INTERCEPT, eventLogger.getWhat());
         assertNotNull(eventLogger.getEvent());
     }
 

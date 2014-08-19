@@ -98,12 +98,12 @@ public class BusServiceImpl implements BusService {
 
     @Override public void post(Object event) {
         Set<EventSubscriber> set = eventTypeToSubscribersMap.get(event.getClass());
-        if(interceptor != null && interceptor.intercept(event)) {
-            logger.logEvent(event, set, INTERCEPT);//TODO must not be called when no subscribers
-            return;
-        }
         logger.logEvent(event, set, POST);
         if (notEmpty(set)) {
+            if(interceptor != null && interceptor.intercept(event)) {
+                logger.logEvent(event, set, INTERCEPT);
+                return;
+            }
             for (EventSubscriber subscriber : set) {
                 subscriber.receive(event);
             }

@@ -1,7 +1,7 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.elements.EventSubscriber;
-import kidnox.eventbus.impl.BusImpl;
+import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.test.Event;
 import kidnox.eventbus.test.SimpleEventDispatcher;
@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class EventDispatcherFactoryTest {
 
     @Test public void dispatcherFactoryTest() {
-        BusImpl bus = (BusImpl) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
+        AsyncBus bus = (AsyncBus) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
             @Override public EventDispatcher getDispatcher(String name) {
                 fail("must not be called");//TODO
                 return null;
@@ -29,7 +29,7 @@ public class EventDispatcherFactoryTest {
         bus.unregister(target);
 
         final SimpleEventDispatcher dispatcher = new SimpleEventDispatcher();
-        bus = (BusImpl) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
+        bus = (AsyncBus) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
             @Override public EventDispatcher getDispatcher(String dispatcherName) {
                 return dispatcher;
             }

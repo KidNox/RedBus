@@ -10,7 +10,6 @@ public final class BusBuilder {
 
     String name = "";
     boolean validate = false;
-    boolean singleThread = false;
 
     EventLogger eventLogger = null;
     DeadEventHandler deadEventHandler = null;
@@ -29,11 +28,6 @@ public final class BusBuilder {
 
     public BusBuilder withName(String name) {
         this.name = Utils.checkNotNull(name);
-        return this;
-    }
-
-    public BusBuilder forSingleThread() {
-        this.singleThread = true;
         return this;
     }
 
@@ -74,7 +68,7 @@ public final class BusBuilder {
 
     public Bus create() {
         classInfoExtractor = InternalFactory.createClassInfoExtractor(validate);
-        return Bus.Factory.createBus(name, singleThread, classInfoExtractor, dispatcherFactory, deadEventHandler,
+        return Bus.Factory.createBus(name, classInfoExtractor, dispatcherFactory, deadEventHandler,
                 eventLogger, interceptor, exceptionHandler);
     }
 

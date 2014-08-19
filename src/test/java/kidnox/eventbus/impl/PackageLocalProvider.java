@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class PackageLocalProvider {
 
-    public static List<EventSubscriber> getSubscribers(BusImpl bus, Object target) {
+    public static List<EventSubscriber> getSubscribers(AsyncBus bus, Object target) {
         return bus.instanceToSubscribersMap.get(target);
     }
 

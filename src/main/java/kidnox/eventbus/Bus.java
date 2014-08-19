@@ -1,7 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.impl.BusImpl;
-import kidnox.eventbus.impl.SynchronizedBus;
+import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.internal.BusService;
 import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
@@ -22,16 +21,12 @@ public interface Bus {
 
     public static final class Factory {
 
-        public static Bus createBus(String name, boolean singleThread, ClassInfoExtractor extractor,
+        public static Bus createBus(String name, ClassInfoExtractor extractor,
                              EventDispatcher.Factory dispatcherFactory, DeadEventHandler deadEventHandler,
                              EventLogger eventLogger, Interceptor interceptor, ExceptionHandler exHandler) {
             BusService busService = InternalFactory.createBusService(dispatcherFactory, eventLogger,
                     deadEventHandler, interceptor, exHandler);
-            if(singleThread) {
-                return new BusImpl(name, busService, extractor);
-            } else {
-                return new SynchronizedBus(name, busService, extractor);
-            }
+            return new AsyncBus(name, busService, extractor);
         }
 
         public static Bus createDefault() {

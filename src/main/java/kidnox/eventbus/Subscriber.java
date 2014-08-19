@@ -8,10 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Subscriber {
-    String DEFAULT = "";
 
     /**
      * Name of the dispatcher for dispatchers factory
      * */
-    String value() default DEFAULT;
+    String value() default "";
 }

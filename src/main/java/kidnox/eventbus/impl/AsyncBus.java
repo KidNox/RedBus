@@ -11,7 +11,7 @@ import java.util.*;
 
 import static kidnox.eventbus.internal.Utils.*;
 
-public class BusImpl implements Bus {
+public class AsyncBus implements Bus {
 
     final Map<Object, List<EventSubscriber>> instanceToSubscribersMap = newHashMap();
     final Map<Object, List<EventProducer>> instanceToProducersMap = newHashMap();
@@ -21,13 +21,13 @@ public class BusImpl implements Bus {
     final BusService busService;
     final ClassInfoExtractor classInfoExtractor;
 
-    public BusImpl(String name, BusService busService, ClassInfoExtractor classInfoExtractor) {
+    public AsyncBus(String name, BusService busService, ClassInfoExtractor classInfoExtractor) {
         this.name = name;
         this.busService = busService;
         this.classInfoExtractor = classInfoExtractor;
     }
 
-    @Override public void register(Object target) {
+    @Override synchronized public void register(Object target) {
         final ClassInfo classInfo = classInfoExtractor.getClassInfo(target.getClass());
         switch (classInfo.type) {
             case SUBSCRIBER:
@@ -43,7 +43,7 @@ public class BusImpl implements Bus {
         }
     }
 
-    @Override public void unregister(Object target) {
+    @Override synchronized public void unregister(Object target) {
         final Class targetClass = target.getClass();
         final ClassInfo classInfo = classInfoExtractor.getClassInfo(targetClass);
         switch (classInfo.type) {
@@ -60,7 +60,7 @@ public class BusImpl implements Bus {
         }
     }
 
-    @Override public void post(Object event) {
+    @Override synchronized public void post(Object event) {
         busService.post(event);
     }
 
