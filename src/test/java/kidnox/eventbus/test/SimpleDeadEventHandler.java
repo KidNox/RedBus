@@ -4,7 +4,7 @@ import kidnox.eventbus.DeadEventHandler;
 
 public class SimpleDeadEventHandler implements DeadEventHandler{
 
-    Object currentEvent;
+    volatile Object currentEvent;
 
     @Override public void onDeadEvent(Object event) {
         currentEvent = event;

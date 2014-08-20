@@ -5,9 +5,8 @@ import kidnox.eventbus.test.SimpleDeadEventHandler;
 import kidnox.eventbus.test.SimpleSubscriber;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import static org.junit.Assert.*;
 
 public class DeadEventHandlerTest {//TODO async case
 
@@ -29,5 +28,6 @@ public class DeadEventHandlerTest {//TODO async case
 
         assertEquals("wrong event", event, deadEventHandler.getCurrentEvent());
     }
+
 
 }

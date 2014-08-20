@@ -5,6 +5,7 @@ import kidnox.eventbus.test.*;
 import kidnox.eventbus.util.SingleThreadEventDispatcher;
 import org.junit.Test;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static kidnox.eventbus.test.TestUtils.addDispatchersToFactory;
@@ -75,7 +76,8 @@ public class AsyncTest {
         assertEquals("wrong event", event, subscriber3.getCurrentEvent());
     }
 
-    @Test public void asyncPost() throws InterruptedException {
+    @Test (timeout = 1000)
+    public void asyncPost() throws InterruptedException {
         final Bus bus = Bus.Factory.createDefault();
         final NamedAsyncEventDispatcher dispatcher1 = new NamedAsyncEventDispatcher("worker-1");
 
@@ -131,45 +133,66 @@ public class AsyncTest {
         assertNotNull(subscriberClass.getCurrentEvent());
     }
 
-    @Test public void asyncUnregisterTest() throws InterruptedException {
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    @Test (timeout = 1000)
+    public void asyncUnregisterTest() throws InterruptedException {
         final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
                 .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        //here we catch event, that posted after async unregister
+        SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
         final Bus bus = Bus.Factory.builder()
                 .withEventDispatcherFactory(factory)
+                .withDeadEventHandler(deadEventHandler)
                 .create();
 
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher(EventDispatcher.WORKER);
 
         final AtomicBoolean isRegistered = new AtomicBoolean();
-        final AtomicBoolean mustFail = new AtomicBoolean(false);
 
         @Subscriber(EventDispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Object event) {
-                mustFail.set(!isRegistered.get());
+                fail("obtain event after unregister");
             }
         }
 
+        final Semaphore mainSemaphore = new Semaphore(4, true);
+        final Semaphore dispatcherSemaphore = new Semaphore(4, true);
+
         final SubscriberClass subscriberClass = new SubscriberClass();
         bus.register(subscriberClass);
-        isRegistered.set(true);
+        isRegistered.set(true);//there are no async operations yet
 
         dispatcher.execute(new Runnable() {
             @Override public void run() {
+                mainSemaphore.release();
+                try {
+                    //System.out.println("dispatcher lock");
+                    dispatcherSemaphore.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 bus.unregister(subscriberClass);
                 isRegistered.set(false);
                 dispatcher.shutdown();
             }
         });
-
+        //System.out.println("main lock");
+        mainSemaphore.acquire();
         bus.post(new Object());
+        //System.out.println("dispatcher unlock");
+        dispatcherSemaphore.release();
+
         dispatcher.getThread().join();
 
-        if(mustFail.get()) fail("obtain event after unregister");
+        assertNotNull(deadEventHandler.getCurrentEvent());
+        assertFalse(isRegistered.get());
     }
 
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-    @Test public void produceTest() throws InterruptedException {
+    @Test (timeout = 1000)
+    public void produceTest() throws InterruptedException {
         final Thread thread = Thread.currentThread();
 
         final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
@@ -178,16 +201,17 @@ public class AsyncTest {
                 .withEventDispatcherFactory(factory)
                 .create();
 
+        final Semaphore semaphore = new Semaphore(2, true);
+        final SingleThreadEventDispatcher worker = TestUtils.getSTWorkerForName(EventDispatcher.WORKER, factory);
+
         @Subscriber(EventDispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Event event) {
                 currentEvent = event;
-                SingleThreadEventDispatcher worker = TestUtils.getSTWorkerForName(EventDispatcher.WORKER, factory);
                 checkThread(worker.getThread());
 
-                synchronized (thread) {
-                    thread.notify();
-                }
+                semaphore.release();
+                worker.shutdown();
             }
         }
 
@@ -204,10 +228,9 @@ public class AsyncTest {
 
         bus.register(producerClass);
         bus.register(subscriberClass);
+        semaphore.acquire();
 
-        synchronized (thread) {
-            thread.wait();
-        }
+        worker.getThread().join();
 
         assertEquals(1, producerClass.getProducedCount());
         assertNotNull(subscriberClass.getCurrentEvent());
