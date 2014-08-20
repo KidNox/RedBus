@@ -89,7 +89,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getClassInfo(Subscriber1.class);
-        assertEquals(2, getClassToInfoMap(classInfoExtractor).get(Subscriber1.class).typedMethodsMap.size());
+        assertEquals(2, getClassToInfoMap(classInfoExtractor).get(Subscriber1.class).elements.size());
     }
 
     @Test public void subscriberInheritanceTest2() {
@@ -103,7 +103,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getClassInfo(Subscriber2.class);
-        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Subscriber2.class).typedMethodsMap.size());
+        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Subscriber2.class).elements.size());
     }
 
     @Test public void subscribeInheritanceTest3() {
@@ -117,7 +117,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getClassInfo(Subscriber2.class);
-        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Subscriber2.class).typedMethodsMap.size());
+        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Subscriber2.class).elements.size());
     }
 
     @Test public void producerInheritanceTest() {
@@ -129,7 +129,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getClassInfo(Producer1.class);
-        assertEquals(2, getClassToInfoMap(classInfoExtractor).get(Producer1.class).typedMethodsMap.size());
+        assertEquals(2, getClassToInfoMap(classInfoExtractor).get(Producer1.class).elements.size());
     }
 
     @Test public void producerInheritanceTest2() {
@@ -147,7 +147,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getClassInfo(Producer2.class);
-        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Producer2.class).typedMethodsMap.size());
+        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Producer2.class).elements.size());
     }
 
     @Test public void producerInheritanceTest3() {
@@ -165,7 +165,7 @@ public class InheritanceTest {
         }
 
         classInfoExtractor.getClassInfo(Producer2.class);
-        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Producer2.class).typedMethodsMap.size());
+        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Producer2.class).elements.size());
     }
 
 }

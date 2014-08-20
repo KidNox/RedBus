@@ -1,9 +1,7 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.internal.ClassInfo;
-import kidnox.eventbus.internal.ClassType;
-import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -25,8 +23,10 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
             for (Annotation annotation : annotations) {
                 if(annotation instanceof Subscriber) {
                     info =  extractSubscribers(clazz, (Subscriber) annotation);
+                    break;
                 } else if (annotation instanceof Producer) {
                     info = extractProducers(clazz, (Producer) annotation);
+                    break;
                 }
             }
         }
@@ -36,32 +36,34 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     }
 
     protected ClassInfo extractSubscribers(Class clazz, Subscriber annotation) {
-        Map<Class, Method> typedMethodsMap = null;
+        Map<Class, ElementInfo> elementsInfoMap = null;
         final String value = annotation.value();
 
         for(Class mClass = clazz; checkSubscriberConditions(mClass, annotation, value, clazz);
             mClass = mClass.getSuperclass(), annotation = (Subscriber) mClass.getAnnotation(Subscriber.class)) {
 
-            final Map<Class, Method> subscribers = getSubscribedMethods(mClass);
-            if(subscribers.isEmpty())
+            final Set<ElementInfo> subscribers = getSubscribedMethods(mClass);
+            if(subscribers == null)
                 continue;
 
-            if(typedMethodsMap == null)
-                typedMethodsMap = new HashMap<Class, Method>();
+            if(elementsInfoMap == null){
+                elementsInfoMap = newHashMap(8);
+            }
 
-            for(Map.Entry<Class, Method> entry : subscribers.entrySet()) {
-                Method method = typedMethodsMap.put(entry.getKey(), entry.getValue());
-                if(method != null) {
+            for(ElementInfo entry : subscribers) {
+                ElementInfo oldEntry = elementsInfoMap.put(entry.eventType, entry);
+                if(oldEntry != null) {
                     //overridden method check
-                    if(method.getName().equals(entry.getValue().getName())) {
-                        typedMethodsMap.put(entry.getKey(), method);
+                    if(oldEntry.method.getName().equals(entry.method.getName())) {
+                        elementsInfoMap.put(entry.eventType, entry);
                     } else {
-                        throwMultiplyMethodsException(clazz, entry.getKey(), "subscribe");
+                        throwMultiplyMethodsException(clazz, entry.eventType, "subscribe");
                     }
                 }
             }
         }
-        return new ClassInfo(clazz, ClassType.SUBSCRIBER, value, typedMethodsMap);
+        Collection<ElementInfo> values = elementsInfoMap == null ? null : elementsInfoMap.values();
+        return new ClassInfo(clazz, ClassType.SUBSCRIBER, value, values);
     }
 
     protected boolean checkSubscriberConditions(Class clazz, Subscriber annotation, String value, Class first) {
@@ -77,57 +79,60 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     }
 
     protected ClassInfo extractProducers(Class clazz, Producer annotation) {
-        Map<Class, Method> typedMethodsMap = null;
+        Map<Class, ElementInfo> elementsInfoMap = null;
         for(Class mClass = clazz; clazz != null && annotation != null; mClass = mClass.getSuperclass(),
                 annotation = (Producer) mClass.getAnnotation(Producer.class)) {
 
-            final Map<Class, Method> producers = getProducerMethods(mClass);
-            if(producers.isEmpty())
+            final Set<ElementInfo> producers = getProducerMethods(mClass);
+            if(producers == null)
                 continue;
 
-            if(typedMethodsMap == null)
-                typedMethodsMap = new HashMap<Class, Method>();
+            if(elementsInfoMap == null)
+                elementsInfoMap = newHashMap(8);
 
-            for(Map.Entry<Class, Method> entry : producers.entrySet()) {
-                Method method = typedMethodsMap.put(entry.getKey(), entry.getValue());
-                if(method != null) {
+            for(ElementInfo entry : producers) {
+                ElementInfo oldEntry = elementsInfoMap.put(entry.eventType, entry);
+                if(oldEntry != null) {
                     //overridden method check
-                    if(method.getName().equals(entry.getValue().getName())) {
-                        typedMethodsMap.put(entry.getKey(), method);
+                    if(oldEntry.method.getName().equals(entry.method.getName())) {
+                        elementsInfoMap.put(entry.eventType, entry);
                     } else {
-                        throwMultiplyMethodsException(clazz, entry.getKey(), "produce");
+                        throwMultiplyMethodsException(clazz, entry.eventType, "produce");
                     }
                 }
             }
         }
-        return new ClassInfo(clazz, ClassType.PRODUCER, null, typedMethodsMap);
+        Collection<ElementInfo> values = elementsInfoMap == null ? null : elementsInfoMap.values();
+        return new ClassInfo(clazz, ClassType.PRODUCER, null, values);
     }
 
-    protected Map<Class, Method> getSubscribedMethods(Class clazz){
-        Map<Class, Method> classToMethodMap = null;
+    protected Set<ElementInfo> getSubscribedMethods(Class clazz){
+        Set<ElementInfo> elementInfoSet = null;
         for(Method method : clazz.getDeclaredMethods()){
             if ((method.getModifiers() & Modifier.PUBLIC) == 0)
-                continue;
-            if(method.getReturnType() != void.class)
                 continue;
 
             final Class[] params = method.getParameterTypes();
             if(params.length != 1)
                 continue;
+            //TODO add Process annotation
+            if(method.getReturnType() != void.class)
+                continue;
 
             if(method.isAnnotationPresent(Subscribe.class)){
-                if(classToMethodMap == null)
-                    classToMethodMap = newHashMap(4);
+                if(elementInfoSet == null)
+                    elementInfoSet = newHashSet(8);
 
-                if(classToMethodMap.put(params[0], method) != null)
-                    throwMultiplyMethodsException(clazz, params[0], "subscribe");
+                Class type = params[0];
+                if(!elementInfoSet.add(new ElementInfo(ElementType.SUBSCRIBE, type, method)))
+                    throwMultiplyMethodsException(clazz, type, "subscribe");
             }
         }
-        return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
+        return elementInfoSet;
     }
 
-    protected Map<Class, Method> getProducerMethods(Class clazz) {
-        Map<Class, Method> classToMethodMap = null;
+    protected Set<ElementInfo> getProducerMethods(Class clazz) {
+        Set<ElementInfo> elementInfoSet = null;
         for(Method method : clazz.getDeclaredMethods()){
             if ((method.getModifiers() & Modifier.PUBLIC) == 0)
                 continue;
@@ -139,14 +144,14 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 continue;
 
             if(method.isAnnotationPresent(Produce.class)){
-                if(classToMethodMap == null)
-                    classToMethodMap = newHashMap(4);
+                if(elementInfoSet == null)
+                    elementInfoSet = newHashSet(4);
 
-                if(classToMethodMap.put(returnType, method) != null)
+                if(!elementInfoSet.add(new ElementInfo(ElementType.PRODUCE, returnType, method)))
                     throwMultiplyMethodsException(clazz, returnType, "produce");
             }
         }
-        return classToMethodMap == null ? Collections.<Class, Method>emptyMap() : classToMethodMap;
+        return elementInfoSet;
     }
 
     protected void throwMultiplyMethodsException(Class clazz, Class event, String what) {

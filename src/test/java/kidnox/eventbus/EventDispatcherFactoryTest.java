@@ -45,8 +45,6 @@ public class EventDispatcherFactoryTest {
         bus.post(event);
 
         assertNotNull("dispatch not called, event null", dispatcher.getCurrentEvent());
-        assertEquals("wrong event in dispatcher", event, dispatcher.getCurrentEvent());
-        assertTrue("wrong event subscriber in dispatcher", eventSubscribers.contains(dispatcher.getCurrentSubscriber()));
     }
 
 }

@@ -6,10 +6,12 @@ import kidnox.eventbus.impl.BusServiceImpl;
 import kidnox.eventbus.impl.ClassInfoExtractorImpl;
 import kidnox.eventbus.impl.ClassInfoExtractorValidation;
 
+import java.lang.reflect.InvocationTargetException;
+
 public final class InternalFactory {
 
-    public static ClassInfoExtractor createClassInfoExtractor(boolean validate) {
-        if(validate) return new ClassInfoExtractorValidation();
+    public static ClassInfoExtractor createClassInfoExtractor(boolean extraValidation) {
+        if(extraValidation) return new ClassInfoExtractorValidation();
         else return new ClassInfoExtractorImpl();
     }
 
@@ -20,8 +22,13 @@ public final class InternalFactory {
     }
 
     public static final EventDispatcher CURRENT_THREAD_DISPATCHER = new EventDispatcher() {
-        @Override public void dispatchSubscribe(EventSubscriber subscriber, Object event) {
-            subscriber.invoke(event);
+
+        @Override public boolean isDispatcherThread() {
+            return true;
+        }
+
+        @Override public void dispatch(Runnable event) {
+
         }
     };
 

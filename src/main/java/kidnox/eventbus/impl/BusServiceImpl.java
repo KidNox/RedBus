@@ -1,13 +1,15 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
+import kidnox.eventbus.elements.Element;
 import kidnox.eventbus.elements.EventProducer;
 import kidnox.eventbus.elements.EventSubscriber;
 import kidnox.eventbus.internal.BusService;
 import kidnox.eventbus.internal.ClassInfo;
+import kidnox.eventbus.internal.ElementInfo;
 import kidnox.eventbus.internal.InternalFactory;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static kidnox.eventbus.Bus.*;
@@ -20,7 +22,7 @@ public class BusServiceImpl implements BusService {
 
     final Map<String, EventDispatcher> dispatchersMap = newHashMap(4);
 
-    final EventDispatcher.Factory dispatcherFactory;
+    final EventDispatcher.Factory dispatcherFactory;//TODO move to BusImpl
 
     final EventLogger logger;
     final DeadEventHandler deadEventHandler;
@@ -39,17 +41,15 @@ public class BusServiceImpl implements BusService {
     @Override public List<EventSubscriber> registerSubscribers(Object target, ClassInfo classInfo) {
         final boolean checkProducers = eventTypeToProducerMap.size() > 0;
         List<EventSubscriber>subscribers = new LinkedList<EventSubscriber>();
-        for(Map.Entry<Class, Method> entry : classInfo.typedMethodsMap.entrySet()) {
-            final EventSubscriber subscriber = getEventSubscriber(entry.getKey(), target,
-                    entry.getValue(), getDispatcher(classInfo.annotationValue));
+
+        for(ElementInfo entry : classInfo.elements) {
+            final EventSubscriber subscriber = getEventSubscriber(target, entry,
+                    getDispatcher(classInfo.annotationValue));
             subscribers.add(subscriber);
             if(checkProducers) {
                 EventProducer producer = eventTypeToProducerMap.get(subscriber.eventClass);
                 if(producer != null) {
-                    final Object event = produceEvent(producer, subscriber);
-                    if(event != null) {
-                        subscriber.receive(event);
-                    }
+                    dispatch(producer, subscriber);
                 }
             }
             Set<EventSubscriber> set = eventTypeToSubscribersMap.get(subscriber.eventClass);
@@ -59,13 +59,15 @@ public class BusServiceImpl implements BusService {
             }
             set.add(subscriber);
         }
+
         return subscribers;
     }
 
     @Override public List<EventProducer> registerProducers(Object target, ClassInfo classInfo) {
         List<EventProducer> producers = new LinkedList<EventProducer>();
-        for(Map.Entry<Class, Method> entry : classInfo.typedMethodsMap.entrySet()) {
-            final EventProducer producer = getEventProducer(entry.getKey(), target, entry.getValue());
+
+        for(ElementInfo entry : classInfo.elements) {
+            final EventProducer producer = getEventProducer(target, entry);
             if(eventTypeToProducerMap.put(producer.eventClass, producer) != null) {
                 throwIllegalStateException("register", target, " producer for event "
                         + producer.eventClass + " already registered");
@@ -73,11 +75,7 @@ public class BusServiceImpl implements BusService {
             producers.add(producer);
             final Set<EventSubscriber> subscribers = eventTypeToSubscribersMap.get(producer.eventClass);
             if(notEmpty(subscribers)) {
-                final Object event = produceEvent(producer, subscribers);
-                if(event == null) continue;
-                for(EventSubscriber subscriber : subscribers) {
-                    subscriber.receive(event);
-                }
+                dispatch(producer);
             }
         }
         return producers;
@@ -105,7 +103,7 @@ public class BusServiceImpl implements BusService {
                 return;
             }
             for (EventSubscriber subscriber : set) {
-                subscriber.receive(event);
+                dispatch(subscriber, event);
             }
         } else if(deadEventHandler != null) {
             deadEventHandler.onDeadEvent(event);
@@ -113,7 +111,7 @@ public class BusServiceImpl implements BusService {
     }
 
     Object produceEvent(EventProducer producer, Object target) {
-        final Object event = producer.invoke(null);
+        final Object event = invokeElement(producer);
         if(event != null && interceptor != null && interceptor.intercept(event)) {
             logger.logEvent(event, target, INTERCEPT);
             return null;
@@ -130,7 +128,7 @@ public class BusServiceImpl implements BusService {
                 if(dispatcherName.isEmpty()) {
                     dispatcher = InternalFactory.CURRENT_THREAD_DISPATCHER;
                 } else {
-                    throw new IllegalArgumentException("Dispatcher ["+dispatcherName+"] not found");
+                    throw new IllegalArgumentException("Dispatcher["+dispatcherName+"] not found");
                 }
             }
             dispatchersMap.put(dispatcherName, dispatcher);
@@ -138,25 +136,48 @@ public class BusServiceImpl implements BusService {
         return dispatcher;
     }
 
-    EventSubscriber getEventSubscriber(Class event, Object target, Method method, EventDispatcher dispatcher) {
-        return new EventSubscriber(event, target, method, dispatcher, exceptionHandler);
+    EventSubscriber getEventSubscriber(Object target, ElementInfo elementInfo, EventDispatcher dispatcher) {
+        return new EventSubscriber(elementInfo.eventType, target, elementInfo.method, dispatcher);
     }
 
-    EventProducer getEventProducer(Class event, Object target, Method method) {
-        return new EventProducer(event, target, method, exceptionHandler);
+    EventProducer getEventProducer(Object target, ElementInfo elementInfo) {
+        return new EventProducer(elementInfo.eventType, target, elementInfo.method);
     }
 
-//    @Override public void dispatch(EventSubscriber subscriber, Object event) {
-//
-//    }
-//
-//    @Override public void dispatch(EventProducer producer, EventSubscriber subscriber) {
-//
-//    }
-//
-//    @Override public void dispatch(EventProducer producer, Bus bus) {
-//
-//    }
+    protected Object invokeElement(Element element, Object... args) {
+        try {
+            return element.invoke(args);
+        } catch (InvocationTargetException e) {
+            if(exceptionHandler != null &&
+                    exceptionHandler.handle(e.getCause(), element.target, args.length == 0 ? null : args[0])) {
+                return null;
+            } else {
+                throw new RuntimeException(e.getCause());
+            }
+        }
+    }
+
+    @Override public void dispatch(final EventSubscriber subscriber, final Object event) {
+        if(subscriber.eventDispatcher.isDispatcherThread()) {
+            invokeElement(subscriber, event);
+        } else {
+            subscriber.eventDispatcher.dispatch(new Runnable() {
+                @Override public void run() {
+                    invokeElement(subscriber, event);
+                }
+            });
+        }
+    }
+
+    @Override public void dispatch(EventProducer producer, EventSubscriber subscriber) {
+        Object event = produceEvent(producer, subscriber);
+        if(event != null) dispatch(subscriber, event);
+    }
+
+    @Override public void dispatch(EventProducer producer) {
+        Object event = produceEvent(producer, null);
+        if(event != null) post(event);//TODO
+    }
 }
 
 

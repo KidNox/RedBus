@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import kidnox.eventbus.EventDispatcher;
-import kidnox.eventbus.impl.AsyncEventDispatcher;
 import kidnox.eventbus.internal.InternalFactory;
 
 import java.util.HashMap;
@@ -88,9 +87,9 @@ public class AsyncDispatcherFactory implements EventDispatcher.Factory {
     }
 
     public static EventDispatcher getAndroidMainDispatcher() {
-        return new AsyncEventDispatcher() {
+        return new EventDispatcher() {
             final Handler handler = new Handler(Looper.getMainLooper());
-            @Override protected void dispatch(Runnable runnable) {
+            @Override public void dispatch(Runnable runnable) {
                 handler.post(runnable);
             }
 

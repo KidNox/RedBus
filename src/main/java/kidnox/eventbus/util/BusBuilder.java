@@ -2,22 +2,18 @@ package kidnox.eventbus.util;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.async.AsyncDispatcherFactory;
-import kidnox.eventbus.internal.ClassInfoExtractor;
-import kidnox.eventbus.internal.InternalFactory;
-import kidnox.eventbus.internal.Utils;
+
+import static kidnox.eventbus.internal.Utils.checkNotNull;
 
 public final class BusBuilder {
 
-    String name = "";
-    boolean validate = false;
+    boolean extraValidation;
 
-    EventLogger eventLogger = null;
-    DeadEventHandler deadEventHandler = null;
-    Interceptor interceptor = null;
-    ExceptionHandler exceptionHandler = null;
-    EventDispatcher.Factory dispatcherFactory = null;
-
-    ClassInfoExtractor classInfoExtractor = null;
+    EventLogger eventLogger;
+    DeadEventHandler deadEventHandler;
+    Interceptor interceptor;
+    ExceptionHandler exceptionHandler;
+    EventDispatcher.Factory dispatcherFactory;
 
     BusBuilder() {
     }
@@ -26,33 +22,28 @@ public final class BusBuilder {
         return new BusBuilder();
     }
 
-    public BusBuilder withName(String name) {
-        this.name = Utils.checkNotNull(name);
-        return this;
-    }
-
     public BusBuilder withEventLogger(EventLogger eventLogger) {
-        this.eventLogger = Utils.checkNotNull(eventLogger);
+        this.eventLogger = checkNotNull(eventLogger);
         return this;
     }
 
     public BusBuilder withDeadEventHandler(DeadEventHandler deadEventHandler) {
-        this.deadEventHandler = Utils.checkNotNull(deadEventHandler);
+        this.deadEventHandler = checkNotNull(deadEventHandler);
         return this;
     }
 
     public BusBuilder withInterceptor(Interceptor interceptor) {
-        this.interceptor = Utils.checkNotNull(interceptor);
+        this.interceptor = checkNotNull(interceptor);
         return this;
     }
 
     public BusBuilder withExceptionHandler(ExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
+        this.exceptionHandler = checkNotNull(exceptionHandler);
         return this;
     }
 
     public BusBuilder withEventDispatcherFactory(EventDispatcher.Factory factory) {
-        this.dispatcherFactory = Utils.checkNotNull(factory);
+        this.dispatcherFactory = checkNotNull(factory);
         return this;
     }
 
@@ -61,15 +52,14 @@ public final class BusBuilder {
         return this;
     }
 
-    public BusBuilder withValidation() {
-        validate = true;
+    public BusBuilder withExtraValidation() {
+        extraValidation = true;
         return this;
     }
 
     public Bus create() {
-        classInfoExtractor = InternalFactory.createClassInfoExtractor(validate);
-        return Bus.Factory.createBus(name, classInfoExtractor, dispatcherFactory, deadEventHandler,
-                eventLogger, interceptor, exceptionHandler);
+        return Bus.Factory.createBus(dispatcherFactory, exceptionHandler, deadEventHandler, eventLogger,
+                interceptor, extraValidation);
     }
 
 }

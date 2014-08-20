@@ -8,9 +8,9 @@ import kidnox.eventbus.util.BusBuilder;
 
 public interface Bus {
 
-    String POST         = "post";
-    String PRODUCE      = "produce";
-    String INTERCEPT    = "intercept";
+    String POST = "post";
+    String PRODUCE = "produce";
+    String INTERCEPT = "intercept";
 
     void register(Object target);
 
@@ -21,12 +21,13 @@ public interface Bus {
 
     public static final class Factory {
 
-        public static Bus createBus(String name, ClassInfoExtractor extractor,
-                             EventDispatcher.Factory dispatcherFactory, DeadEventHandler deadEventHandler,
-                             EventLogger eventLogger, Interceptor interceptor, ExceptionHandler exHandler) {
+        public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ExceptionHandler exceptionHandler,
+                                    DeadEventHandler deadEventHandler, EventLogger eventLogger,
+                                    Interceptor interceptor, boolean extraValidation) {
             BusService busService = InternalFactory.createBusService(dispatcherFactory, eventLogger,
-                    deadEventHandler, interceptor, exHandler);
-            return new AsyncBus(name, busService, extractor);
+                    deadEventHandler, interceptor, exceptionHandler);
+            ClassInfoExtractor extractor = InternalFactory.createClassInfoExtractor(extraValidation);
+            return new AsyncBus(busService, extractor);
         }
 
         public static Bus createDefault() {
@@ -37,7 +38,7 @@ public interface Bus {
             return BusBuilder.get();
         }
 
-        //no instance
-        private Factory() {}
+        private Factory() {
+        }
     }
 }

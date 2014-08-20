@@ -1,6 +1,5 @@
 package kidnox.eventbus;
 
-
 import kidnox.eventbus.elements.EventSubscriber;
 
 public interface EventDispatcher {
@@ -8,11 +7,11 @@ public interface EventDispatcher {
     String MAIN     = "main";
     String WORKER   = "worker";
 
-//    boolean isDispatcherThread();
-//
-//    void dispatch(Runnable event);
+    boolean isDispatcherThread();
 
-    void dispatchSubscribe(EventSubscriber subscriber, Object event);
+    void dispatch(Runnable event);
+
+    //void dispatchSubscribe(EventSubscriber subscriber, Object event);
 
     //TODO figure out about lazy dispatchers
     interface Factory {//TODO move to separate class

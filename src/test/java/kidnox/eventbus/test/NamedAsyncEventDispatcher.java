@@ -1,9 +1,9 @@
 package kidnox.eventbus.test;
 
+import kidnox.eventbus.EventDispatcher;
 import kidnox.eventbus.async.SingleThreadWorker;
-import kidnox.eventbus.impl.AsyncEventDispatcher;
 
-public class NamedAsyncEventDispatcher extends AsyncEventDispatcher {
+public class NamedAsyncEventDispatcher implements EventDispatcher {
 
     final String name;
     final SingleThreadWorker worker;
@@ -21,7 +21,7 @@ public class NamedAsyncEventDispatcher extends AsyncEventDispatcher {
         return name;
     }
 
-    @Override protected void dispatch(Runnable runnable) {
+    @Override public void dispatch(Runnable runnable) {
         worker.execute(runnable);
     }
 

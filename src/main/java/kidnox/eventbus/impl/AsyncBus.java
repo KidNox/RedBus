@@ -16,13 +16,10 @@ public class AsyncBus implements Bus {
     final Map<Object, List<EventSubscriber>> instanceToSubscribersMap = newHashMap();
     final Map<Object, List<EventProducer>> instanceToProducersMap = newHashMap();
 
-    final String name;
-
     final BusService busService;
     final ClassInfoExtractor classInfoExtractor;
 
-    public AsyncBus(String name, BusService busService, ClassInfoExtractor classInfoExtractor) {
-        this.name = name;
+    public AsyncBus(BusService busService, ClassInfoExtractor classInfoExtractor) {
         this.busService = busService;
         this.classInfoExtractor = classInfoExtractor;
     }
@@ -64,6 +61,22 @@ public class AsyncBus implements Bus {
         busService.post(event);
     }
 
+    void internalRegister() {
+        //TODO
+    }
+
+    void internalUnregister() {
+        //TODO
+    }
+
+    synchronized void internalRegisterSync() {
+        internalRegister();
+    }
+
+    synchronized void internalUnregisterSync() {
+        internalUnregister();
+    }
+
     void registerSubscriber(Object target, ClassInfo classInfo) {
         List<EventSubscriber> subscribers;
         if(classInfo.isEmpty()) {
@@ -100,10 +113,6 @@ public class AsyncBus implements Bus {
         else if(!producers.isEmpty()) {
             busService.unregisterProducers(producers);
         }
-    }
-
-    @Override public String toString() {
-        return "Bus[" + name + ']';
     }
 
 }

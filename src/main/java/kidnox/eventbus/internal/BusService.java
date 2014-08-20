@@ -17,4 +17,10 @@ public interface BusService {
 
     void post(Object event);
 
+    void dispatch(EventSubscriber subscriber, Object event);
+
+    void dispatch(EventProducer producer, EventSubscriber subscriber);
+
+    void dispatch(EventProducer producer);
+
 }
