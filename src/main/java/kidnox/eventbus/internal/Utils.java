@@ -36,7 +36,7 @@ public final class Utils {
     }
 
     public static void throwIllegalStateException(String action, Object cause, String message) {
-        throw new IllegalStateException(action + " was failed " + cause + message);
+        throw new BusException(action + " was failed " + cause + message);
     }
 
     //no instance

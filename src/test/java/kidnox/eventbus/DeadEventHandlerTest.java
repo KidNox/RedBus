@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class DeadEventHandlerTest {
+public class DeadEventHandlerTest {//TODO async case
 
     @Test public void deadEventPostTest() {
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();

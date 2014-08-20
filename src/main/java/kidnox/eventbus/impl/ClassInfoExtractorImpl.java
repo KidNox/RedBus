@@ -166,7 +166,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     }
 
     protected void throwMultiplyMethodsException(Class clazz, Class event, String what) {
-        throw new IllegalStateException(String.format("To many %s methods in instance of %s, " +
+        throw new BusException(String.format("To many %s methods in instance of %s, " +
                 "for event %s, can be only one.", what, clazz.getName(), event.getName()));
     }
 

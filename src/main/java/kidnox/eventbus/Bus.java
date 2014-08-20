@@ -3,8 +3,9 @@ package kidnox.eventbus;
 import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.internal.BusService;
 import kidnox.eventbus.internal.ClassInfoExtractor;
-import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.util.BusBuilder;
+
+import static kidnox.eventbus.internal.InternalFactory.*;
 
 public interface Bus {
 
@@ -21,12 +22,18 @@ public interface Bus {
 
     public static final class Factory {
 
-        public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ExceptionHandler exceptionHandler,
-                                    DeadEventHandler deadEventHandler, EventLogger eventLogger,
+        public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ExceptionHandler exHandler,
+                                    DeadEventHandler deadEvHandler, EventLogger logger,
                                     Interceptor interceptor, boolean extraValidation) {
-            BusService busService = InternalFactory.createBusService(dispatcherFactory, eventLogger,
-                    deadEventHandler, interceptor, exceptionHandler);
-            ClassInfoExtractor extractor = InternalFactory.createClassInfoExtractor(extraValidation);
+
+            dispatcherFactory = dispatcherFactory == null ? getDefaultDispatcherFactory() : dispatcherFactory;
+            exHandler = exHandler == null ? getStubExHandler() : exHandler;
+            deadEvHandler = deadEvHandler == null ? getStubDeadEvHandler() : deadEvHandler;
+            logger = logger == null ? getStubLogger() : logger;
+            interceptor = interceptor == null ? getStubUnterceptor() : interceptor;
+
+            BusService busService = createBusService(dispatcherFactory, logger, deadEvHandler, interceptor, exHandler);
+            ClassInfoExtractor extractor = createClassInfoExtractor(extraValidation);
             return new AsyncBus(busService, extractor);
         }
 

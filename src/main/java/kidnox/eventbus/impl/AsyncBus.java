@@ -58,22 +58,6 @@ public class AsyncBus implements Bus {
         busService.post(event);
     }
 
-    void internalRegister() {
-        //TODO
-    }
-
-    void internalUnregister() {
-        //TODO
-    }
-
-    synchronized void internalRegisterSync() {
-        internalRegister();
-    }
-
-    synchronized void internalUnregisterSync() {
-        internalUnregister();
-    }
-
     void registerSubscriber(Object target, ClassInfo classInfo) {
         List<AsyncElement> subscribers;
         if(classInfo.isEmpty()) {

@@ -1,4 +1,4 @@
-package kidnox.eventbus.async;
+package kidnox.eventbus.util;
 
 import java.util.concurrent.ThreadFactory;
 

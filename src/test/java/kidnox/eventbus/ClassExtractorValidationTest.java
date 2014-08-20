@@ -1,6 +1,5 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.async.AsyncDispatcherFactory;
 import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.test.bad.BadClass;

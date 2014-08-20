@@ -1,5 +1,6 @@
 package kidnox.eventbus;
 
+import kidnox.eventbus.internal.BusException;
 import kidnox.eventbus.test.*;
 import kidnox.eventbus.test.bad.BadSubscriber;
 import kidnox.eventbus.test.bad.BadSubscriber2;
@@ -146,7 +147,7 @@ public class GeneralTest {
         assertEquals(1, subscriber.getSubscribedCount());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = BusException.class)
     public void registerSameProducersTest() {
         @Producer
         class Producer1 {

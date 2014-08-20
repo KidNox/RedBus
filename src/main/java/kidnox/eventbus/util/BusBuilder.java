@@ -1,7 +1,6 @@
 package kidnox.eventbus.util;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.async.AsyncDispatcherFactory;
 
 import static kidnox.eventbus.internal.Utils.checkNotNull;
 

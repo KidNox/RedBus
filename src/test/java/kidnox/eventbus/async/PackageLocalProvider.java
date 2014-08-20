@@ -1,13 +1,12 @@
 package kidnox.eventbus.async;
 
+import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.util.SingleThreadEventDispatcher;
+
 public class PackageLocalProvider {
 
-    public static boolean inCurrentThread(AsyncEventDispatcherExt asyncDispatcherExt) {
-        return asyncDispatcherExt.isDispatcherThread();
-    }
-
-    public static SingleThreadWorker getSingleThreadWorker(AsyncEventDispatcherExt asyncDispatcherExt) {
-        return (SingleThreadWorker) asyncDispatcherExt.worker;
+    public static SingleThreadEventDispatcher getSingleThreadWorker(EventDispatcher eventDispatcher) {
+        return (SingleThreadEventDispatcher) eventDispatcher;
     }
 
 }

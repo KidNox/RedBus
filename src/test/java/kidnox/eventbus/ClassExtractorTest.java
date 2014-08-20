@@ -1,5 +1,6 @@
 package kidnox.eventbus;
 
+import kidnox.eventbus.internal.BusException;
 import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.internal.ClassType;
@@ -124,7 +125,7 @@ public class ClassExtractorTest {
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = BusException.class)
     public void sameExtSubscriberTest() {
         @Subscriber
         class Subscriber1 extends SimpleSubscriber {
@@ -153,7 +154,7 @@ public class ClassExtractorTest {
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = BusException.class)
     public void sameProducerExtTest() {
         @Producer
         class Producer1 extends SimpleProducer {

@@ -21,10 +21,14 @@ public final class AsyncElement extends Element {
         valid = false;
     }
 
+    public boolean isValid() {
+        return valid;
+    }
+
     @Override public Object invoke(Object... event) throws InvocationTargetException {
         if(valid) return super.invoke(event);
         if (!Utils.isNullOrEmpty(event)) {
-            return new DeadEvent(event[0]);
+            return event[0];
         }
         else return null; //Producer already unregistered here
     }

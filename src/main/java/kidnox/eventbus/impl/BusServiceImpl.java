@@ -24,13 +24,13 @@ public class BusServiceImpl implements BusService {
     final Interceptor interceptor;
     final ExceptionHandler exceptionHandler;
 
-    public BusServiceImpl(EventDispatcher.Factory factory, EventLogger logger, DeadEventHandler deadEventHandler,
-                          Interceptor interceptor, ExceptionHandler exceptionHandler) {
-        this.dispatcherFactory = factory == null ? InternalFactory.createDefaultEventDispatcherFactory() : factory;
-        this.logger = logger == null ? InternalFactory.getStubLogger() : logger;
-        this.deadEventHandler = deadEventHandler;
-        this.interceptor = interceptor;
+    public BusServiceImpl(EventDispatcher.Factory factory, ExceptionHandler exceptionHandler,
+                          DeadEventHandler deadEventHandler, EventLogger logger, Interceptor interceptor) {
+        this.dispatcherFactory = factory;
         this.exceptionHandler = exceptionHandler;
+        this.deadEventHandler = deadEventHandler;
+        this.logger = logger;
+        this.interceptor = interceptor;
     }
 
     @Override public List<AsyncElement> registerSubscribers(Object target, ClassInfo classInfo) {
@@ -92,21 +92,21 @@ public class BusServiceImpl implements BusService {
         Set<AsyncElement> set = eventTypeToSubscribersMap.get(event.getClass());
         logger.logEvent(event, set, POST);
         if (notEmpty(set)) {
-            if(interceptor != null && interceptor.intercept(event)) {
+            if(interceptor.intercept(event)) {
                 logger.logEvent(event, set, INTERCEPT);
                 return;
             }
             for (AsyncElement subscriber : set) {
                 dispatch(subscriber, event);
             }
-        } else if(deadEventHandler != null) {
+        } else {
             deadEventHandler.onDeadEvent(event);
         }
     }
 
     Object produceEvent(AsyncElement producer, Object target) {
         final Object event = invokeElement(producer);
-        if(event != null && interceptor != null && interceptor.intercept(event)) {
+        if(event != null && interceptor.intercept(event)) {
             logger.logEvent(event, target, INTERCEPT);
             return null;
         }
@@ -138,9 +138,15 @@ public class BusServiceImpl implements BusService {
         return new AsyncElement(elementInfo, target, null);
     }
 
-    Object invokeElement(Element element, Object... args) {
+    Object invokeElement(AsyncElement element, Object... args) {
         try {
-            return element.invoke(args);
+            Object result = element.invoke(args);
+            //this is unregistered subscriber, so we can handle dead event
+            if(result != null && !element.isValid()) {
+                deadEventHandler.onDeadEvent(result);
+                return null;
+            }
+            return result;
         } catch (InvocationTargetException e) {
             if(exceptionHandler != null &&
                     exceptionHandler.handle(e.getCause(), element.target, args.length == 0 ? null : args[0])) {

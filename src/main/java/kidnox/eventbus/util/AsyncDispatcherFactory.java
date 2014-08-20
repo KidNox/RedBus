@@ -1,4 +1,4 @@
-package kidnox.eventbus.async;
+package kidnox.eventbus.util;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static kidnox.eventbus.internal.Utils.checkNotNull;
 
-public class AsyncDispatcherFactory implements EventDispatcher.Factory {
+public class AsyncDispatcherFactory implements EventDispatcher.Factory {//TODO lazy
 
     protected final Map<String, EventDispatcher> dispatchersMap;
     protected final Thread.UncaughtExceptionHandler exceptionHandler;
@@ -63,16 +63,16 @@ public class AsyncDispatcherFactory implements EventDispatcher.Factory {
         return this;
     }
 
-    public static EventDispatcher createAsyncDispatcher(String name) {
-        return new AsyncEventDispatcherExt(new SingleThreadWorker(name));
+    public static EventDispatcher createAsyncDispatcher() {
+        return new SingleThreadEventDispatcher();
     }
 
     public static EventDispatcher createAsyncDispatcher(String name, Thread.UncaughtExceptionHandler exceptionHandler) {
-        return new AsyncEventDispatcherExt(new SingleThreadWorker(name).withUncaughtExceptionHandler(exceptionHandler));
+        return new SingleThreadEventDispatcher().withUncaughtExceptionHandler(exceptionHandler);
     }
 
     public static EventDispatcher getWorkerDispatcher() {
-        return createAsyncDispatcher(EventDispatcher.WORKER);
+        return createAsyncDispatcher();
     }
 
     public static AsyncDispatcherFactory getAndroidDispatcherFactory() {
