@@ -1,12 +1,9 @@
 package kidnox.eventbus.internal;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.elements.EventSubscriber;
 import kidnox.eventbus.impl.BusServiceImpl;
 import kidnox.eventbus.impl.ClassInfoExtractorImpl;
 import kidnox.eventbus.impl.ClassInfoExtractorValidation;
-
-import java.lang.reflect.InvocationTargetException;
 
 public final class InternalFactory {
 

@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.elements.EventSubscriber;
+import kidnox.eventbus.internal.EventSubscriber;
 import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.util.EventInterceptor;
 import kidnox.eventbus.test.*;

@@ -1,9 +1,9 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.elements.Element;
-import kidnox.eventbus.elements.EventProducer;
-import kidnox.eventbus.elements.EventSubscriber;
+import kidnox.eventbus.internal.Element;
+import kidnox.eventbus.internal.EventProducer;
+import kidnox.eventbus.internal.EventSubscriber;
 import kidnox.eventbus.internal.BusService;
 import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.ElementInfo;

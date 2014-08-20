@@ -1,8 +1,6 @@
 package kidnox.eventbus.test;
 
 import kidnox.eventbus.EventDispatcher;
-import kidnox.eventbus.elements.EventProducer;
-import kidnox.eventbus.elements.EventSubscriber;
 
 public class SimpleEventDispatcher implements EventDispatcher {
 

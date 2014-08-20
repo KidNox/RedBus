@@ -1,7 +1,6 @@
-package kidnox.eventbus.elements;
+package kidnox.eventbus.internal;
 
 import kidnox.eventbus.EventDispatcher;
-import kidnox.eventbus.ExceptionHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

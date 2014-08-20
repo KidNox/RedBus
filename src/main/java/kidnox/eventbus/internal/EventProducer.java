@@ -1,4 +1,4 @@
-package kidnox.eventbus.elements;
+package kidnox.eventbus.internal;
 
 import java.lang.reflect.Method;
 

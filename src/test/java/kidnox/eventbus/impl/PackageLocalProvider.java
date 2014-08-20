@@ -1,6 +1,6 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.elements.EventSubscriber;
+import kidnox.eventbus.internal.EventSubscriber;
 import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.ClassInfoExtractor;
 

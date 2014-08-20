@@ -1,8 +1,5 @@
 package kidnox.eventbus.internal;
 
-import kidnox.eventbus.elements.EventProducer;
-import kidnox.eventbus.elements.EventSubscriber;
-
 import java.util.List;
 
 public interface BusService {
