@@ -2,7 +2,7 @@ package kidnox.eventbus.internal;
 
 import java.util.Collection;
 
-public final class ClassInfo {
+public final class ClassInfo { //TODO create BaseClassInfo without elements
     public final Class clazz;
     public final ClassType type;
     public final String annotationValue;

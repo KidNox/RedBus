@@ -1,6 +1,6 @@
 package kidnox.eventbus.impl;
 
-import kidnox.eventbus.internal.EventSubscriber;
+import kidnox.eventbus.internal.AsyncElement;
 import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.ClassInfoExtractor;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class PackageLocalProvider {
 
-    public static List<EventSubscriber> getSubscribers(AsyncBus bus, Object target) {
+    public static List<AsyncElement> getSubscribers(AsyncBus bus, Object target) {
         return bus.instanceToSubscribersMap.get(target);
     }
 

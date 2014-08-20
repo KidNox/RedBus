@@ -31,8 +31,8 @@ public final class ElementInfo {
     @Override public String toString() {
         return "ElementInfo{" +
                 "elementType=" + elementType +
-                ", eventType=" + eventType +
-                ", method=" + method +
+                ", eventType=" + eventType.getSimpleName() +
+                ", method=" + method.getName() +
                 '}';
     }
 }

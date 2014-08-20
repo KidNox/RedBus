@@ -12,8 +12,17 @@ import static kidnox.eventbus.internal.Utils.*;
 
 public class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
+    private final Map<Class<? extends Annotation>, ExtractionStrategy> extractionStrategyMap = newHashMap(4);
+
+    {
+        extractionStrategyMap.put(Subscriber.class, new SubscriberExtractor());
+        extractionStrategyMap.put(Producer.class, new ProducerExtractor());
+        extractionStrategyMap.put(ServiceClass.class, new ServiceExtractor());
+    }
+
     final Map<Class, ClassInfo> classToInfoMap = newHashMap();
 
+    @SuppressWarnings("unchecked")
     @Override public ClassInfo getClassInfo(Class clazz) {
         ClassInfo info = classToInfoMap.get(clazz);
         if(info != null) return info;
@@ -21,11 +30,9 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         final Annotation[] annotations = clazz.getAnnotations();
         if(!isNullOrEmpty(annotations)) {
             for (Annotation annotation : annotations) {
-                if(annotation instanceof Subscriber) {
-                    info =  extractSubscribers(clazz, (Subscriber) annotation);
-                    break;
-                } else if (annotation instanceof Producer) {
-                    info = extractProducers(clazz, (Producer) annotation);
+                ExtractionStrategy extractionStrategy = extractionStrategyMap.get(annotation.annotationType());
+                if(extractionStrategy != null) {
+                    info = extractionStrategy.extract(clazz, annotation);
                     break;
                 }
             }
@@ -106,6 +113,10 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return new ClassInfo(clazz, ClassType.PRODUCER, null, values);
     }
 
+    protected ClassInfo extractService(Class clazz, ServiceClass annotation) {
+        return null;//TODO
+    }
+
     protected Set<ElementInfo> getSubscribedMethods(Class clazz){
         Set<ElementInfo> elementInfoSet = null;
         for(Method method : clazz.getDeclaredMethods()){
@@ -157,6 +168,32 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     protected void throwMultiplyMethodsException(Class clazz, Class event, String what) {
         throw new IllegalStateException(String.format("To many %s methods in instance of %s, " +
                 "for event %s, can be only one.", what, clazz.getName(), event.getName()));
+    }
+
+
+    interface ExtractionStrategy<T extends Annotation> {
+        ClassInfo extract(Class clazz, T annotation);
+    }
+
+    class SubscriberExtractor implements ExtractionStrategy<Subscriber> {
+
+        @Override public ClassInfo extract(Class clazz, Subscriber annotation) {
+            return extractSubscribers(clazz, annotation);
+        }
+    }
+
+    class ProducerExtractor implements ExtractionStrategy<Producer> {
+
+        @Override public ClassInfo extract(Class clazz, Producer annotation) {
+            return extractProducers(clazz, annotation);
+        }
+    }
+
+    class ServiceExtractor implements ExtractionStrategy<ServiceClass> {
+
+        @Override public ClassInfo extract(Class clazz, ServiceClass annotation) {
+            return extractService(clazz, annotation);
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.EventSubscriber;
+import kidnox.eventbus.internal.AsyncElement;
 import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.impl.PackageLocalProvider;
 import kidnox.eventbus.test.Event;
@@ -38,7 +38,7 @@ public class EventDispatcherFactoryTest {
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
 
-        List<EventSubscriber> eventSubscribers = PackageLocalProvider.getSubscribers(bus, subscriber);
+        List<AsyncElement> eventSubscribers = PackageLocalProvider.getSubscribers(bus, subscriber);
         assertNotNull("valid subscriber without event subscribers", eventSubscribers);
 
         Event event = new Event();

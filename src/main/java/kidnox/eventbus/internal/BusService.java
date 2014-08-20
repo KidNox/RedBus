@@ -4,20 +4,20 @@ import java.util.List;
 
 public interface BusService {
 
-    List<EventSubscriber> registerSubscribers(Object target, ClassInfo classInfo);
+    List<AsyncElement> registerSubscribers(Object target, ClassInfo classInfo);
 
-    List<EventProducer> registerProducers(Object target, ClassInfo classInfo);
+    List<AsyncElement> registerProducers(Object target, ClassInfo classInfo);
 
-    void unregisterSubscribers(List<EventSubscriber> subscribers);
+    void unregisterSubscribers(List<AsyncElement> subscribers);
 
-    void unregisterProducers(List<EventProducer> producers);
+    void unregisterProducers(List<AsyncElement> producers);
 
     void post(Object event);
 
-    void dispatch(EventSubscriber subscriber, Object event);
+    void dispatch(AsyncElement subscriber, Object event);
 
-    void dispatch(EventProducer producer, EventSubscriber subscriber);
+    void dispatch(AsyncElement producer, AsyncElement subscriber);
 
-    void dispatch(EventProducer producer);
+    void dispatch(AsyncElement producer);
 
 }

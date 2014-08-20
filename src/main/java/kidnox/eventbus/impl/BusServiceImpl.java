@@ -1,13 +1,8 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.internal.Element;
-import kidnox.eventbus.internal.EventProducer;
-import kidnox.eventbus.internal.EventSubscriber;
-import kidnox.eventbus.internal.BusService;
-import kidnox.eventbus.internal.ClassInfo;
-import kidnox.eventbus.internal.ElementInfo;
-import kidnox.eventbus.internal.InternalFactory;
+import kidnox.eventbus.internal.*;
+import kidnox.eventbus.internal.AsyncElement;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -17,8 +12,8 @@ import static kidnox.eventbus.internal.Utils.*;
 
 public class BusServiceImpl implements BusService {
 
-    final Map<Class, Set<EventSubscriber>> eventTypeToSubscribersMap = newHashMap();
-    final Map<Class, EventProducer> eventTypeToProducerMap = newHashMap();
+    final Map<Class, Set<AsyncElement>> eventTypeToSubscribersMap = newHashMap();
+    final Map<Class, AsyncElement> eventTypeToProducerMap = newHashMap();
 
     final Map<String, EventDispatcher> dispatchersMap = newHashMap(4);
 
@@ -38,42 +33,41 @@ public class BusServiceImpl implements BusService {
         this.exceptionHandler = exceptionHandler;
     }
 
-    @Override public List<EventSubscriber> registerSubscribers(Object target, ClassInfo classInfo) {
+    @Override public List<AsyncElement> registerSubscribers(Object target, ClassInfo classInfo) {
         final boolean checkProducers = eventTypeToProducerMap.size() > 0;
-        List<EventSubscriber>subscribers = new LinkedList<EventSubscriber>();
+        List<AsyncElement>subscribers = new LinkedList<AsyncElement>();
 
         for(ElementInfo entry : classInfo.elements) {
-            final EventSubscriber subscriber = getEventSubscriber(target, entry,
+            final AsyncElement subscriber = getEventSubscriber(target, entry,
                     getDispatcher(classInfo.annotationValue));
             subscribers.add(subscriber);
             if(checkProducers) {
-                EventProducer producer = eventTypeToProducerMap.get(subscriber.eventClass);
+                AsyncElement producer = eventTypeToProducerMap.get(subscriber.eventType);
                 if(producer != null) {
                     dispatch(producer, subscriber);
                 }
             }
-            Set<EventSubscriber> set = eventTypeToSubscribersMap.get(subscriber.eventClass);
+            Set<AsyncElement> set = eventTypeToSubscribersMap.get(subscriber.eventType);
             if (set == null) {
                 set = newHashSet(2);
-                eventTypeToSubscribersMap.put(subscriber.eventClass, set);
+                eventTypeToSubscribersMap.put(subscriber.eventType, set);
             }
             set.add(subscriber);
         }
-
         return subscribers;
     }
 
-    @Override public List<EventProducer> registerProducers(Object target, ClassInfo classInfo) {
-        List<EventProducer> producers = new LinkedList<EventProducer>();
+    @Override public List<AsyncElement> registerProducers(Object target, ClassInfo classInfo) {
+        List<AsyncElement> producers = new LinkedList<AsyncElement>();
 
         for(ElementInfo entry : classInfo.elements) {
-            final EventProducer producer = getEventProducer(target, entry);
-            if(eventTypeToProducerMap.put(producer.eventClass, producer) != null) {
+            final AsyncElement producer = getEventProducer(target, entry);
+            if(eventTypeToProducerMap.put(producer.eventType, producer) != null) {
                 throwIllegalStateException("register", target, " producer for event "
-                        + producer.eventClass + " already registered");
+                        + producer.eventType + " already registered");
             }
             producers.add(producer);
-            final Set<EventSubscriber> subscribers = eventTypeToSubscribersMap.get(producer.eventClass);
+            final Set<AsyncElement> subscribers = eventTypeToSubscribersMap.get(producer.eventType);
             if(notEmpty(subscribers)) {
                 dispatch(producer);
             }
@@ -81,28 +75,28 @@ public class BusServiceImpl implements BusService {
         return producers;
     }
 
-    @Override public void unregisterSubscribers(List<EventSubscriber> subscribers) {
-        for (EventSubscriber subscriber : subscribers) {
-            eventTypeToSubscribersMap.get(subscriber.eventClass).remove(subscriber);
+    @Override public void unregisterSubscribers(List<AsyncElement> subscribers) {
+        for (AsyncElement subscriber : subscribers) {
+            eventTypeToSubscribersMap.get(subscriber.eventType).remove(subscriber);
             subscriber.onUnregister();
         }
     }
 
-    @Override public void unregisterProducers(List<EventProducer> producers) {
-        for(EventProducer producer : producers) {
-            eventTypeToProducerMap.remove(producer.eventClass);
+    @Override public void unregisterProducers(List<AsyncElement> producers) {
+        for(AsyncElement producer : producers) {
+            eventTypeToProducerMap.remove(producer.eventType);
         }
     }
 
     @Override public void post(Object event) {
-        Set<EventSubscriber> set = eventTypeToSubscribersMap.get(event.getClass());
+        Set<AsyncElement> set = eventTypeToSubscribersMap.get(event.getClass());
         logger.logEvent(event, set, POST);
         if (notEmpty(set)) {
             if(interceptor != null && interceptor.intercept(event)) {
                 logger.logEvent(event, set, INTERCEPT);
                 return;
             }
-            for (EventSubscriber subscriber : set) {
+            for (AsyncElement subscriber : set) {
                 dispatch(subscriber, event);
             }
         } else if(deadEventHandler != null) {
@@ -110,7 +104,7 @@ public class BusServiceImpl implements BusService {
         }
     }
 
-    Object produceEvent(EventProducer producer, Object target) {
+    Object produceEvent(AsyncElement producer, Object target) {
         final Object event = invokeElement(producer);
         if(event != null && interceptor != null && interceptor.intercept(event)) {
             logger.logEvent(event, target, INTERCEPT);
@@ -120,7 +114,7 @@ public class BusServiceImpl implements BusService {
         return event;
     }
 
-    protected EventDispatcher getDispatcher(String dispatcherName) {
+    EventDispatcher getDispatcher(String dispatcherName) {
         EventDispatcher dispatcher = dispatchersMap.get(dispatcherName);
         if(dispatcher == null) {
             dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
@@ -136,15 +130,15 @@ public class BusServiceImpl implements BusService {
         return dispatcher;
     }
 
-    EventSubscriber getEventSubscriber(Object target, ElementInfo elementInfo, EventDispatcher dispatcher) {
-        return new EventSubscriber(elementInfo.eventType, target, elementInfo.method, dispatcher);
+    AsyncElement getEventSubscriber(Object target, ElementInfo elementInfo, EventDispatcher dispatcher) {
+        return new AsyncElement(elementInfo, target, dispatcher);
     }
 
-    EventProducer getEventProducer(Object target, ElementInfo elementInfo) {
-        return new EventProducer(elementInfo.eventType, target, elementInfo.method);
+    AsyncElement getEventProducer(Object target, ElementInfo elementInfo) {
+        return new AsyncElement(elementInfo, target, null);
     }
 
-    protected Object invokeElement(Element element, Object... args) {
+    Object invokeElement(Element element, Object... args) {
         try {
             return element.invoke(args);
         } catch (InvocationTargetException e) {
@@ -157,7 +151,7 @@ public class BusServiceImpl implements BusService {
         }
     }
 
-    @Override public void dispatch(final EventSubscriber subscriber, final Object event) {
+    @Override public void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.eventDispatcher.isDispatcherThread()) {
             invokeElement(subscriber, event);
         } else {
@@ -169,12 +163,12 @@ public class BusServiceImpl implements BusService {
         }
     }
 
-    @Override public void dispatch(EventProducer producer, EventSubscriber subscriber) {
+    @Override public void dispatch(AsyncElement producer, AsyncElement subscriber) {
         Object event = produceEvent(producer, subscriber);
         if(event != null) dispatch(subscriber, event);
     }
 
-    @Override public void dispatch(EventProducer producer) {
+    @Override public void dispatch(AsyncElement producer) {
         Object event = produceEvent(producer, null);
         if(event != null) post(event);//TODO
     }

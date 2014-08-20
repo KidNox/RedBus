@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.EventSubscriber;
+import kidnox.eventbus.internal.AsyncElement;
 import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.util.EventInterceptor;
 import kidnox.eventbus.test.*;
@@ -84,7 +84,7 @@ public class EventLoggerTest {
 
         bus.post(EVENT);
         assertTrue(eventLogger.getTarget() instanceof Set);
-        Set<EventSubscriber> set = (Set<EventSubscriber>) eventLogger.getTarget();
+        Set<AsyncElement> set = (Set<AsyncElement>) eventLogger.getTarget();
         assertEquals(2, set.size());
     }
 
@@ -96,7 +96,7 @@ public class EventLoggerTest {
         bus.register(producer);
 
         assertTrue(eventLogger.getTarget() instanceof Set);
-        Set<EventSubscriber> set = (Set<EventSubscriber>) eventLogger.getTarget();
+        Set<AsyncElement> set = (Set<AsyncElement>) eventLogger.getTarget();
         assertEquals(1, set.size());
     }
 
@@ -106,7 +106,7 @@ public class EventLoggerTest {
         bus.register(producer);
         bus.register(subscriber);
 
-        assertTrue(eventLogger.getTarget() instanceof EventSubscriber);
+        assertTrue(eventLogger.getTarget() instanceof AsyncElement);
     }
 
 }

@@ -3,9 +3,8 @@ package kidnox.eventbus.internal;
 import kidnox.eventbus.EventDispatcher;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
-public final class EventSubscriber extends Element {
+public final class AsyncElement extends Element {
 
     public final EventDispatcher eventDispatcher;
 
@@ -13,14 +12,10 @@ public final class EventSubscriber extends Element {
     //Unregister should be called from eventDispatcher thread, otherwise invoke may be called after unregister.
     private boolean valid = true;
 
-    public EventSubscriber(Class eventClass, Object target, Method method, EventDispatcher dispatcher) {
-        super(eventClass, target, method);
+    public AsyncElement(ElementInfo elementInfo, Object target, EventDispatcher dispatcher) {
+        super(elementInfo, target);
         this.eventDispatcher = dispatcher;
     }
-
-//    public void receive(Object event) {
-//        eventDispatcher.dispatchSubscribe(this, event);
-//    }
 
     public void onUnregister() {
         valid = false;
@@ -28,6 +23,9 @@ public final class EventSubscriber extends Element {
 
     @Override public Object invoke(Object... event) throws InvocationTargetException {
         if(valid) return super.invoke(event);
-        else return null; //Subscriber already unregistered here
+        if (!Utils.isNullOrEmpty(event)) {
+            return new DeadEvent(event[0]);
+        }
+        else return null; //Producer already unregistered here
     }
 }
