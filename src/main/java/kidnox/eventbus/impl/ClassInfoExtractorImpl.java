@@ -46,16 +46,12 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         Map<Class, ElementInfo> elementsInfoMap = null;
         final String value = annotation.value();
 
-        for(Class mClass = clazz; checkSubscriberConditions(mClass, annotation, value, clazz);
-            mClass = mClass.getSuperclass(), annotation = (Subscriber) mClass.getAnnotation(Subscriber.class)) {
-
+        for(Class mClass = clazz; checkSubscriber(mClass, clazz, value); mClass = mClass.getSuperclass()) {
             final Set<ElementInfo> subscribers = getSubscribedMethods(mClass);
             if(subscribers == null)
                 continue;
 
-            if(elementsInfoMap == null){
-                elementsInfoMap = newHashMap(8);
-            }
+            if(elementsInfoMap == null) elementsInfoMap = newHashMap(8);
 
             for(ElementInfo entry : subscribers) {
                 ElementInfo oldEntry = elementsInfoMap.put(entry.eventType, entry);
@@ -73,23 +69,11 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return new ClassInfo(clazz, ClassType.SUBSCRIBER, value, values);
     }
 
-    protected boolean checkSubscriberConditions(Class clazz, Subscriber annotation, String value, Class first) {
-        if(clazz == null || annotation == null) {
-            return false;
-        } else if (!value.equals(annotation.value())){
-            throw new IllegalArgumentException(String.format("dispatchers for child and parent classes does not match:"
-                    +" child class = %s, dispatcher = %s, parent class = %s, dispatcher = %s.",
-                    first.getName(), value, clazz.getName(), annotation.value()));
-        } else {
-            return true;
-        }
-    }
-
     protected ClassInfo extractProducers(Class clazz, Producer annotation) {
         Map<Class, ElementInfo> elementsInfoMap = null;
-        for(Class mClass = clazz; clazz != null && annotation != null; mClass = mClass.getSuperclass(),
-                annotation = (Producer) mClass.getAnnotation(Producer.class)) {
+        final String value = annotation.value();
 
+        for(Class mClass = clazz; checkProducer(mClass, clazz, value); mClass = mClass.getSuperclass()) {
             final Set<ElementInfo> producers = getProducerMethods(mClass);
             if(producers == null)
                 continue;
@@ -110,7 +94,15 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
             }
         }
         Collection<ElementInfo> values = elementsInfoMap == null ? null : elementsInfoMap.values();
-        return new ClassInfo(clazz, ClassType.PRODUCER, null, values);
+        return new ClassInfo(clazz, ClassType.PRODUCER, value, values);
+    }
+
+    protected boolean checkSubscriber(Class current, Class child, String childAnnotationValue) {
+        return current.getAnnotation(Subscriber.class) != null;
+    }
+
+    protected boolean checkProducer(Class current, Class child, String childAnnotationValue) {
+        return current.getAnnotation(Producer.class) != null;
     }
 
     protected ClassInfo extractService(Class clazz, ServiceClass annotation) {

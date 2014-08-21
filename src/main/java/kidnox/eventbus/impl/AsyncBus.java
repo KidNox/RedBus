@@ -126,6 +126,7 @@ public class AsyncBus implements Bus {
         else if(!producers.isEmpty()) {
             for(AsyncElement producer : producers) {
                 eventTypeToProducerMap.remove(producer.eventType);
+                producer.onUnregister();
             }
         }
     }
@@ -171,7 +172,6 @@ public class AsyncBus implements Bus {
     }
 
     EventDispatcher getDispatcher(String dispatcherName) {
-        if(dispatcherName == null) return null;//TODO remove this when implement async producers
         EventDispatcher dispatcher = dispatchersMap.get(dispatcherName);
         if(dispatcher == null) {
             dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
@@ -229,12 +229,32 @@ public class AsyncBus implements Bus {
     }
 
     void dispatch(final AsyncElement producer, final AsyncElement subscriber) {
-        Object event = produceEvent(producer, subscriber);
-        if(event != null) dispatch(subscriber, event);
+        if(producer.eventDispatcher.isDispatcherThread()) {
+            Object event = produceEvent(producer, subscriber);
+            if(event != null) dispatch(subscriber, event);
+        } else {
+            producer.eventDispatcher.dispatch(new Runnable() {
+                @Override
+                public void run() {
+                    Object event = produceEvent(producer, subscriber);
+                    if(event != null) dispatch(subscriber, event);
+                }
+            });
+        }
     }
 
     void dispatch(final AsyncElement producer) {
-        Object event = produceEvent(producer, null);
-        if(event != null) post(event);
+        if(producer.eventDispatcher.isDispatcherThread()) {
+            Object event = produceEvent(producer, null);
+            if(event != null) post(event);
+        } else {
+            producer.eventDispatcher.dispatch(new Runnable() {
+                @Override
+                public void run() {
+                    Object event = produceEvent(producer, null);
+                    if(event != null) post(event);
+                }
+            });
+        }
     }
 }

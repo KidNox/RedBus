@@ -2,6 +2,7 @@ package kidnox.eventbus.impl;
 
 import kidnox.eventbus.Produce;
 import kidnox.eventbus.Subscribe;
+import kidnox.eventbus.internal.BusException;
 import kidnox.eventbus.internal.ElementInfo;
 import kidnox.eventbus.internal.ElementType;
 
@@ -73,6 +74,14 @@ public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
             }
         }
         return elementInfoSet;
+    }
+
+    protected void checkAnnotationValue(Class clazz, String annotationValue, String baseValue, Class first) {
+        if (!baseValue.equals(annotationValue)){
+            throw new BusException(String.format("dispatchers for child and parent classes does not match:"
+                            + " child class = %s, dispatcher = %s, parent class = %s, dispatcher = %s.",
+                    first.getName(), baseValue, clazz.getName(), annotationValue));
+        }
     }
 
 }

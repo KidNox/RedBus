@@ -8,4 +8,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Producer {
+
+    /**
+     * Name of the dispatcher for dispatchers factory
+     * */
+    String value() default "";
+
 }
