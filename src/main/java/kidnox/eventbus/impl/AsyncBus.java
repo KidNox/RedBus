@@ -20,8 +20,8 @@ public class AsyncBus implements Bus {
     final Map<String, EventDispatcher> dispatchersMap = newHashMap(4);
 
     final ClassInfoExtractor classInfoExtractor;
-
     final EventDispatcher.Factory dispatcherFactory;
+
     final EventLogger logger;
     final DeadEventHandler deadEventHandler;
     final Interceptor interceptor;
@@ -135,8 +135,7 @@ public class AsyncBus implements Bus {
         List<AsyncElement>subscribers = new LinkedList<AsyncElement>();
 
         for(ElementInfo entry : classInfo.elements) {
-            final AsyncElement subscriber = getEventSubscriber(target, entry,
-                    getDispatcher(classInfo.annotationValue));
+            final AsyncElement subscriber = new AsyncElement(target, entry, getDispatcher(classInfo.annotationValue));
             subscribers.add(subscriber);
             if(checkProducers) {
                 AsyncElement producer = eventTypeToProducerMap.get(subscriber.eventType);
@@ -157,7 +156,7 @@ public class AsyncBus implements Bus {
     List<AsyncElement> registerProducers(Object target, ClassInfo classInfo) {
         List<AsyncElement> producers = new LinkedList<AsyncElement>();
         for(ElementInfo entry : classInfo.elements) {
-            final AsyncElement producer = getEventProducer(target, entry);
+            final AsyncElement producer = new AsyncElement(target, entry, getDispatcher(classInfo.annotationValue));
             if(eventTypeToProducerMap.put(producer.eventType, producer) != null) {
                 throwIllegalStateException("register", target, " producer for event "
                         + producer.eventType + " already registered");
@@ -169,16 +168,6 @@ public class AsyncBus implements Bus {
             }
         }
         return producers;
-    }
-
-    Object produceEvent(AsyncElement producer, Object target) {
-        final Object event = invokeElement(producer);
-        if(event != null && interceptor.intercept(event)) {
-            logger.logEvent(event, target, INTERCEPT);
-            return null;
-        }
-        logger.logEvent(event, target, PRODUCE);
-        return event;
     }
 
     EventDispatcher getDispatcher(String dispatcherName) {
@@ -197,12 +186,14 @@ public class AsyncBus implements Bus {
         return dispatcher;
     }
 
-    AsyncElement getEventSubscriber(Object target, ElementInfo elementInfo, EventDispatcher dispatcher) {
-        return new AsyncElement(elementInfo, target, dispatcher);
-    }
-
-    AsyncElement getEventProducer(Object target, ElementInfo elementInfo) {
-        return new AsyncElement(elementInfo, target, null);
+    Object produceEvent(AsyncElement producer, Object target) {
+        final Object event = invokeElement(producer);
+        if(event != null && interceptor.intercept(event)) {
+            logger.logEvent(event, target, INTERCEPT);
+            return null;
+        }
+        logger.logEvent(event, target, PRODUCE);
+        return event;
     }
 
     Object invokeElement(AsyncElement element, Object... args) {
@@ -236,12 +227,12 @@ public class AsyncBus implements Bus {
         }
     }
 
-    void dispatch(AsyncElement producer, AsyncElement subscriber) {
+    void dispatch(final AsyncElement producer, final AsyncElement subscriber) {
         Object event = produceEvent(producer, subscriber);
         if(event != null) dispatch(subscriber, event);
     }
 
-    void dispatch(AsyncElement producer) {
+    void dispatch(final AsyncElement producer) {
         Object event = produceEvent(producer, null);
         if(event != null) post(event);
     }

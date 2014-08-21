@@ -12,7 +12,7 @@ public final class AsyncElement extends Element {
     //Unregister should be called from eventDispatcher thread, otherwise invoke may be called after unregister.
     private boolean valid = true;
 
-    public AsyncElement(ElementInfo elementInfo, Object target, EventDispatcher dispatcher) {
+    public AsyncElement(Object target, ElementInfo elementInfo, EventDispatcher dispatcher) {
         super(elementInfo, target);
         this.eventDispatcher = dispatcher;
     }
