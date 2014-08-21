@@ -18,7 +18,7 @@ public class SingleThreadEventDispatcher extends ThreadPoolExecutor implements E
     }
 
     @Override public boolean isDispatcherThread() {
-        return java.lang.Thread.currentThread() == threadFactory.thread;
+        return Thread.currentThread() == threadFactory.thread;
     }
 
     @Override public void dispatch(Runnable event) {
@@ -29,7 +29,7 @@ public class SingleThreadEventDispatcher extends ThreadPoolExecutor implements E
         return threadFactory.thread;
     }
 
-    public SingleThreadEventDispatcher withUncaughtExceptionHandler(java.lang.Thread.UncaughtExceptionHandler exceptionHandler) {
+    public SingleThreadEventDispatcher withUncaughtExceptionHandler(Thread.UncaughtExceptionHandler exceptionHandler) {
         if(exceptionHandler != null)
             threadFactory.setUncaughtExceptionHandler(exceptionHandler);
         return this;

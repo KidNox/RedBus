@@ -165,6 +165,7 @@ public class AsyncTest {
 
         dispatcher.execute(new Runnable() {
             @Override public void run() {
+                //release main thread and acquire dispatcher for posting
                 mainSemaphore.release();
                 try {
                     //System.out.println("dispatcher lock");
@@ -179,11 +180,11 @@ public class AsyncTest {
             }
         });
         //System.out.println("main lock");
-        mainSemaphore.acquire();
+        mainSemaphore.acquire();//wait until dispatcher run
         bus.post(new Object());
         //System.out.println("dispatcher unlock");
+        //release dispatcher thread for unregister and wait for dispatcher shutdown
         dispatcherSemaphore.release();
-
         dispatcher.getThread().join();
 
         assertNotNull(deadEventHandler.getCurrentEvent());

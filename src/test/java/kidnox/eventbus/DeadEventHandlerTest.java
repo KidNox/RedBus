@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class DeadEventHandlerTest {//TODO async case
+public class DeadEventHandlerTest {
 
     @Test public void deadEventPostTest() {
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();

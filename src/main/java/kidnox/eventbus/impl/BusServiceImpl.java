@@ -141,8 +141,8 @@ public class BusServiceImpl implements BusService {
     Object invokeElement(AsyncElement element, Object... args) {
         try {
             Object result = element.invoke(args);
-            //this is unregistered subscriber, so we can handle dead event
             if(result != null && !element.isValid()) {
+                //this is unregistered subscriber, it return event as result so we can handle dead event
                 deadEventHandler.onDeadEvent(result);
                 return null;
             }
@@ -176,7 +176,7 @@ public class BusServiceImpl implements BusService {
 
     @Override public void dispatch(AsyncElement producer) {
         Object event = produceEvent(producer, null);
-        if(event != null) post(event);//TODO
+        if(event != null) post(event);//TODO must be synchronized on Bus instance when implementing async producers
     }
 }
 

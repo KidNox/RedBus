@@ -9,7 +9,7 @@ public final class InternalFactory {
 
     public static ClassInfoExtractor createClassInfoExtractor(boolean extraValidation) {
         if(extraValidation) return new ClassInfoExtractorValidation();
-        else return new ClassInfoExtractorImpl();
+        else                return new ClassInfoExtractorImpl();
     }
 
     public static BusService createBusService(EventDispatcher.Factory factory, EventLogger logger,
@@ -24,9 +24,7 @@ public final class InternalFactory {
             return true;
         }
 
-        @Override public void dispatch(Runnable event) {
-
-        }
+        @Override public void dispatch(Runnable event) { }
     };
 
     public static EventDispatcher.Factory getDefaultDispatcherFactory() {
@@ -51,9 +49,7 @@ public final class InternalFactory {
 
     public static DeadEventHandler getStubDeadEvHandler() {
         return new DeadEventHandler() {
-            @Override public void onDeadEvent(Object event) {
-
-            }
+            @Override public void onDeadEvent(Object event) { }
         };
     }
 
@@ -63,7 +59,7 @@ public final class InternalFactory {
         };
     }
 
-    public static Interceptor getStubUnterceptor() {
+    public static Interceptor getStubInterceptor() {
         return new Interceptor() {
             @Override public boolean intercept(Object event) {
                 return false;
@@ -71,4 +67,6 @@ public final class InternalFactory {
         };
     }
 
+
+    private InternalFactory() {}
 }

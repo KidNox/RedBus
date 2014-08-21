@@ -19,6 +19,7 @@ public class EventInterceptor implements Interceptor {
         return set.contains(event.getClass());
     }
 
+    /** Not thread safe */
     public void addIntercepted(Class clazz) {
         set.add(clazz);
     }

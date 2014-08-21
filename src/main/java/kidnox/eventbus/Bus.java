@@ -30,7 +30,7 @@ public interface Bus {
             exHandler = exHandler == null ? getStubExHandler() : exHandler;
             deadEvHandler = deadEvHandler == null ? getStubDeadEvHandler() : deadEvHandler;
             logger = logger == null ? getStubLogger() : logger;
-            interceptor = interceptor == null ? getStubUnterceptor() : interceptor;
+            interceptor = interceptor == null ? getStubInterceptor() : interceptor;
 
             BusService busService = createBusService(dispatcherFactory, logger, deadEvHandler, interceptor, exHandler);
             ClassInfoExtractor extractor = createClassInfoExtractor(extraValidation);
