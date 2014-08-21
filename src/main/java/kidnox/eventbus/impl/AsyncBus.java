@@ -171,6 +171,7 @@ public class AsyncBus implements Bus {
     }
 
     EventDispatcher getDispatcher(String dispatcherName) {
+        if(dispatcherName == null) return null;//TODO remove this when implement async producers
         EventDispatcher dispatcher = dispatchersMap.get(dispatcherName);
         if(dispatcher == null) {
             dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
