@@ -28,7 +28,7 @@ public final class AsyncElement extends Element {
     @Override public Object invoke(Object... event) throws InvocationTargetException {
         if(valid) return super.invoke(event);
         if (!Utils.isNullOrEmpty(event)) {
-            //unregistered subscriber, return event for dead event handler
+            //unregistered subscriber return event for dead event handler
             return event[0];
         }
         else return null; //Producer already unregistered here

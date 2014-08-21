@@ -1,7 +1,6 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.impl.AsyncBus;
-import kidnox.eventbus.internal.BusService;
 import kidnox.eventbus.internal.ClassInfoExtractor;
 import kidnox.eventbus.util.BusBuilder;
 
@@ -26,15 +25,15 @@ public interface Bus {
                                     DeadEventHandler deadEvHandler, EventLogger logger,
                                     Interceptor interceptor, boolean extraValidation) {
 
+            ClassInfoExtractor extractor = createClassInfoExtractor(extraValidation);
+
             dispatcherFactory = dispatcherFactory == null ? getDefaultDispatcherFactory() : dispatcherFactory;
             exHandler = exHandler == null ? getStubExHandler() : exHandler;
             deadEvHandler = deadEvHandler == null ? getStubDeadEvHandler() : deadEvHandler;
             logger = logger == null ? getStubLogger() : logger;
             interceptor = interceptor == null ? getStubInterceptor() : interceptor;
 
-            BusService busService = createBusService(dispatcherFactory, logger, deadEvHandler, interceptor, exHandler);
-            ClassInfoExtractor extractor = createClassInfoExtractor(extraValidation);
-            return new AsyncBus(busService, extractor);
+            return new AsyncBus(extractor, dispatcherFactory, exHandler, deadEvHandler, logger, interceptor);
         }
 
         public static Bus createDefault() {
