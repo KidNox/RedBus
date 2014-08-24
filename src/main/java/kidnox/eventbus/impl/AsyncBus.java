@@ -2,7 +2,10 @@ package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.internal.*;
-import kidnox.eventbus.internal.AsyncElement;
+import kidnox.eventbus.internal.element.AsyncElement;
+import kidnox.eventbus.internal.element.ElementInfo;
+import kidnox.eventbus.internal.element.ProducersGroup;
+import kidnox.eventbus.internal.element.SubscribersGroup;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -11,25 +14,22 @@ import static kidnox.eventbus.internal.Utils.*;
 
 public class AsyncBus implements Bus {
 
-    final Map<Object, List<AsyncElement>> instanceToSubscribersMap = newHashMap();
-    final Map<Object, List<AsyncElement>> instanceToProducersMap = newHashMap(4);
+    final Map<Object, ElementsGroup> instanceToElementsMap = newHashMap();
 
     final Map<Class, Set<AsyncElement>> eventTypeToSubscribersMap = newHashMap();
     final Map<Class, AsyncElement> eventTypeToProducerMap = newHashMap();
 
-    final Map<String, EventDispatcher> dispatchersMap = newHashMap(4);
-
     final ClassInfoExtractor classInfoExtractor;
     final EventDispatcher.Factory dispatcherFactory;
 
-    final BusLogger logger;
+    final EventLogger logger;
     final DeadEventHandler deadEventHandler;
     final EventInterceptor interceptor;
     final ErrorHandler errorHandler;
 
     public AsyncBus(ClassInfoExtractor classInfoExtractor, EventDispatcher.Factory factory,
                     ErrorHandler errorHandler, DeadEventHandler deadEventHandler,
-                    BusLogger logger, EventInterceptor interceptor) {
+                    EventLogger logger, EventInterceptor interceptor) {
         this.classInfoExtractor = classInfoExtractor;
         this.dispatcherFactory = factory;
         this.errorHandler = errorHandler;
@@ -40,41 +40,30 @@ public class AsyncBus implements Bus {
 
     @Override synchronized public void register(Object target) {
         final ClassInfo classInfo = classInfoExtractor.getClassInfo(target.getClass());
+        ElementsGroup elementsGroup = null;
         switch (classInfo.type) {
             case SUBSCRIBER:
-                registerSubscriber(target, classInfo);
+                elementsGroup = registerSubscriber(target, classInfo);
                 break;
             case PRODUCER:
-                registerProducer(target, classInfo);
+                elementsGroup = registerProducer(target, classInfo);
                 break;
             case SERVICE:
-                registerService(target, classInfo);
+                elementsGroup = registerService(target, classInfo);
                 break;
             case NONE:
-                if(instanceToSubscribersMap.put(target, Collections.<AsyncElement>emptyList()) != null)
-                    throwIllegalStateException("register", target, " already registered");
+                elementsGroup = ElementsGroup.EMPTY;
                 break;
         }
+        if(instanceToElementsMap.put(target, elementsGroup) != null)
+            throwBusException("register", target, " already registered");
     }
-
+    //TODO only remove service instances from map (we need not synchronized version of the register method maybe)
     @Override synchronized public void unregister(Object target) {
-        final Class targetClass = target.getClass();
-        final ClassInfo classInfo = classInfoExtractor.getClassInfo(targetClass);
-        switch (classInfo.type) {
-            case SUBSCRIBER:
-                unregisterSubscribers(target);
-                break;
-            case PRODUCER:
-                unregisterProducers(target);
-                break;
-            case SERVICE:
-                unregisterService(target);
-                break;
-            case NONE:
-                if(instanceToSubscribersMap.remove(target) == null)
-                    throwIllegalStateException("unregister", target, " not registered");
-                break;
-        }
+        if(target == null) throw new NullPointerException();
+        ElementsGroup elementsGroup = instanceToElementsMap.remove(target);
+        if(elementsGroup == null) throwBusException("unregister", target, " not registered");
+        else elementsGroup.unregisterGroup();
     }
 
     @Override synchronized public void post(Object event) {
@@ -93,64 +82,12 @@ public class AsyncBus implements Bus {
         }
     }
 
-    void registerSubscriber(Object target, ClassInfo classInfo) {
-        List<AsyncElement> subscribers;
-        if(classInfo.isEmpty()) {
-            subscribers = Collections.emptyList();
-        } else {
-            subscribers = registerSubscribers(target, classInfo);
-        }
-        if (instanceToSubscribersMap.put(target, subscribers) != null)
-            throwIllegalStateException("register", target, " already registered");
-    }
-
-    void registerProducer(Object target, ClassInfo classInfo) {
-        List<AsyncElement> producers;
-        if(classInfo.isEmpty()) {
-            producers = Collections.emptyList();
-        } else {
-            producers = registerProducers(target, classInfo);
-        }
-        if (instanceToProducersMap.put(target, producers) != null)
-            throwIllegalStateException("register", target, " already registered");
-    }
-
-    void registerService(Object target, ClassInfo classInfo) {
-        //TODO need map for targets and factory for instances
-    }
-
-    void unregisterSubscribers(Object target) {
-        final List<AsyncElement> subscribers = instanceToSubscribersMap.remove(target);
-        if (subscribers == null) throwIllegalStateException("unregister", target, " not registered");
-        else if(!subscribers.isEmpty()){
-            for (AsyncElement subscriber : subscribers) {
-                eventTypeToSubscribersMap.get(subscriber.eventType).remove(subscriber);
-                subscriber.onUnregister();
-            }
-        }
-    }
-
-    void unregisterProducers(Object target) {
-        final List<AsyncElement> producers = instanceToProducersMap.remove(target);
-        if (producers == null) throwIllegalStateException("unregister", target, " not registered");
-        else if(!producers.isEmpty()) {
-            for(AsyncElement producer : producers) {
-                eventTypeToProducerMap.remove(producer.eventType);
-                producer.onUnregister();
-            }
-        }
-    }
-
-    void unregisterService(Object target) {
-        //TODO only remove instances from map (we need not synchronized version of the register method maybe)
-    }
-
-    List<AsyncElement> registerSubscribers(Object target, ClassInfo classInfo) {
+    ElementsGroup registerSubscriber(Object target, ClassInfo classInfo) {
         final boolean checkProducers = eventTypeToProducerMap.size() > 0;
-        List<AsyncElement>subscribers = new LinkedList<AsyncElement>();
-
+        final List<AsyncElement> subscribers = new LinkedList<AsyncElement>();
         for(ElementInfo entry : classInfo.elements) {
-            final AsyncElement subscriber = new AsyncElement(target, entry, getDispatcher(classInfo.annotationValue));
+            final AsyncElement subscriber = new AsyncElement(target, entry,
+                    dispatcherFactory.getDispatcher(classInfo.annotationValue));
             subscribers.add(subscriber);
             if(checkProducers) {
                 AsyncElement producer = eventTypeToProducerMap.get(subscriber.eventType);
@@ -165,15 +102,16 @@ public class AsyncBus implements Bus {
             }
             set.add(subscriber);
         }
-        return subscribers;
+        return new SubscribersGroup(subscribers, eventTypeToSubscribersMap);
     }
 
-    List<AsyncElement> registerProducers(Object target, ClassInfo classInfo) {
+    ElementsGroup registerProducer(Object target, ClassInfo classInfo) {
         List<AsyncElement> producers = new LinkedList<AsyncElement>();
         for(ElementInfo entry : classInfo.elements) {
-            final AsyncElement producer = new AsyncElement(target, entry, getDispatcher(classInfo.annotationValue));
+            final AsyncElement producer = new AsyncElement(target, entry,
+                    dispatcherFactory.getDispatcher(classInfo.annotationValue));
             if(eventTypeToProducerMap.put(producer.eventType, producer) != null) {
-                throwIllegalStateException("register", target, " producer for event "
+                throwBusException("register", target, " producer for event "
                         + producer.eventType + " already registered");
             }
             producers.add(producer);
@@ -182,23 +120,12 @@ public class AsyncBus implements Bus {
                 dispatch(producer);
             }
         }
-        return producers;
+        return new ProducersGroup(producers, eventTypeToProducerMap);
     }
 
-    EventDispatcher getDispatcher(String dispatcherName) {
-        EventDispatcher dispatcher = dispatchersMap.get(dispatcherName);
-        if(dispatcher == null) {
-            dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
-            if(dispatcher == null) {
-                if(dispatcherName.isEmpty()) {
-                    dispatcher = InternalFactory.CURRENT_THREAD_DISPATCHER;
-                } else {
-                    throw new IllegalArgumentException("Dispatcher["+dispatcherName+"] not found");
-                }
-            }
-            dispatchersMap.put(dispatcherName, dispatcher);
-        }
-        return dispatcher;
+    ElementsGroup registerService(Object target, ClassInfo classInfo) {
+        //TODO need map for targets and factory for instances
+        return null;
     }
 
     Object produceEvent(AsyncElement producer, Object target) {
@@ -210,6 +137,8 @@ public class AsyncBus implements Bus {
         logger.logEvent(event, target, PRODUCE);
         return event;
     }
+
+    //////////////////////////////////////////////////////////////
 
     Object invokeElement(AsyncElement element, Object... args) {
         try {
@@ -248,8 +177,7 @@ public class AsyncBus implements Bus {
             if(event != null) dispatch(subscriber, event);
         } else {
             producer.eventDispatcher.dispatch(new Runnable() {
-                @Override
-                public void run() {
+                @Override public void run() {
                     Object event = produceEvent(producer, subscriber);
                     if(event != null) dispatch(subscriber, event);
                 }
@@ -263,8 +191,7 @@ public class AsyncBus implements Bus {
             if(event != null) post(event);
         } else {
             producer.eventDispatcher.dispatch(new Runnable() {
-                @Override
-                public void run() {
+                @Override public void run() {
                     Object event = produceEvent(producer, null);
                     if(event != null) post(event);
                 }

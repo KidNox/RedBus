@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.AsyncElement;
+import kidnox.eventbus.internal.element.AsyncElement;
 import kidnox.eventbus.impl.AsyncBus;
 import kidnox.eventbus.util.EventTypeInterceptor;
 import kidnox.eventbus.test.*;
@@ -11,15 +11,15 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-public class BusLoggerTest {
+public class EventLoggerTest {
 
     public static final Event EVENT = new Event();
 
-    BusLoggerImpl eventLogger;
+    EventLoggerImpl eventLogger;
     Bus bus;
 
     @Before public void setUp() {
-        eventLogger = new BusLoggerImpl();
+        eventLogger = new EventLoggerImpl();
         bus = Bus.Factory.builder().withEventLogger(eventLogger).create();
     }
 

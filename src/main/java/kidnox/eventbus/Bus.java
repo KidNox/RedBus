@@ -22,12 +22,12 @@ public interface Bus {
     public static final class Factory {
 
         public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ErrorHandler exHandler,
-                                    DeadEventHandler deadEvHandler, BusLogger logger,
+                                    DeadEventHandler deadEvHandler, EventLogger logger,
                                     EventInterceptor interceptor, boolean extraValidation) {
 
             ClassInfoExtractor extractor = createClassInfoExtractor(extraValidation);
+            dispatcherFactory = wrapFactoryWithCache(dispatcherFactory);
 
-            dispatcherFactory = dispatcherFactory == null ? getDefaultDispatcherFactory() : dispatcherFactory;
             exHandler = exHandler == null ? getStubExHandler() : exHandler;
             deadEvHandler = deadEvHandler == null ? getStubDeadEvHandler() : deadEvHandler;
             logger = logger == null ? getStubLogger() : logger;
@@ -44,7 +44,6 @@ public interface Bus {
             return BusBuilder.get();
         }
 
-        private Factory() {
-        }
+        private Factory() { }
     }
 }

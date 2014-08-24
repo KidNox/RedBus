@@ -2,6 +2,8 @@ package kidnox.eventbus.impl;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.internal.*;
+import kidnox.eventbus.internal.element.ElementInfo;
+import kidnox.eventbus.internal.element.ElementType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

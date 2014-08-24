@@ -1,8 +1,8 @@
 package kidnox.eventbus.test;
 
-import kidnox.eventbus.BusLogger;
+import kidnox.eventbus.EventLogger;
 
-public class BusLoggerImpl implements BusLogger {
+public class EventLoggerImpl implements EventLogger {
 
     Object event;
     Object element;
