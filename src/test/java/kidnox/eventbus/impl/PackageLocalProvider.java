@@ -14,7 +14,7 @@ public class PackageLocalProvider {
     }
 
     public static Map<Class, ClassInfo> getClassToInfoMap(ClassInfoExtractor classInfoExtractor) {
-        return ((ClassInfoExtractorImpl)classInfoExtractor).classToInfoMap;
+        return ((ClassInfoExtractorImpl)classInfoExtractor).classInfoCache;
     }
 /*
     public static Map<Class, ClassSubscribers> getSubscibersCache(ClassInfoExtractor classInfoExtractor) {

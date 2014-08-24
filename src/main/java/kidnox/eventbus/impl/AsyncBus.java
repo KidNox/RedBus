@@ -22,14 +22,14 @@ public class AsyncBus implements Bus {
     final ClassInfoExtractor classInfoExtractor;
     final EventDispatcher.Factory dispatcherFactory;
 
-    final EventLogger logger;
+    final BusLogger logger;
     final DeadEventHandler deadEventHandler;
     final EventInterceptor interceptor;
     final ErrorHandler errorHandler;
 
     public AsyncBus(ClassInfoExtractor classInfoExtractor, EventDispatcher.Factory factory,
                     ErrorHandler errorHandler, DeadEventHandler deadEventHandler,
-                    EventLogger logger, EventInterceptor interceptor) {
+                    BusLogger logger, EventInterceptor interceptor) {
         this.classInfoExtractor = classInfoExtractor;
         this.dispatcherFactory = factory;
         this.errorHandler = errorHandler;

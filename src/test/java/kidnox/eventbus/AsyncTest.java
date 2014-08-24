@@ -3,7 +3,6 @@ package kidnox.eventbus;
 import kidnox.eventbus.util.AsyncDispatcherFactory;
 import kidnox.eventbus.test.*;
 import kidnox.eventbus.util.SingleThreadEventDispatcher;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.Semaphore;
@@ -136,8 +135,7 @@ public class AsyncTest {
 
     @Test (timeout = 1000)
     public void asyncSubscriberUnregisterTest() throws InterruptedException {
-        final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final EventDispatcher.Factory factory = new AsyncDispatcherFactory("worker");
         //here we catch event, that posted after async unregister
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
         final Bus bus = Bus.Factory.builder()
@@ -149,17 +147,14 @@ public class AsyncTest {
 
         final AtomicBoolean isRegistered = new AtomicBoolean();
 
-        @Subscriber(EventDispatcher.WORKER)
-        class SubscriberClass extends AbsAsyncSubscriber {
+        @Subscriber("worker")
+        class SubscriberClass {
             @Subscribe public void obtainEvent(Object event) {
                 fail("obtain event after unregister");
             }
         }
 
-        final Semaphore mainSemaphore = new Semaphore(0, true);
-        final Semaphore dispatcherSemaphore = new Semaphore(0, true);
-
-        //final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final Semaphore semaphore = new Semaphore(0, true);
 
         final SubscriberClass subscriberClass = new SubscriberClass();
         bus.register(subscriberClass);
@@ -169,25 +164,25 @@ public class AsyncTest {
             @Override public void run() {
                 //release main thread and acquire dispatcher for posting
                 //System.out.println("release main");
-                mainSemaphore.release();
+                semaphore.release();
                 try {
                     //System.out.println("dispatcher lock");
-                    dispatcherSemaphore.acquire();
+                    semaphore.acquire();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
+                //System.out.println("unregister");
                 bus.unregister(subscriberClass);
                 isRegistered.set(false);
                 dispatcher.shutdown();
             }
         });
         //System.out.println("main lock");
-        mainSemaphore.acquire();//wait until dispatcher run
+        semaphore.acquire();//wait until dispatcher run
         bus.post(new Object());
         //System.out.println("dispatcher unlock");
         //release dispatcher thread for unregister and wait for dispatcher shutdown
-        dispatcherSemaphore.release();
+        semaphore.release();
         dispatcher.getThread().join();
 
         assertNotNull(deadEventHandler.getCurrentEvent());
@@ -290,72 +285,59 @@ public class AsyncTest {
         subscriberDispatcher.shutdown();
         producerDispatcher.shutdown();
     }
-//TODO
-//    @Test (timeout = 1000)
-//    public void asyncProducerUnregisterTest() throws InterruptedException {
-//        final EventDispatcher.Factory factory = new AsyncDispatcherFactory("worker");
-//        //here we catch event, that posted after async unregister
-//        SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
-//        final Bus bus = Bus.Factory.builder()
-//                .withEventDispatcherFactory(factory)
-//                .withDeadEventHandler(deadEventHandler)
-//                .create();
-//
-//        final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
-//
-//        final AtomicBoolean isRegistered = new AtomicBoolean();
-//
-//        @Subscriber(EventDispatcher.WORKER)
-//        class SubscriberClass extends AbsAsyncSubscriber {
-//            @Subscribe public void obtainEvent(Object event) {
-//                fail("obtain event after unregister");
-//            }
-//        }
-//
-//        @Producer("worker")
-//        class ProducerClass extends AbsAsyncProducer {
-//            @Produce public Event produceEvent() {
-//                fail("produce event after unregister");
-//            }
-//        }
-//
-//        final Semaphore mainSemaphore = new Semaphore(0, true);
-//        final Semaphore dispatcherSemaphore = new Semaphore(0, true);
-//
-//        //final CountDownLatch countDownLatch = new CountDownLatch(1);
-//
-//        final SubscriberClass subscriberClass = new SubscriberClass();
-//        bus.register(subscriberClass);
-//        isRegistered.set(true);//there are no async operations yet
-//
-//        dispatcher.execute(new Runnable() {
-//            @Override public void run() {
-//                //release main thread and acquire dispatcher for posting
-//                //System.out.println("release main");
-//                mainSemaphore.release();
-//                try {
-//                    //System.out.println("dispatcher lock");
-//                    dispatcherSemaphore.acquire();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                bus.unregister(subscriberClass);
-//                isRegistered.set(false);
-//                dispatcher.shutdown();
-//            }
-//        });
-//        //System.out.println("main lock");
-//        mainSemaphore.acquire();//wait until dispatcher run
-//        bus.post(new Object());
-//        //System.out.println("dispatcher unlock");
-//        //release dispatcher thread for unregister and wait for dispatcher shutdown
-//        dispatcherSemaphore.release();
-//        dispatcher.getThread().join();
-//
-//        assertNotNull(deadEventHandler.getCurrentEvent());
-//        assertFalse(isRegistered.get());
-//    }
+
+    @Test (timeout = 1000)
+    public void asyncProducerUnregisterTest() throws InterruptedException {
+        final EventDispatcher.Factory factory = new AsyncDispatcherFactory("worker");
+        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+
+        final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
+        final AtomicBoolean isRegistered = new AtomicBoolean();
+
+        @Producer("worker")
+        class ProducerClass {
+            @Produce public Event produceEvent() {
+                fail("produce event after unregister");
+                return null;
+            }
+        }
+
+        final Semaphore semaphore = new Semaphore(0, true);
+
+        final ProducerClass producer = new ProducerClass();
+        final SimpleSubscriber simpleSubscriber = new SimpleSubscriber();
+
+        bus.register(producer);
+        isRegistered.set(true);//there are no async operations yet
+
+        dispatcher.execute(new Runnable() {
+            @Override public void run() {
+                //release main thread and acquire dispatcher for subscribing
+                //System.out.println("release main");
+                semaphore.release();
+                try {
+                    //System.out.println("dispatcher lock");
+                    semaphore.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //System.out.println("unregister");
+                bus.unregister(producer);
+                isRegistered.set(false);
+                dispatcher.shutdown();
+            }
+        });
+        //System.out.println("main lock");
+        semaphore.acquire();//wait until dispatcher run
+        bus.register(simpleSubscriber);
+        //System.out.println("dispatcher unlock");
+        //release dispatcher thread for unregister and wait for dispatcher shutdown
+        semaphore.release();
+        dispatcher.getThread().join();
+
+        assertEquals(0, simpleSubscriber.getSubscribedCount());
+        assertFalse(isRegistered.get());
+    }
 
     private void checkThread(Thread expected) {
         assertEquals("wrong thread", expected, Thread.currentThread());

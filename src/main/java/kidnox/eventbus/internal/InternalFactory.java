@@ -46,8 +46,8 @@ public final class InternalFactory {
         };
     }
 
-    public static EventLogger getStubLogger() {
-        return new EventLogger() {
+    public static BusLogger getStubLogger() {
+        return new BusLogger() {
             @Override public void logEvent(Object event, Object target, String what) { }
         };
     }

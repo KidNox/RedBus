@@ -11,15 +11,15 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-public class EventLoggerTest {
+public class BusLoggerTest {
 
     public static final Event EVENT = new Event();
 
-    EventLoggerImpl eventLogger;
+    BusLoggerImpl eventLogger;
     Bus bus;
 
     @Before public void setUp() {
-        eventLogger = new EventLoggerImpl();
+        eventLogger = new BusLoggerImpl();
         bus = Bus.Factory.builder().withEventLogger(eventLogger).create();
     }
 

@@ -18,13 +18,14 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         extractionStrategyMap.put(Subscriber.class, new SubscriberExtractor());
         extractionStrategyMap.put(Producer.class, new ProducerExtractor());
         extractionStrategyMap.put(EventServiceFactory.class, new ServiceExtractor());
+        extractionStrategyMap.put(EventTask.class, new TaskExtractor());
     }
 
-    final Map<Class, ClassInfo> classToInfoMap = newHashMap();
+    final Map<Class, ClassInfo> classInfoCache = newHashMap();
 
     @SuppressWarnings("unchecked")
     @Override public ClassInfo getClassInfo(Class clazz) {
-        ClassInfo info = classToInfoMap.get(clazz);
+        ClassInfo info = classInfoCache.get(clazz);
         if(info != null) return info;
 
         final Annotation[] annotations = clazz.getAnnotations();
@@ -37,8 +38,8 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 }
             }
         }
-        if(info == null) info = new ClassInfo(clazz);
-        classToInfoMap.put(clazz, info);
+        if(info == null) info = new ClassInfo(clazz);//info for none type
+        classInfoCache.put(clazz, info);
         return info;
     }
 
@@ -78,8 +79,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
             if(producers == null)
                 continue;
 
-            if(elementsInfoMap == null)
-                elementsInfoMap = newHashMap(8);
+            if(elementsInfoMap == null) elementsInfoMap = newHashMap(8);
 
             for(ElementInfo entry : producers) {
                 ElementInfo oldEntry = elementsInfoMap.put(entry.eventType, entry);
@@ -111,6 +111,10 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return new ClassInfo(clazz, ClassType.SERVICE, value, elementsInfoSet);
     }
 
+    protected ClassInfo extractTask(Class clazz, EventTask annotation) {
+        return null;//TODO
+    }
+
     protected Set<ElementInfo> getSubscribedMethods(Class clazz){
         Set<ElementInfo> elementInfoSet = null;
         for(Method method : clazz.getDeclaredMethods()){
@@ -125,8 +129,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 continue;
 
             if(method.isAnnotationPresent(Subscribe.class)) {
-                if(elementInfoSet == null)
-                    elementInfoSet = newHashSet(8);
+                if(elementInfoSet == null) elementInfoSet = newHashSet(8);
 
                 Class type = params[0];
                 if(!elementInfoSet.add(new ElementInfo(ElementType.SUBSCRIBE, type, method)))
@@ -149,8 +152,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 continue;
 
             if(method.isAnnotationPresent(Produce.class)) {
-                if(elementInfoSet == null)
-                    elementInfoSet = newHashSet(4);
+                if(elementInfoSet == null) elementInfoSet = newHashSet(4);
 
                 if(!elementInfoSet.add(new ElementInfo(ElementType.PRODUCE, returnType, method)))
                     throwMultiplyMethodsException(clazz, returnType, "produce");
@@ -172,8 +174,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
                 continue;
 
             if(method.isAnnotationPresent(EventService.class)) {
-                if(elementInfoSet == null)
-                    elementInfoSet = newHashSet(4);
+                if(elementInfoSet == null) elementInfoSet = newHashSet(4);
 
                 elementInfoSet.add(new ElementInfo(ElementType.SERVICE, returnType, method));
             }
@@ -192,23 +193,26 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     }
 
     class SubscriberExtractor implements ExtractionStrategy<Subscriber> {
-
         @Override public ClassInfo extract(Class clazz, Subscriber annotation) {
             return extractSubscribers(clazz, annotation);
         }
     }
 
     class ProducerExtractor implements ExtractionStrategy<Producer> {
-
         @Override public ClassInfo extract(Class clazz, Producer annotation) {
             return extractProducers(clazz, annotation);
         }
     }
 
     class ServiceExtractor implements ExtractionStrategy<EventServiceFactory> {
-
         @Override public ClassInfo extract(Class clazz, EventServiceFactory annotation) {
             return extractService(clazz, annotation);
+        }
+    }
+
+    class TaskExtractor implements ExtractionStrategy<EventTask> {
+        @Override public ClassInfo extract(Class clazz, EventTask annotation) {
+            return extractTask(clazz, annotation);
         }
     }
 

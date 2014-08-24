@@ -9,7 +9,7 @@ public final class BusBuilder {
 
     boolean extraValidation;
 
-    EventLogger eventLogger;
+    BusLogger busLogger;
     DeadEventHandler deadEventHandler;
     EventInterceptor interceptor;
     ErrorHandler errorHandler;
@@ -22,8 +22,8 @@ public final class BusBuilder {
         return new BusBuilder();
     }
 
-    public BusBuilder withEventLogger(EventLogger eventLogger) {
-        this.eventLogger = checkNotNull(eventLogger);
+    public BusBuilder withEventLogger(BusLogger busLogger) {
+        this.busLogger = checkNotNull(busLogger);
         return this;
     }
 
@@ -61,7 +61,7 @@ public final class BusBuilder {
     }
 
     public Bus create() {
-        return Bus.Factory.createBus(dispatcherFactory, errorHandler, deadEventHandler, eventLogger,
+        return Bus.Factory.createBus(dispatcherFactory, errorHandler, deadEventHandler, busLogger,
                 interceptor, extraValidation);
     }
 

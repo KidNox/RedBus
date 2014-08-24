@@ -16,9 +16,7 @@ public final class ElementInfo {
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         ElementInfo that = (ElementInfo) o;
-
         return elementType == that.elementType && eventType.equals(that.eventType);
     }
 

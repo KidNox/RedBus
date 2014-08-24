@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 /**beta*/
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Task {
+public @interface EventTask {
 
     /**
      * Name of the dispatcher for dispatchers factory
