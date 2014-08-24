@@ -1,11 +1,10 @@
-package kidnox.eventbus.impl;
+package kidnox.eventbus.internal;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.internal.*;
 import kidnox.eventbus.internal.element.AsyncElement;
 import kidnox.eventbus.internal.element.ElementInfo;
-import kidnox.eventbus.internal.element.ProducersGroup;
-import kidnox.eventbus.internal.element.SubscribersGroup;
+import kidnox.eventbus.internal.element.ProducerGroup;
+import kidnox.eventbus.internal.element.SubscriberGroup;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -57,8 +56,9 @@ public class AsyncBus implements Bus {
         }
         if(instanceToElementsMap.put(target, elementsGroup) != null)
             throwBusException("register", target, " already registered");
+        elementsGroup.registerGroup(target);
     }
-    //TODO only remove service instances from map (we need not synchronized version of the register method maybe)
+
     @Override synchronized public void unregister(Object target) {
         if(target == null) throw new NullPointerException();
         ElementsGroup elementsGroup = instanceToElementsMap.remove(target);
@@ -102,7 +102,7 @@ public class AsyncBus implements Bus {
             }
             set.add(subscriber);
         }
-        return new SubscribersGroup(subscribers, eventTypeToSubscribersMap);
+        return new SubscriberGroup(subscribers, eventTypeToSubscribersMap);
     }
 
     ElementsGroup registerProducer(Object target, ClassInfo classInfo) {
@@ -120,11 +120,11 @@ public class AsyncBus implements Bus {
                 dispatch(producer);
             }
         }
-        return new ProducersGroup(producers, eventTypeToProducerMap);
+        return new ProducerGroup(producers, eventTypeToProducerMap);
     }
 
     ElementsGroup registerService(Object target, ClassInfo classInfo) {
-        //TODO need map for targets and factory for instances
+
         return null;
     }
 

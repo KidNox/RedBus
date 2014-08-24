@@ -6,14 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class SubscribersGroup implements ElementsGroup {
+public final class SubscriberGroup implements ElementsGroup {
 
     final List<AsyncElement> subscribers;
     final Map<Class, Set<AsyncElement>> mapReference;
 
-    public SubscribersGroup(List<AsyncElement> subscribers, Map<Class, Set<AsyncElement>> mapReference) {
+    public SubscriberGroup(List<AsyncElement> subscribers, Map<Class, Set<AsyncElement>> mapReference) {
         this.subscribers = subscribers;
         this.mapReference = mapReference;
+    }
+
+    @Override public void registerGroup(Object target) {
+
     }
 
     @Override public void unregisterGroup() {

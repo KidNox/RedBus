@@ -1,8 +1,6 @@
 package kidnox.eventbus.internal;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.impl.ClassInfoExtractorImpl;
-import kidnox.eventbus.impl.ClassInfoExtractorValidation;
 
 import java.util.Map;
 

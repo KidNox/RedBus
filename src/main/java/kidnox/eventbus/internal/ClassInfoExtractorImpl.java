@@ -1,4 +1,4 @@
-package kidnox.eventbus.impl;
+package kidnox.eventbus.internal;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.internal.*;

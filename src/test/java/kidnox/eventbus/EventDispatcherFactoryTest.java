@@ -1,14 +1,13 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.internal.element.AsyncElement;
-import kidnox.eventbus.impl.AsyncBus;
-import kidnox.eventbus.impl.PackageLocalProvider;
+import kidnox.eventbus.internal.AsyncBus;
+import kidnox.eventbus.internal.PackageLocalProvider;
 import kidnox.eventbus.test.Event;
 import kidnox.eventbus.test.SimpleEventDispatcher;
 import kidnox.eventbus.test.SimpleSubscriber;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
