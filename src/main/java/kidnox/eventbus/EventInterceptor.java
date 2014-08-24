@@ -1,5 +1,5 @@
 package kidnox.eventbus;
 
-public interface Interceptor {
+public interface EventInterceptor {
     boolean intercept(Object event);
 }

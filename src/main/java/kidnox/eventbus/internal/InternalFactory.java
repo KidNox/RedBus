@@ -32,8 +32,8 @@ public final class InternalFactory {
         };
     }
 
-    public static ExceptionHandler getStubExHandler() {
-        return new ExceptionHandler() {
+    public static ErrorHandler getStubExHandler() {
+        return new ErrorHandler() {
             @Override public boolean handle(Throwable thr, Object target, Object event) {
                 return false;
             }
@@ -52,8 +52,8 @@ public final class InternalFactory {
         };
     }
 
-    public static Interceptor getStubInterceptor() {
-        return new Interceptor() {
+    public static EventInterceptor getStubInterceptor() {
+        return new EventInterceptor() {
             @Override public boolean intercept(Object event) {
                 return false;
             }

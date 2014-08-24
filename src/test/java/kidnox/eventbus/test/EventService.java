@@ -1,12 +1,11 @@
 package kidnox.eventbus.test;
 
-import kidnox.eventbus.ServiceClass;
-import kidnox.eventbus.ServiceInstance;
+import kidnox.eventbus.EventServiceFactory;
 
-@ServiceClass
+@EventServiceFactory
 public class EventService {
 
-    @ServiceInstance public SimpleSubscriber createSimpleSubscriber() {
+    @kidnox.eventbus.EventService public SimpleSubscriber createSimpleSubscriber() {
         return new SimpleSubscriber();
     }
 

@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static kidnox.eventbus.internal.Utils.checkNotNull;
 
-public class AsyncDispatcherFactory implements EventDispatcher.Factory {//TODO lazy
+public class AsyncDispatcherFactory implements EventDispatcher.Factory {//TODO refactor, lazy initialization
 
     protected final Map<String, EventDispatcher> dispatchersMap;
     protected final Thread.UncaughtExceptionHandler exceptionHandler;

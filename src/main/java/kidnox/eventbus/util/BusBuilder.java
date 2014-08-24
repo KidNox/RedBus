@@ -1,6 +1,7 @@
 package kidnox.eventbus.util;
 
 import kidnox.eventbus.*;
+import kidnox.eventbus.EventInterceptor;
 
 import static kidnox.eventbus.internal.Utils.checkNotNull;
 
@@ -10,8 +11,8 @@ public final class BusBuilder {
 
     EventLogger eventLogger;
     DeadEventHandler deadEventHandler;
-    Interceptor interceptor;
-    ExceptionHandler exceptionHandler;
+    EventInterceptor interceptor;
+    ErrorHandler errorHandler;
     EventDispatcher.Factory dispatcherFactory;
 
     BusBuilder() {
@@ -31,13 +32,13 @@ public final class BusBuilder {
         return this;
     }
 
-    public BusBuilder withInterceptor(Interceptor interceptor) {
+    public BusBuilder withInterceptor(EventInterceptor interceptor) {
         this.interceptor = checkNotNull(interceptor);
         return this;
     }
 
-    public BusBuilder withExceptionHandler(ExceptionHandler exceptionHandler) {
-        this.exceptionHandler = checkNotNull(exceptionHandler);
+    public BusBuilder withExceptionHandler(ErrorHandler errorHandler) {
+        this.errorHandler = checkNotNull(errorHandler);
         return this;
     }
 
@@ -51,13 +52,16 @@ public final class BusBuilder {
         return this;
     }
 
+    /**
+     * Use for debugging only, first class registration in this mode may be several times slower
+     * */
     public BusBuilder withExtraValidation() {
         extraValidation = true;
         return this;
     }
 
     public Bus create() {
-        return Bus.Factory.createBus(dispatcherFactory, exceptionHandler, deadEventHandler, eventLogger,
+        return Bus.Factory.createBus(dispatcherFactory, errorHandler, deadEventHandler, eventLogger,
                 interceptor, extraValidation);
     }
 

@@ -1,18 +1,17 @@
 package kidnox.eventbus.impl;
 
 import kidnox.eventbus.Produce;
+import kidnox.eventbus.Producer;
 import kidnox.eventbus.Subscribe;
+import kidnox.eventbus.Subscriber;
 import kidnox.eventbus.internal.BusException;
 import kidnox.eventbus.internal.ElementInfo;
 import kidnox.eventbus.internal.ElementType;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
-import static kidnox.eventbus.internal.Utils.newHashMap;
 import static kidnox.eventbus.internal.Utils.newHashSet;
 
 public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
@@ -76,12 +75,30 @@ public class ClassInfoExtractorValidation extends ClassInfoExtractorImpl {
         return elementInfoSet;
     }
 
-    protected void checkAnnotationValue(Class clazz, String annotationValue, String baseValue, Class first) {
-        if (!baseValue.equals(annotationValue)){
-            throw new BusException(String.format("dispatchers for child and parent classes does not match:"
-                            + " child class = %s, dispatcher = %s, parent class = %s, dispatcher = %s.",
-                    first.getName(), baseValue, clazz.getName(), annotationValue));
-        }
+    @Override protected Set<ElementInfo> getServiceMethods(Class clazz) {
+        return super.getServiceMethods(clazz);//TODO
     }
+
+//    @Override protected boolean checkSubscriber(Class current, Class child, String childAnnotationValue) {
+//        Subscriber subscriber = (Subscriber) current.getAnnotation(Subscriber.class);
+//        if(subscriber == null) return false;
+//        checkAnnotationValue(current, subscriber.value(), childAnnotationValue, child);
+//        return true;
+//    }
+//
+//    @Override protected boolean checkProducer(Class current, Class child, String childAnnotationValue) {
+//        Producer producer = (Producer) current.getAnnotation(Producer.class);
+//        if(producer == null) return false;
+//        checkAnnotationValue(current, producer.value(), childAnnotationValue, child);
+//        return true;
+//    }
+//
+//    protected void checkAnnotationValue(Class clazz, String annotationValue, String baseValue, Class child) {
+//        if (!baseValue.equals(annotationValue)){
+//            throw new BusException(String.format("dispatchers for child and parent classes does not match:"
+//                            + " child class = %s, dispatcher = %s, parent class = %s, dispatcher = %s.",
+//                    child.getName(), baseValue, clazz.getName(), annotationValue));
+//        }
+//    }
 
 }

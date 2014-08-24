@@ -1,7 +1,7 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.test.*;
-import kidnox.eventbus.util.EventInterceptor;
+import kidnox.eventbus.util.EventTypeInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ public class InterceptorTest {
     Bus bus;
 
     @Before public void setUp() {
-        EventInterceptor interceptor = new EventInterceptor(Event.class);
+        EventTypeInterceptor interceptor = new EventTypeInterceptor(Event.class);
         bus = Bus.Factory.builder().withInterceptor(interceptor).create();
     }
 

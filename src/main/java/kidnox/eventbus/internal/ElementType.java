@@ -1,5 +1,5 @@
 package kidnox.eventbus.internal;
 
 public enum  ElementType {
-    SUBSCRIBE, PRODUCE, PROCESS, SERVICE
+    SUBSCRIBE, PRODUCE, PROCESS, SERVICE, REGISTER, UNREGISTER
 }

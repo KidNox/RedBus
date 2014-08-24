@@ -35,7 +35,7 @@ public final class Utils {
         return new HashSet<T>(capacity);
     }
 
-    public static void throwIllegalStateException(String action, Object cause, String message) {
+    public static void throwIllegalStateException(String action, Object cause, String message) {//TODO move to bus?
         throw new BusException(action + " was failed " + cause + message);
     }
 

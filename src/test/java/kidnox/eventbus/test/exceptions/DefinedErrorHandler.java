@@ -1,8 +1,8 @@
 package kidnox.eventbus.test.exceptions;
 
-import kidnox.eventbus.ExceptionHandler;
+import kidnox.eventbus.ErrorHandler;
 
-public class DefinedExceptionHandler implements ExceptionHandler {
+public class DefinedErrorHandler implements ErrorHandler {
 
     final boolean handle;
 
@@ -12,7 +12,7 @@ public class DefinedExceptionHandler implements ExceptionHandler {
 
     private volatile int catchCount;
 
-    public DefinedExceptionHandler(boolean handle) {
+    public DefinedErrorHandler(boolean handle) {
         this.handle = handle;
     }
 

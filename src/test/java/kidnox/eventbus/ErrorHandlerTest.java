@@ -10,19 +10,19 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ExceptionHandlerTest {
+public class ErrorHandlerTest {
 
     Bus bus;
-    DefinedExceptionHandler exceptionHandler;
+    DefinedErrorHandler exceptionHandler;
 
     @Before public void setUp() {
-        exceptionHandler = new DefinedExceptionHandler(true);
+        exceptionHandler = new DefinedErrorHandler(true);
         bus = Bus.Factory.builder().withExceptionHandler(exceptionHandler).create();
     }
 
     @Test(expected = RuntimeException.class)
     public void unhandledExceptionTest() {
-        exceptionHandler = new DefinedExceptionHandler(false);
+        exceptionHandler = new DefinedErrorHandler(false);
         bus = Bus.Factory.builder().withExceptionHandler(exceptionHandler).create();
         bus.register(new ThrowingSubscriber());
         bus.post(new Event());

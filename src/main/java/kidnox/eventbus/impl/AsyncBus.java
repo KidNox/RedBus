@@ -24,15 +24,15 @@ public class AsyncBus implements Bus {
 
     final EventLogger logger;
     final DeadEventHandler deadEventHandler;
-    final Interceptor interceptor;
-    final ExceptionHandler exceptionHandler;
+    final EventInterceptor interceptor;
+    final ErrorHandler errorHandler;
 
     public AsyncBus(ClassInfoExtractor classInfoExtractor, EventDispatcher.Factory factory,
-                    ExceptionHandler exceptionHandler, DeadEventHandler deadEventHandler,
-                    EventLogger logger, Interceptor interceptor) {
+                    ErrorHandler errorHandler, DeadEventHandler deadEventHandler,
+                    EventLogger logger, EventInterceptor interceptor) {
         this.classInfoExtractor = classInfoExtractor;
         this.dispatcherFactory = factory;
-        this.exceptionHandler = exceptionHandler;
+        this.errorHandler = errorHandler;
         this.deadEventHandler = deadEventHandler;
         this.logger = logger;
         this.interceptor = interceptor;
@@ -46,6 +46,9 @@ public class AsyncBus implements Bus {
                 break;
             case PRODUCER:
                 registerProducer(target, classInfo);
+                break;
+            case SERVICE:
+                registerService(target, classInfo);
                 break;
             case NONE:
                 if(instanceToSubscribersMap.put(target, Collections.<AsyncElement>emptyList()) != null)
@@ -63,6 +66,9 @@ public class AsyncBus implements Bus {
                 break;
             case PRODUCER:
                 unregisterProducers(target);
+                break;
+            case SERVICE:
+                unregisterService(target);
                 break;
             case NONE:
                 if(instanceToSubscribersMap.remove(target) == null)
@@ -109,6 +115,10 @@ public class AsyncBus implements Bus {
             throwIllegalStateException("register", target, " already registered");
     }
 
+    void registerService(Object target, ClassInfo classInfo) {
+        //TODO need map for targets and factory for instances
+    }
+
     void unregisterSubscribers(Object target) {
         final List<AsyncElement> subscribers = instanceToSubscribersMap.remove(target);
         if (subscribers == null) throwIllegalStateException("unregister", target, " not registered");
@@ -129,6 +139,10 @@ public class AsyncBus implements Bus {
                 producer.onUnregister();
             }
         }
+    }
+
+    void unregisterService(Object target) {
+        //TODO only remove instances from map (we need not synchronized version of the register method maybe)
     }
 
     List<AsyncElement> registerSubscribers(Object target, ClassInfo classInfo) {
@@ -207,8 +221,8 @@ public class AsyncBus implements Bus {
             }
             return result;
         } catch (InvocationTargetException e) {
-            if(exceptionHandler != null &&
-                    exceptionHandler.handle(e.getCause(), element.target, args.length == 0 ? null : args[0])) {
+            if(errorHandler != null &&
+                    errorHandler.handle(e.getCause(), element.target, args.length == 0 ? null : args[0])) {
                 return null;
             } else {
                 throw new RuntimeException(e.getCause());

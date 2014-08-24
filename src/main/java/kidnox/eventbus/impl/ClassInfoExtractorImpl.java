@@ -17,7 +17,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     {
         extractionStrategyMap.put(Subscriber.class, new SubscriberExtractor());
         extractionStrategyMap.put(Producer.class, new ProducerExtractor());
-        extractionStrategyMap.put(ServiceClass.class, new ServiceExtractor());
+        extractionStrategyMap.put(EventServiceFactory.class, new ServiceExtractor());
     }
 
     final Map<Class, ClassInfo> classToInfoMap = newHashMap();
@@ -105,8 +105,10 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         return current.getAnnotation(Producer.class) != null;
     }
 
-    protected ClassInfo extractService(Class clazz, ServiceClass annotation) {
-        return null;//TODO
+    protected ClassInfo extractService(Class clazz, EventServiceFactory annotation) {
+        final String value = annotation.value();
+        Set<ElementInfo> elementsInfoSet = getServiceMethods(clazz);
+        return new ClassInfo(clazz, ClassType.SERVICE, value, elementsInfoSet);
     }
 
     protected Set<ElementInfo> getSubscribedMethods(Class clazz){
@@ -122,7 +124,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
             if(method.getReturnType() != void.class)
                 continue;
 
-            if(method.isAnnotationPresent(Subscribe.class)){
+            if(method.isAnnotationPresent(Subscribe.class)) {
                 if(elementInfoSet == null)
                     elementInfoSet = newHashSet(8);
 
@@ -146,12 +148,34 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
             if(method.getParameterTypes().length != 0)
                 continue;
 
-            if(method.isAnnotationPresent(Produce.class)){
+            if(method.isAnnotationPresent(Produce.class)) {
                 if(elementInfoSet == null)
                     elementInfoSet = newHashSet(4);
 
                 if(!elementInfoSet.add(new ElementInfo(ElementType.PRODUCE, returnType, method)))
                     throwMultiplyMethodsException(clazz, returnType, "produce");
+            }
+        }
+        return elementInfoSet;
+    }
+
+    protected Set<ElementInfo> getServiceMethods(Class clazz) {
+        Set<ElementInfo> elementInfoSet = null;
+        for(Method method : clazz.getDeclaredMethods()) {
+            if ((method.getModifiers() & Modifier.PUBLIC) == 0)
+                continue;
+
+            final Class returnType = method.getReturnType();
+            if(returnType == void.class)
+                continue;
+            if(method.getParameterTypes().length != 0)
+                continue;
+
+            if(method.isAnnotationPresent(EventService.class)) {
+                if(elementInfoSet == null)
+                    elementInfoSet = newHashSet(4);
+
+                elementInfoSet.add(new ElementInfo(ElementType.SERVICE, returnType, method));
             }
         }
         return elementInfoSet;
@@ -181,9 +205,9 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         }
     }
 
-    class ServiceExtractor implements ExtractionStrategy<ServiceClass> {
+    class ServiceExtractor implements ExtractionStrategy<EventServiceFactory> {
 
-        @Override public ClassInfo extract(Class clazz, ServiceClass annotation) {
+        @Override public ClassInfo extract(Class clazz, EventServiceFactory annotation) {
             return extractService(clazz, annotation);
         }
     }

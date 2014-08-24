@@ -12,18 +12,18 @@ public interface Bus {
     String PRODUCE = "produce";
     String INTERCEPT = "intercept";
 
-    void register(Object target);
+    void register(Object target); //TODO rename to connect?
 
-    void unregister(Object target);
+    void unregister(Object target); //TODO rename to disconnect?
 
     void post(Object event);
 
 
     public static final class Factory {
 
-        public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ExceptionHandler exHandler,
+        public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ErrorHandler exHandler,
                                     DeadEventHandler deadEvHandler, EventLogger logger,
-                                    Interceptor interceptor, boolean extraValidation) {
+                                    EventInterceptor interceptor, boolean extraValidation) {
 
             ClassInfoExtractor extractor = createClassInfoExtractor(extraValidation);
 

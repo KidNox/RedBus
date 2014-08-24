@@ -2,7 +2,7 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.internal.AsyncElement;
 import kidnox.eventbus.impl.AsyncBus;
-import kidnox.eventbus.util.EventInterceptor;
+import kidnox.eventbus.util.EventTypeInterceptor;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +67,7 @@ public class EventLoggerTest {
 
     @Test public  void interceptActionTest() {
         bus = Bus.Factory.builder().withEventLogger(eventLogger)
-                .withInterceptor(new EventInterceptor(Event.class)).create();
+                .withInterceptor(new EventTypeInterceptor(Event.class)).create();
         bus.register(new SimpleSubscriber());
         bus.post(EVENT);
 

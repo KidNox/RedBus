@@ -1,15 +1,15 @@
 package kidnox.eventbus.util;
 
-import kidnox.eventbus.Interceptor;
+import kidnox.eventbus.EventInterceptor;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class EventInterceptor implements Interceptor {
+public class EventTypeInterceptor implements EventInterceptor {
 
     final Set<Class> set = new HashSet<Class>();
 
-    public EventInterceptor(Class... classes) {
+    public EventTypeInterceptor(Class... classes) {
         for (Class clazz : classes) {
             addIntercepted(clazz);
         }

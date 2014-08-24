@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-public interface ExceptionHandler {
+public interface ErrorHandler {
 
     boolean handle(Throwable thr, Object target, Object event);
 
