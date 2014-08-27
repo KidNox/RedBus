@@ -1,7 +1,7 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.internal.AsyncBus;
-import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.util.BusBuilder;
 
 import static kidnox.eventbus.internal.InternalFactory.*;

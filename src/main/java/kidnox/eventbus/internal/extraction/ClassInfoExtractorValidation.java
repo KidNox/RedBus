@@ -1,4 +1,4 @@
-package kidnox.eventbus.internal;
+package kidnox.eventbus.internal.extraction;
 
 import kidnox.eventbus.Produce;
 import kidnox.eventbus.Subscribe;

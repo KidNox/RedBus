@@ -1,13 +1,13 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.internal.ClassInfo;
-import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import static kidnox.eventbus.internal.PackageLocalProvider.getClassToInfoMap;
+import static kidnox.eventbus.internal.extraction.PackageLocalProvider.getClassToInfoMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 

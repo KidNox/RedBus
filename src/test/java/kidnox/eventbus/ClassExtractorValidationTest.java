@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.test.bad.BadClass;
 import kidnox.eventbus.test.bad.BadProducer2;

@@ -1,7 +1,9 @@
-package kidnox.eventbus.internal;
+package kidnox.eventbus.internal.extraction;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.internal.*;
+import kidnox.eventbus.internal.BusException;
+import kidnox.eventbus.internal.ClassInfo;
+import kidnox.eventbus.internal.ClassType;
 import kidnox.eventbus.internal.element.ElementInfo;
 import kidnox.eventbus.internal.element.ElementType;
 
@@ -14,7 +16,7 @@ import static kidnox.eventbus.internal.Utils.*;
 
 public class ClassInfoExtractorImpl implements ClassInfoExtractor {
 
-    private final Map<Class<? extends Annotation>, ExtractionStrategy> extractionStrategyMap = newHashMap(4);
+    private final Map<Class<? extends Annotation>, ClassExtractionStrategy> extractionStrategyMap = newHashMap(4);
 
     {
         extractionStrategyMap.put(Subscriber.class, new SubscriberExtractor());
@@ -33,7 +35,7 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
         final Annotation[] annotations = clazz.getAnnotations();
         if(!isNullOrEmpty(annotations)) {
             for (Annotation annotation : annotations) {
-                ExtractionStrategy extractionStrategy = extractionStrategyMap.get(annotation.annotationType());
+                ClassExtractionStrategy extractionStrategy = extractionStrategyMap.get(annotation.annotationType());
                 if(extractionStrategy != null) {
                     info = extractionStrategy.extract(clazz, annotation);
                     break;
@@ -108,16 +110,15 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     }
 
     protected ClassInfo extractService(Class clazz, EventServiceFactory annotation) {
-        final String value = annotation.value();
-        Set<ElementInfo> elementsInfoSet = getServiceMethods(clazz);
-        return new ClassInfo(clazz, ClassType.SERVICE, value, elementsInfoSet);
+        return new ClassInfo(clazz, ClassType.SERVICE, annotation.value(), getServiceMethods(clazz));
     }
 
     protected ClassInfo extractTask(Class clazz, EventTask annotation) {
+
         return null;//TODO
     }
 
-    protected Set<ElementInfo> getSubscribedMethods(Class clazz){
+    protected Set<ElementInfo> getSubscribedMethods(Class clazz) {//TODO need map
         Set<ElementInfo> elementInfoSet = null;
         for(Method method : clazz.getDeclaredMethods()){
             if ((method.getModifiers() & Modifier.PUBLIC) == 0)
@@ -126,16 +127,23 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
             final Class[] params = method.getParameterTypes();
             if(params.length != 1)
                 continue;
-            //TODO add Process annotation
-            if(method.getReturnType() != void.class)
-                continue;
+            Class paramType = params[0];
+            Class returnType = method.getReturnType();
 
-            if(method.isAnnotationPresent(Subscribe.class)) {
+            ElementType elementType = null;
+            if(returnType == void.class && method.isAnnotationPresent(Subscribe.class)) {
+                elementType = ElementType.SUBSCRIBE;
+            } else if(returnType != void.class && method.isAnnotationPresent(Handle.class)) {
+                if(returnType == paramType)
+                    throw new BusException("Process method must return different type than param type");
+                elementType = ElementType.PROCESS;
+            }
+
+            if(elementType != null) {
                 if(elementInfoSet == null) elementInfoSet = newHashSet(8);
 
-                Class type = params[0];
-                if(!elementInfoSet.add(new ElementInfo(ElementType.SUBSCRIBE, type, method)))
-                    throwMultiplyMethodsException(clazz, type, "subscribe");
+                if(!elementInfoSet.add(new ElementInfo(elementType, paramType, method)))
+                    throwMultiplyMethodsException(clazz, paramType, elementType.name().toLowerCase());
             }
         }
         return elementInfoSet;
@@ -190,29 +198,25 @@ public class ClassInfoExtractorImpl implements ClassInfoExtractor {
     }
 
 
-    interface ExtractionStrategy<T extends Annotation> {
-        ClassInfo extract(Class clazz, T annotation);
-    }
-
-    class SubscriberExtractor implements ExtractionStrategy<Subscriber> {
+    class SubscriberExtractor implements ClassExtractionStrategy<Subscriber> {
         @Override public ClassInfo extract(Class clazz, Subscriber annotation) {
             return extractSubscribers(clazz, annotation);
         }
     }
 
-    class ProducerExtractor implements ExtractionStrategy<Producer> {
+    class ProducerExtractor implements ClassExtractionStrategy<Producer> {
         @Override public ClassInfo extract(Class clazz, Producer annotation) {
             return extractProducers(clazz, annotation);
         }
     }
 
-    class ServiceExtractor implements ExtractionStrategy<EventServiceFactory> {
+    class ServiceExtractor implements ClassExtractionStrategy<EventServiceFactory> {
         @Override public ClassInfo extract(Class clazz, EventServiceFactory annotation) {
             return extractService(clazz, annotation);
         }
     }
 
-    class TaskExtractor implements ExtractionStrategy<EventTask> {
+    class TaskExtractor implements ClassExtractionStrategy<EventTask> {
         @Override public ClassInfo extract(Class clazz, EventTask annotation) {
             return extractTask(clazz, annotation);
         }

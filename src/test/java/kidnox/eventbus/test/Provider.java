@@ -1,6 +1,6 @@
 package kidnox.eventbus.test;
 
-import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
 
 public interface Provider<T> {

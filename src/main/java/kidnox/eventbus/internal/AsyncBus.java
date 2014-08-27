@@ -5,6 +5,7 @@ import kidnox.eventbus.internal.element.AsyncElement;
 import kidnox.eventbus.internal.element.ElementInfo;
 import kidnox.eventbus.internal.element.ProducerGroup;
 import kidnox.eventbus.internal.element.SubscriberGroup;
+import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -161,11 +162,13 @@ public class AsyncBus implements Bus {
 
     void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.eventDispatcher.isDispatcherThread()) {
-            invokeElement(subscriber, event);
+            Object result = invokeElement(subscriber, event);
+            if(result != null) post(result);//means this is @Process method
         } else {
             subscriber.eventDispatcher.dispatch(new Runnable() {
                 @Override public void run() {
-                    invokeElement(subscriber, event);
+                    Object result = invokeElement(subscriber, event);
+                    if(result != null) post(result);
                 }
             });
         }

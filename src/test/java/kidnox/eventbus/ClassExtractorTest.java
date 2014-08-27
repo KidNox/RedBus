@@ -2,7 +2,7 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.internal.BusException;
 import kidnox.eventbus.internal.ClassInfo;
-import kidnox.eventbus.internal.ClassInfoExtractor;
+import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.ClassType;
 import kidnox.eventbus.test.bad.BadChildProducer;
 import kidnox.eventbus.test.bad.BadChildSubscriber;
@@ -10,6 +10,7 @@ import kidnox.eventbus.test.bad.BadProducer;
 import kidnox.eventbus.test.bad.BadSubscriber;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -17,7 +18,7 @@ import org.junit.runners.Parameterized;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static kidnox.eventbus.internal.PackageLocalProvider.getClassToInfoMap;
+import static kidnox.eventbus.internal.extraction.PackageLocalProvider.getClassToInfoMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -62,10 +63,12 @@ public class ClassExtractorTest {
     @Test public void classInfoCacheTest() {
         classInfoExtractor.getClassInfo(SimpleSubscriber.class);
         classInfoExtractor.getClassInfo(SimpleProducer.class);
+        classInfoExtractor.getClassInfo(SimpleEventServices.class);
         classInfoExtractor.getClassInfo(SimpleNone.class);
 
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleSubscriber.class).type, ClassType.SUBSCRIBER);
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleProducer.class).type, ClassType.PRODUCER);
+        assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleEventServices.class).type, ClassType.SERVICE);
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleNone.class).type, ClassType.NONE);
     }
 
@@ -82,32 +85,13 @@ public class ClassExtractorTest {
         assertEquals(4, getClassToInfoMap(classInfoExtractor).size());
     }
 
-//    @Test public void subscribersCacheTest() {
-//        classInfoExtractor.getClassInfo(SimpleSubscriber.class);
-//        ClassSubscribers classSubscribers = getSubscibersCache(classInfoExtractor).get(SimpleSubscriber.class);
-//        assertNotNull(classSubscribers);
-//        assertNotNull(classSubscribers.eventDispatcher);
-//        assertNotNull(classSubscribers.typedMethodsMap);
-//        assertFalse(classSubscribers.typedMethodsMap.isEmpty());
-//        assertFalse(ClassSubscribers.isNullOrEmpty(classSubscribers));
-//
-//        classInfoExtractor.getTypeOf(LargeSubscriber.class);
-//        classSubscribers = getSubscibersCache(classInfoExtractor).get(LargeSubscriber.class);
-//        assertEquals(4, classSubscribers.typedMethodsMap.size());
-//    }
-//
-//    @Test public void producersCacheTest() {
-//        classInfoExtractor.getTypeOf(SimpleProducer.class);
-//        ClassProducers classProducers = getProducersCache(classInfoExtractor).get(SimpleProducer.class);
-//        assertNotNull(classProducers);
-//        assertNotNull(classProducers.typedMethodsMap);
-//        assertFalse(classProducers.typedMethodsMap.isEmpty());
-//        assertFalse(ClassProducers.isNullOrEmpty(classProducers));
-//
-//        classInfoExtractor.getTypeOf(LargeProducer.class);
-//        classProducers = getProducersCache(classInfoExtractor).get(LargeProducer.class);
-//        assertEquals(4, classProducers.typedMethodsMap.size());
-//    }
+    @Ignore//TODO fix when implement method extractors
+    @Test public void methodsCountTest() {
+        assertEquals(4, classInfoExtractor.getClassInfo(LargeSubscriber.class).elements.size());
+        assertEquals(4, classInfoExtractor.getClassInfo(LargeProducer.class).elements.size());
+        assertEquals(4, classInfoExtractor.getClassInfo(LargeProcessor.class).elements.size());
+        assertEquals(6, classInfoExtractor.getClassInfo(LargeEventService.class).elements.size());
+    }
 
     @Test public void sameSubscribeMethodTest() {
         @Subscriber
