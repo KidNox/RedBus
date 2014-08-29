@@ -18,7 +18,7 @@ import static org.junit.Assert.fail;
 public class ClassExtractorValidationTest {
 
     @SuppressWarnings("unchecked") @Parameterized.Parameters
-    public static Collection classExtractorFactories() {
+    public static Collection testTargets() {
         return Arrays.asList(new Object[][]{
                 {new NotVoidReturnTypeSubscriber()},
                 {new WrongMethodArgsNumberSubscriber()},

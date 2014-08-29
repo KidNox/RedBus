@@ -50,7 +50,6 @@ final class ExtractionUtils {
         return Collections.unmodifiableMap(map);
     }
 
-    //TODO test it
     static void checkAnnotationValue(Class clazz, String annotationValue, String baseValue, Class child) {
         if (!baseValue.equals(annotationValue)){
             throw new BusException(String.format("dispatchers for child and parent classes does not match:"
@@ -64,9 +63,9 @@ final class ExtractionUtils {
                 "for event %s, can be only one.", what, clazz.getName(), event.getName()));
     }
 
-    //TODO implement and test
-    static void throwAnnotationNotAllowedHere(Class target, ClassType targetType,
-                                              Class<? extends Annotation> badAnnotation) {
+    static void throwAnnotationNotAllowedHere(Class target, ClassType targetType,Class badAnnotation) {
+        throw new BusException(String.format("annotation %s not allowed in class %s that annotated as %s",
+                badAnnotation.getSimpleName(), target.getName(), targetType));
     }
 
     static void throwBadMethodException(Method method, String description) {
