@@ -15,8 +15,12 @@ import static kidnox.eventbus.internal.extraction.ElementExtractionStrategy.*;
 
 final class ExtractionUtils {
 
-    static final Map<Class<? extends Annotation>, ClassInfoExtractorStrategy> CLASS_STRATEGIES;
     static final Map<Class<? extends Annotation>, ElementExtractionStrategy> ELEMENT_STRATEGIES;
+    static final Map<Class<? extends Annotation>, ClassInfoExtractorStrategy> CLASS_STRATEGIES;
+
+    static final Class REGISTER_TYPE_KEY = OnRegister.class;
+    static final Class UNREGISTER_TYPE_KEY = OnUnregister.class;
+    static final Class EXECUTE_TYPE_KEY = Execute.class;
 
     static {
         Map<Class<? extends Annotation>, ElementExtractionStrategy> mEES = newHashMap(8);
@@ -68,6 +72,7 @@ final class ExtractionUtils {
     static void throwBadMethodException(Method method, String description) {
         throw new BusException(String.format("Method %s %s", method, description));
     }
+
 
 
 }

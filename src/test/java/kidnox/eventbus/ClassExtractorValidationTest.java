@@ -2,9 +2,9 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
-import kidnox.eventbus.test.bad.BadClass;
-import kidnox.eventbus.test.bad.BadProducer2;
-import kidnox.eventbus.test.bad.BadSubscriber2;
+import kidnox.eventbus.test.SimpleProducer;
+import kidnox.eventbus.test.SimpleSubscriber;
+import kidnox.eventbus.test.bad.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,7 +26,9 @@ public class ClassExtractorValidationTest {
                 {new InterfaceEventSubscriber()},
                 {new VoidReturnTypeProducer()},
                 {new WrongMethodArgsNumberProducer()},
-                {new InterfaceEventProducer()}});
+                {new InterfaceEventProducer()},
+                {new WrongInheritDispatcherSubscriber()},
+                {new WrongInheritDispatcherProducer()}});
     }
 
     final BadClass testInstance;
@@ -117,5 +119,18 @@ public class ClassExtractorValidationTest {
         }
     }
 
+    @Subscriber("wrong")
+    private static class WrongInheritDispatcherSubscriber extends BadSubscriber3 {
+        public WrongInheritDispatcherSubscriber() {
+            super("bad dispatcher");
+        }
+    }
+
+    @Producer("wrong")
+    private static class WrongInheritDispatcherProducer extends BadProducer3 {
+        public WrongInheritDispatcherProducer() {
+            super("bad dispatcher");
+        }
+    }
 
 }

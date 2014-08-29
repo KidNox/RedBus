@@ -7,7 +7,6 @@ import kidnox.eventbus.internal.element.ElementInfo;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -49,7 +48,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
             return true;
         }
     };
-
+    //EventTask can contain only one element(maybe onRegister?) or 3 (with register/unregister), figure out about that
     ClassInfoExtractorStrategy<EventTask> TASK = new InheritanceNotSupportedStrategy<EventTask>
             (ClassType.TASK, Execute.class) {//TODO
 
@@ -103,9 +102,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
                     }
                 }
             }
-            Collection<ElementInfo> values = elementsInfoMap == null ?
-                    Collections.<ElementInfo>emptyList() : elementsInfoMap.values();
-            return new ClassInfo(clazz, type, value, values);
+            return createInfo(clazz, type, value, elementsInfoMap);
         }
 
         abstract String getAnnotationValue(T annotation);
@@ -137,10 +134,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
                     elementsInfoMap.put(element.eventType, element);
                 }
             }
-
-            Collection<ElementInfo> values = elementsInfoMap == null ?
-                    Collections.<ElementInfo>emptyList() : elementsInfoMap.values();
-            return new ClassInfo(clazz, type, value, values);
+            return createInfo(clazz, type, value, elementsInfoMap);
         }
 
         abstract String getAnnotationValue(T annotation);
@@ -163,6 +157,16 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
                 throwAnnotationNotAllowedHere(clazz, classType, elementType);
             }
             return strategy;
+        }
+
+        ClassInfo createInfo(Class clazz, ClassType type, String annotationValue, Map<Class, ElementInfo> elementsMap) {
+            if(elementsMap == null) {
+                return new ClassInfo(clazz, type, annotationValue, Collections.<ElementInfo>emptyList());
+            } else {
+                ElementInfo onRegister = elementsMap.remove(REGISTER_TYPE_KEY);
+                ElementInfo onUnregister = elementsMap.remove(UNREGISTER_TYPE_KEY);
+                return new ClassInfo(clazz, type, annotationValue, elementsMap.values(), onRegister, onUnregister);
+            }
         }
     }
 }

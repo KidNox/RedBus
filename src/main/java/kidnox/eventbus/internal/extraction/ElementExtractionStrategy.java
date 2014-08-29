@@ -5,21 +5,29 @@ import kidnox.eventbus.internal.element.ElementType;
 
 import java.lang.reflect.Method;
 
-import static kidnox.eventbus.internal.extraction.ExtractionUtils.throwBadMethodException;
+import static kidnox.eventbus.internal.extraction.ExtractionUtils.*;
 
-interface ElementExtractionStrategy {//TODO
+interface ElementExtractionStrategy {
 
     ElementInfo extract(Method method, Class target);
 
     ElementExtractionStrategy REGISTER = new ElementExtractionStrategy() {
         @Override public ElementInfo extract(Method method, Class target) {
-            return null;
+            if (method.getReturnType() != void.class)
+                throwBadMethodException(method, "with @Register must return void type.");
+            if (method.getParameterTypes().length != 0)//TODO maybe allow Bus type argument?
+                throwBadMethodException(method, "with @Register must require zero arguments.");
+            return new ElementInfo(ElementType.REGISTER, REGISTER_TYPE_KEY, method);
         }
     };
 
     ElementExtractionStrategy UNREGISTER = new ElementExtractionStrategy() {
         @Override public ElementInfo extract(Method method, Class target) {
-            return null;
+            if (method.getReturnType() != void.class)
+                throwBadMethodException(method, "with @Unregister must return void type.");
+            if (method.getParameterTypes().length != 0)
+                throwBadMethodException(method, "with @Unregister must require zero arguments.");
+            return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_TYPE_KEY, method);
         }
     };
 
@@ -74,13 +82,21 @@ interface ElementExtractionStrategy {//TODO
 
     ElementExtractionStrategy EXECUTE = new ElementExtractionStrategy() {
         @Override public ElementInfo extract(Method method, Class target) {
-            return null;
+            if (method.getReturnType() != void.class)
+                throwBadMethodException(method, "with @Execute must return void type.");
+            if (method.getParameterTypes().length != 0)
+                throwBadMethodException(method, "with @Execute must require zero arguments.");
+            return new ElementInfo(ElementType.EXECUTE, EXECUTE_TYPE_KEY, method);
         }
     };
 
     ElementExtractionStrategy SERVICE = new ElementExtractionStrategy() {
         @Override public ElementInfo extract(Method method, Class target) {
-            return new ElementInfo(ElementType.SERVICE, method.getReturnType(), method);//TODO
+            if (method.getReturnType() == void.class)
+                throwBadMethodException(method, "with @EventService can't return void type.");
+            if (method.getParameterTypes().length != 0)
+                throwBadMethodException(method, "with @EventService must require zero arguments.");
+            return new ElementInfo(ElementType.SERVICE, method.getReturnType(), method);
         }
     };
 
