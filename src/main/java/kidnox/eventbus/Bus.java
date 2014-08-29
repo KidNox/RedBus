@@ -22,10 +22,9 @@ public interface Bus {
     public static final class Factory {
 
         public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ErrorHandler exHandler,
-                                    DeadEventHandler deadEvHandler, EventLogger logger,
-                                    EventInterceptor interceptor, boolean extraValidation) {
+                                    DeadEventHandler deadEvHandler, EventLogger logger, EventInterceptor interceptor) {
 
-            ClassInfoExtractor extractor = createClassInfoExtractor(extraValidation);
+            ClassInfoExtractor extractor = createClassInfoExtractor();
             dispatcherFactory = wrapFactoryWithCache(dispatcherFactory);
 
             exHandler = exHandler == null ? getStubExHandler() : exHandler;

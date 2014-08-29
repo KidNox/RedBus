@@ -16,7 +16,7 @@ public class InheritanceTest {
     ClassInfoExtractor classInfoExtractor;
 
     @Before public void setUp() {
-        classInfoExtractor = InternalFactory.createClassInfoExtractor(false);
+        classInfoExtractor = InternalFactory.createClassInfoExtractor();
     }
 
     @Test public void overriddenSubscriberTest() {

@@ -38,8 +38,8 @@ public class NullsTest {
         bus.register(simpleSubscriber);
         bus.register(mutableProducer);
 
-        assertEquals(mutableProducer.getProducedCount(), 1);
-        assertEquals(simpleSubscriber.getSubscribedCount(), 0);
+        assertEquals(1, mutableProducer.getProducedCount());
+        assertEquals(0, simpleSubscriber.getSubscribedCount());
     }
 
 }

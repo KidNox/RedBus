@@ -7,8 +7,6 @@ import static kidnox.eventbus.internal.Utils.checkNotNull;
 
 public final class BusBuilder {
 
-    boolean extraValidation;
-
     EventLogger eventLogger;
     DeadEventHandler deadEventHandler;
     EventInterceptor interceptor;
@@ -52,17 +50,8 @@ public final class BusBuilder {
         return this;
     }
 
-    /**
-     * Use for debugging only, first class registration in this mode may be several times slower
-     * */
-    public BusBuilder withExtraValidation() {
-        extraValidation = true;
-        return this;
-    }
-
     public Bus create() {
-        return Bus.Factory.createBus(dispatcherFactory, errorHandler, deadEventHandler, eventLogger,
-                interceptor, extraValidation);
+        return Bus.Factory.createBus(dispatcherFactory, errorHandler, deadEventHandler, eventLogger, interceptor);
     }
 
 }

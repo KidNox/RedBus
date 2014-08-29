@@ -20,8 +20,6 @@ public class ClassExtractorValidationTest {
     @SuppressWarnings("unchecked") @Parameterized.Parameters
     public static Collection classExtractorFactories() {
         return Arrays.asList(new Object[][]{
-                {new BadSubscriber2()},
-                {new BadProducer2()},
                 {new NotVoidReturnTypeSubscriber()},
                 {new WrongMethodArgsNumberSubscriber()},
                 {new WrongMethodArgsNumber2Subscriber()},
@@ -36,8 +34,7 @@ public class ClassExtractorValidationTest {
 
     public ClassExtractorValidationTest(BadClass testInstance) {
         this.testInstance = testInstance;
-        this.classInfoExtractor = InternalFactory.createClassInfoExtractor(
-                /*new AsyncDispatcherFactory(EventDispatcher.MAIN, EventDispatcher.WORKER),*/ true);
+        this.classInfoExtractor = InternalFactory.createClassInfoExtractor();
     }
 
     @Test public void validationTest() {

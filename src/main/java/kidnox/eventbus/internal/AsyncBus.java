@@ -48,6 +48,9 @@ public class AsyncBus implements Bus {
             case PRODUCER:
                 elementsGroup = registerProducer(target, classInfo);
                 break;
+            case TASK:
+                elementsGroup = registerTask(target, classInfo);
+                break;
             case SERVICE:
                 elementsGroup = registerService(target, classInfo);
                 break;
@@ -125,8 +128,12 @@ public class AsyncBus implements Bus {
     }
 
     ElementsGroup registerService(Object target, ClassInfo classInfo) {
-
+        //TODO
         return null;
+    }
+
+    ElementsGroup registerTask(Object target, ClassInfo classInfo) {
+        return null;//TODO
     }
 
     Object produceEvent(AsyncElement producer, Object target) {

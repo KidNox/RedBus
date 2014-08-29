@@ -2,8 +2,6 @@ package kidnox.eventbus.internal;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
-import kidnox.eventbus.internal.extraction.ClassInfoExtractorImpl;
-import kidnox.eventbus.internal.extraction.ClassInfoExtractorValidation;
 
 import java.util.Map;
 
@@ -11,9 +9,8 @@ import static kidnox.eventbus.internal.Utils.newHashMap;
 
 public final class InternalFactory {
 
-    public static ClassInfoExtractor createClassInfoExtractor(boolean extraValidation) {
-        if(extraValidation) return new ClassInfoExtractorValidation();
-        else return new ClassInfoExtractorImpl();
+    public static ClassInfoExtractor createClassInfoExtractor() {
+        return new ClassInfoExtractor.ClassInfoExtractorImpl();
     }
 
     public static final EventDispatcher CURRENT_THREAD_DISPATCHER = new EventDispatcher() {

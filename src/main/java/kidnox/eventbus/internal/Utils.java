@@ -1,8 +1,6 @@
 package kidnox.eventbus.internal;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public final class Utils {
 
@@ -38,6 +36,27 @@ public final class Utils {
     public static void throwBusException(String action, Object cause, String message) {//TODO move to bus?
         throw new BusException(action + " was failed " + cause + message);
     }
+
+/*    public static <K, V> MapBuilder<K, V> unmodifiableMap(int size) {
+        return new MapBuilder<K, V>(new HashMap<K, V>(size));
+    }
+
+    public static class MapBuilder<K, V> {
+        final Map<K, V> tempMap;
+
+        MapBuilder(Map<K, V> tempMap) {
+            this.tempMap = tempMap;
+        }
+
+        public MapBuilder<K, V> with(K key, V value) {
+            tempMap.put(key, value);
+            return this;
+        }
+
+        public Map<K, V> map() {
+            return Collections.unmodifiableMap(tempMap);
+        }
+    }*/
 
     //no instance
     private Utils() {}

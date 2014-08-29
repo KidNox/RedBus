@@ -2,6 +2,7 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.internal.BusException;
 import kidnox.eventbus.internal.ClassInfo;
+import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.ClassType;
 import kidnox.eventbus.test.bad.BadChildProducer;
@@ -22,27 +23,12 @@ import static kidnox.eventbus.internal.extraction.PackageLocalProvider.getClassT
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-/**
- * Test both ClassInfoExtractorImpl and ClassInfoExtractorValidation
- * */
-@RunWith(Parameterized.class)
 public class ClassExtractorTest {
 
-    @SuppressWarnings("unchecked") @Parameterized.Parameters
-    public static Collection classExtractorFactories() {
-        return Arrays.asList(new Object[][] {{Provider.CLASS_INFO_EXTRACTOR_PROVIDER},
-                        {Provider.CLASS_INFO_EXTRACTOR_VALIDATION_PROVIDER}});
-    }
-
-    final Provider<ClassInfoExtractor> extractorFactory;
     ClassInfoExtractor classInfoExtractor;
 
-    public ClassExtractorTest(Provider<ClassInfoExtractor> extractorFactory) {
-        this.extractorFactory = extractorFactory;
-    }
-
     ClassInfoExtractor createExtractor() {
-        return extractorFactory.get();
+        return InternalFactory.createClassInfoExtractor();
     }
 
     @Before public void setUp() {
@@ -85,7 +71,6 @@ public class ClassExtractorTest {
         assertEquals(4, getClassToInfoMap(classInfoExtractor).size());
     }
 
-    @Ignore//TODO fix when implement method extractors
     @Test public void methodsCountTest() {
         assertEquals(4, classInfoExtractor.getClassInfo(LargeSubscriber.class).elements.size());
         assertEquals(4, classInfoExtractor.getClassInfo(LargeProducer.class).elements.size());
