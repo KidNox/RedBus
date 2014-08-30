@@ -9,6 +9,7 @@ public final class ClassInfo {
     public final ClassType type;
     public final String annotationValue;
     public final Collection<ElementInfo> elements;
+    //TODO maybe better to keep listeners in element collection (use map optionally)
     public final ElementInfo onRegisterListener;
     public final ElementInfo onUnRegisterListener;
 

@@ -9,10 +9,6 @@ import static kidnox.eventbus.internal.Utils.newHashMap;
 
 public final class InternalFactory {
 
-    public static ClassInfoExtractor createClassInfoExtractor() {
-        return new ClassInfoExtractor.ClassInfoExtractorImpl();
-    }
-
     public static final EventDispatcher CURRENT_THREAD_DISPATCHER = new EventDispatcher() {
 
         @Override public boolean isDispatcherThread() {
@@ -21,6 +17,10 @@ public final class InternalFactory {
 
         @Override public void dispatch(Runnable event) { }
     };
+
+    public static ClassInfoExtractor createClassInfoExtractor() {
+        return new ClassInfoExtractor.ClassInfoExtractorImpl();
+    }
 
     public static EventDispatcher.Factory getDefaultDispatcherFactory() {
         return new EventDispatcher.Factory() {
@@ -64,15 +64,15 @@ public final class InternalFactory {
 
     public static EventDispatcher.Factory wrapFactoryWithCache(EventDispatcher.Factory factory) {
         if(factory == null) return getDefaultDispatcherFactory();
-        return new CachedDispatchersFactoryProxy(factory);
+        return new DispatchersFactoryCachedProxy(factory);
     }
 
-    public static class CachedDispatchersFactoryProxy implements EventDispatcher.Factory {
+    public static class DispatchersFactoryCachedProxy implements EventDispatcher.Factory {
 
         final Map<String, EventDispatcher> dispatchersMap = newHashMap(4);
         final EventDispatcher.Factory dispatcherFactory;
 
-        public CachedDispatchersFactoryProxy(EventDispatcher.Factory dispatcherFactory) {
+        public DispatchersFactoryCachedProxy(EventDispatcher.Factory dispatcherFactory) {
             this.dispatcherFactory = dispatcherFactory;
         }
 

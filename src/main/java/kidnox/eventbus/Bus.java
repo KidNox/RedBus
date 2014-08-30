@@ -7,14 +7,14 @@ import kidnox.eventbus.util.BusBuilder;
 import static kidnox.eventbus.internal.InternalFactory.*;
 
 public interface Bus {
-
+    //logger tags
     String POST = "post";
     String PRODUCE = "produce";
     String INTERCEPT = "intercept";
 
-    void register(Object target); //TODO rename to connect?
+    void register(Object target);
 
-    void unregister(Object target); //TODO rename to disconnect?
+    void unregister(Object target);
 
     void post(Object event);
 
@@ -26,7 +26,7 @@ public interface Bus {
 
             ClassInfoExtractor extractor = createClassInfoExtractor();
             dispatcherFactory = wrapFactoryWithCache(dispatcherFactory);
-
+            //use stubs to prevent null checks
             exHandler = exHandler == null ? getStubExHandler() : exHandler;
             deadEvHandler = deadEvHandler == null ? getStubDeadEvHandler() : deadEvHandler;
             logger = logger == null ? getStubLogger() : logger;

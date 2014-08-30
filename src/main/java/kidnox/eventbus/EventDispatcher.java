@@ -9,10 +9,8 @@ public interface EventDispatcher {
 
     void dispatch(Runnable event);
 
-    //void dispatchSubscribe(EventSubscriber subscriber, Object event);
-
     //TODO figure out about lazy dispatchers
-    interface Factory {//TODO move to separate class
+    interface Factory {
         EventDispatcher getDispatcher(String name);
     }
 

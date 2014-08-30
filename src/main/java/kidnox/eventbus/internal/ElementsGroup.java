@@ -1,5 +1,5 @@
 package kidnox.eventbus.internal;
-
+//TODO replace with abstract class with AsyncBus reference?
 public interface ElementsGroup {
 
     void registerGroup(Object target);

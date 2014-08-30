@@ -11,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static kidnox.eventbus.internal.Utils.*;
-
+//TODO figure out about ElementGroup and reference to element maps (maybe create BusService)
 public class AsyncBus implements Bus {
 
     final Map<Object, ElementsGroup> instanceToElementsMap = newHashMap();
@@ -66,7 +66,8 @@ public class AsyncBus implements Bus {
     @Override synchronized public void unregister(Object target) {
         if(target == null) throw new NullPointerException();
         ElementsGroup elementsGroup = instanceToElementsMap.remove(target);
-        if(elementsGroup == null) throwBusException("unregister", target, " not registered");
+        if(elementsGroup == null)
+            throwBusException("unregister", target, " not registered");
         else elementsGroup.unregisterGroup();
     }
 
@@ -151,7 +152,7 @@ public class AsyncBus implements Bus {
     Object invokeElement(AsyncElement element, Object... args) {
         try {
             Object result = element.invoke(args);
-            if(result != null && !element.isValid()) {
+            if(result != null && !element.isValid()) {//a bit ugly code, maybe better to check element type
                 //unregistered subscriber return event as result so we can handle dead event
                 deadEventHandler.onDeadEvent(result);
                 return null;
@@ -166,7 +167,7 @@ public class AsyncBus implements Bus {
             }
         }
     }
-
+    //TODO need more dispatch methods (for task and services), maybe move all to BusService
     void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.eventDispatcher.isDispatcherThread()) {
             Object result = invokeElement(subscriber, event);

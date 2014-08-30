@@ -27,7 +27,7 @@ public class WrongAnnotationsTest {
                 {new ProducerWithExecuteMethod()},
                 {new ProducerWithServiceMethod()},
                 {new TaskWithServiceMethod()},
-
+                //TODO
                 {new ServiceWithSubscribeMethod()},
                 {new ServiceWithProduceMethod()},
                 {new ServiceWithHandleMethod()},
