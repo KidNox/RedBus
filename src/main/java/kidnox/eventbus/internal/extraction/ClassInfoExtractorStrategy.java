@@ -83,7 +83,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
 
                     Annotation[] annotations = method.getDeclaredAnnotations();
                     if (isNullOrEmpty(annotations)) continue;
-
+                    if(method.isBridge()) continue; //java 8 annotated bridge methods fix
                     for (Annotation mAnnotation : annotations) {
                         ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);
                         if (strategy == null) continue;
@@ -125,6 +125,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
 
                 Annotation[] annotations = method.getDeclaredAnnotations();
                 if (isNullOrEmpty(annotations)) continue;
+                if(method.isBridge()) continue; //java 8 annotated bridge methods fix
                 for (Annotation mAnnotation : annotations) {
                     ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);
                     if (strategy == null) continue;

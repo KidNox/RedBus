@@ -74,12 +74,11 @@ public class ClassExtractorTest {
     }
     //for java 8
     @Test public void bridgeMethodIgnoreTest() {
+        @Subscriber
+        class GenericSubscriberImpl implements GenericSubscriber<String> {
+            @Subscribe @Override public void obtain(String event) { }
+        }
         assertEquals(1, classInfoExtractor.getClassInfo(GenericSubscriberImpl.class).elements.size());
-    }
-
-    @Subscriber
-    static class GenericSubscriberImpl implements GenericSubscriber<String> {
-        @Subscribe @Override public void obtain(String event) { }
     }
 
     @Test public void sameSubscribeMethodTest() {
