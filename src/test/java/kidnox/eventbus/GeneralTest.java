@@ -167,7 +167,7 @@ public class GeneralTest {
         bus.register(new Producer2());
     }
 
-    @Test public void eventInheritanceTest() {
+    @Test public void eventsNotInheritTest() {
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
         bus.post(new Event() {});
@@ -196,7 +196,7 @@ public class GeneralTest {
         assertEquals("string not obtained", stringEvent, subscriberClass.string);
     }
 
-    @Test public void nonPublicMethodsNoValidationTest() {
+    @Test public void nonPublicMethodsTest() {
         BadSubscriber2 badSubscriber2 = new BadSubscriber2();
         bus.register(badSubscriber2);
         Object o = new Object();

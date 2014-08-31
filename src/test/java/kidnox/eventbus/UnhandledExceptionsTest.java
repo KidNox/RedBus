@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class InvocationExceptionTest {
+public class UnhandledExceptionsTest {
 
     Bus bus;
 

@@ -17,7 +17,7 @@ public class EventDispatcherFactoryTest {
     @Test public void dispatcherFactoryTest() {
         AsyncBus bus = (AsyncBus) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
             @Override public EventDispatcher getDispatcher(String name) {
-                fail("must not be called");//TODO
+                fail("must not be called");
                 return null;
             }
         }).create();

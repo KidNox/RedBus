@@ -13,11 +13,6 @@ import kidnox.eventbus.test.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 import static kidnox.eventbus.internal.extraction.PackageLocalProvider.getClassToInfoMap;
 import static org.junit.Assert.assertEquals;
@@ -77,6 +72,15 @@ public class ClassExtractorTest {
         assertEquals(4, classInfoExtractor.getClassInfo(LargeProcessor.class).elements.size());
         assertEquals(6, classInfoExtractor.getClassInfo(LargeEventService.class).elements.size());
     }
+    //for java 8
+    @Test public void bridgeMethodIgnoreTest() {
+        assertEquals(1, classInfoExtractor.getClassInfo(GenericSubscriberImpl.class).elements.size());
+    }
+
+    @Subscriber
+    static class GenericSubscriberImpl implements GenericSubscriber<String> {
+        @Subscribe @Override public void obtain(String event) { }
+    }
 
     @Test public void sameSubscribeMethodTest() {
         @Subscriber
@@ -133,6 +137,7 @@ public class ClassExtractorTest {
         }
         classInfoExtractor.getClassInfo(Producer1.class);
     }
+
 
 //    @Test public void getDispatcherTest() {
 //        //default factory

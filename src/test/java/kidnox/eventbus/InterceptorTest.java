@@ -9,10 +9,11 @@ import static org.junit.Assert.*;
 
 public class InterceptorTest {
 
+    EventTypeCountInterceptor interceptor;
     Bus bus;
 
     @Before public void setUp() {
-        EventTypeInterceptor interceptor = new EventTypeInterceptor(Event.class);
+        interceptor = new EventTypeCountInterceptor(Event.class);
         bus = Bus.Factory.builder().withInterceptor(interceptor).create();
     }
 
@@ -25,6 +26,7 @@ public class InterceptorTest {
 
         assertNull(eventsSubscriber.getEvent());
         assertNotNull(eventsSubscriber.getEvent2());
+        assertEquals(2, interceptor.getCallCount());
     }
 
     @Test public void interceptProduce() {
@@ -37,6 +39,7 @@ public class InterceptorTest {
         assertEquals(1, eventsProducer.getProducedEvents2Count());
         assertNull(eventsSubscriber.getEvent());
         assertNotNull(eventsSubscriber.getEvent2());
+        assertEquals(2, interceptor.getCallCount());
     }
 
 }

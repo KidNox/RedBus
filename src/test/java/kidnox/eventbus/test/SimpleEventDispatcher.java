@@ -6,12 +6,6 @@ public class SimpleEventDispatcher implements EventDispatcher {
 
     Runnable currentEvent;
 
-
-//    @Override public void dispatchProduction(EventProducer eventProducer, EventSubscriber eventSubscriber) {
-//        currentProducer = eventProducer;
-//        currentSubscriber = eventSubscriber;
-//    }
-
     public Object getCurrentEvent() {
         return currentEvent;
     }
