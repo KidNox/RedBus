@@ -11,7 +11,6 @@ import kidnox.eventbus.test.bad.BadProducer;
 import kidnox.eventbus.test.bad.BadSubscriber;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static kidnox.eventbus.internal.extraction.PackageLocalProvider.getClassToInfoMap;
@@ -79,6 +78,19 @@ public class ClassExtractorTest {
             @Subscribe @Override public void obtain(String event) { }
         }
         assertEquals(1, classInfoExtractor.getClassInfo(GenericSubscriberImpl.class).elements.size());
+    }
+
+    @Test public void multiplyAnnotationsTest() {
+        @Something @Subscriber
+        class TestSubscriber {
+            @Something @Subscribe public void obtain(Object o) {}
+        }
+        @Subscriber @Something
+        class TestSubscriber2 {
+            @Subscribe @Something public void obtain(Object o) {}
+        }
+        assertEquals(1, classInfoExtractor.getClassInfo(TestSubscriber.class).elements.size());
+        assertEquals(1, classInfoExtractor.getClassInfo(TestSubscriber2.class).elements.size());
     }
 
     @Test public void sameSubscribeMethodTest() {

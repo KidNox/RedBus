@@ -80,10 +80,10 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
                 for (Method method : mClass.getDeclaredMethods()) {
                     if ((method.getModifiers() & Modifier.PUBLIC) == 0)// ignore all not public methods
                         continue;
-
                     Annotation[] annotations = method.getDeclaredAnnotations();
                     if (isNullOrEmpty(annotations)) continue;
                     if(method.isBridge()) continue; //java 8 annotated bridge methods fix
+
                     for (Annotation mAnnotation : annotations) {
                         ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);
                         if (strategy == null) continue;
@@ -99,6 +99,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
                                 throwMultiplyMethodsException(clazz, element.eventType, type.toString().toLowerCase());
                             }
                         }
+                        break;//we find strategy for annotation and extract element so can break
                     }
                 }
             }
@@ -122,10 +123,10 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
             for(Method method : clazz.getDeclaredMethods()) {
                 if ((method.getModifiers() & Modifier.PUBLIC) == 0)// ignore all not public methods
                     continue;
-
                 Annotation[] annotations = method.getDeclaredAnnotations();
                 if (isNullOrEmpty(annotations)) continue;
                 if(method.isBridge()) continue; //java 8 annotated bridge methods fix
+
                 for (Annotation mAnnotation : annotations) {
                     ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);
                     if (strategy == null) continue;
@@ -133,6 +134,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
 
                     ElementInfo element = strategy.extract(method, clazz);
                     elementsInfoMap.put(element.eventType, element);
+                    break;
                 }
             }
             return createInfo(clazz, type, value, elementsInfoMap);
