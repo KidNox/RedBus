@@ -1,6 +1,6 @@
 package kidnox.eventbus.internal.element;
 
-import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.ElementsGroup;
 
@@ -11,11 +11,11 @@ public final class ServiceGroup implements ElementsGroup {
 
     //final Map<ClassInfo, Object> instances;
     final ClassInfo classInfo;
-    final EventDispatcher dispatcher;
+    final Dispatcher dispatcher;
     final Map<Class, Set<AsyncElement>> subscribersMapRef;
     final Map<Class, AsyncElement> producerMapRef;
 
-    public ServiceGroup(ClassInfo classInfo, EventDispatcher dispatcher,
+    public ServiceGroup(ClassInfo classInfo, Dispatcher dispatcher,
                         Map<Class, Set<AsyncElement>> subscribersMapRef, Map<Class, AsyncElement> producerMapRef) {
         this.classInfo = classInfo;
         this.dispatcher = dispatcher;

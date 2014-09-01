@@ -1,6 +1,6 @@
 package kidnox.eventbus;
 
-public interface EventDispatcher {
+public interface Dispatcher {
 
     String MAIN     = "main";
     String WORKER   = "worker";
@@ -11,7 +11,7 @@ public interface EventDispatcher {
 
     //TODO figure out about lazy dispatchers
     interface Factory {
-        EventDispatcher getDispatcher(String name);
+        Dispatcher getDispatcher(String name);
     }
 
 }

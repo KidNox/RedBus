@@ -20,14 +20,14 @@ public class AsyncBus implements Bus {
     final Map<Class, AsyncElement> eventTypeToProducerMap = newHashMap();
 
     final ClassInfoExtractor classInfoExtractor;
-    final EventDispatcher.Factory dispatcherFactory;
+    final Dispatcher.Factory dispatcherFactory;
 
     final EventLogger logger;
     final DeadEventHandler deadEventHandler;
     final EventInterceptor interceptor;
     final ErrorHandler errorHandler;
 
-    public AsyncBus(ClassInfoExtractor classInfoExtractor, EventDispatcher.Factory factory,
+    public AsyncBus(ClassInfoExtractor classInfoExtractor, Dispatcher.Factory factory,
                     ErrorHandler errorHandler, DeadEventHandler deadEventHandler,
                     EventLogger logger, EventInterceptor interceptor) {
         this.classInfoExtractor = classInfoExtractor;
@@ -152,7 +152,7 @@ public class AsyncBus implements Bus {
     Object invokeElement(AsyncElement element, Object... args) {
         try {
             Object result = element.invoke(args);
-            if(result != null && !element.isValid()) {//a bit ugly code, maybe better to check element type
+            if(result != null && !element.isValid()) {
                 //unregistered subscriber return event as result so we can handle dead event
                 deadEventHandler.onDeadEvent(result);
                 return null;
@@ -169,11 +169,11 @@ public class AsyncBus implements Bus {
     }
     //TODO need more dispatch methods (for task and services), maybe move all to BusService
     void dispatch(final AsyncElement subscriber, final Object event) {
-        if(subscriber.eventDispatcher.isDispatcherThread()) {
+        if(subscriber.dispatcher.isDispatcherThread()) {
             Object result = invokeElement(subscriber, event);
             if(result != null) post(result);//means this is @Process method
         } else {
-            subscriber.eventDispatcher.dispatch(new Runnable() {
+            subscriber.dispatcher.dispatch(new Runnable() {
                 @Override public void run() {
                     Object result = invokeElement(subscriber, event);
                     if(result != null) post(result);
@@ -183,11 +183,11 @@ public class AsyncBus implements Bus {
     }
 
     void dispatch(final AsyncElement producer, final AsyncElement subscriber) {
-        if(producer.eventDispatcher.isDispatcherThread()) {
+        if(producer.dispatcher.isDispatcherThread()) {
             Object event = produceEvent(producer, subscriber);
             if(event != null) dispatch(subscriber, event);
         } else {
-            producer.eventDispatcher.dispatch(new Runnable() {
+            producer.dispatcher.dispatch(new Runnable() {
                 @Override public void run() {
                     Object event = produceEvent(producer, subscriber);
                     if(event != null) dispatch(subscriber, event);
@@ -197,11 +197,11 @@ public class AsyncBus implements Bus {
     }
 
     void dispatch(final AsyncElement producer) {
-        if(producer.eventDispatcher.isDispatcherThread()) {
+        if(producer.dispatcher.isDispatcherThread()) {
             Object event = produceEvent(producer, null);
             if(event != null) post(event);
         } else {
-            producer.eventDispatcher.dispatch(new Runnable() {
+            producer.dispatcher.dispatch(new Runnable() {
                 @Override public void run() {
                     Object event = produceEvent(producer, null);
                     if(event != null) post(event);

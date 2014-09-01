@@ -1,8 +1,8 @@
 package kidnox.eventbus.test;
 
-import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.Dispatcher;
 
-public class SimpleEventDispatcher implements EventDispatcher {
+public class SimpleEventDispatcher implements Dispatcher {
 
     Runnable currentEvent;
 

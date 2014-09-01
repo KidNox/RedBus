@@ -9,7 +9,7 @@ import static kidnox.eventbus.internal.Utils.newHashMap;
 
 public final class InternalFactory {
 
-    public static final EventDispatcher CURRENT_THREAD_DISPATCHER = new EventDispatcher() {
+    public static final Dispatcher CURRENT_THREAD_DISPATCHER = new Dispatcher() {
 
         @Override public boolean isDispatcherThread() {
             return true;
@@ -22,9 +22,9 @@ public final class InternalFactory {
         return new ClassInfoExtractor.ClassInfoExtractorImpl();
     }
 
-    public static EventDispatcher.Factory getDefaultDispatcherFactory() {
-        return new EventDispatcher.Factory() {
-            @Override public EventDispatcher getDispatcher(String name) {
+    public static Dispatcher.Factory getDefaultDispatcherFactory() {
+        return new Dispatcher.Factory() {
+            @Override public Dispatcher getDispatcher(String name) {
                 if(name.isEmpty()) {
                     return InternalFactory.CURRENT_THREAD_DISPATCHER;
                 } else {
@@ -62,22 +62,22 @@ public final class InternalFactory {
         };
     }
 
-    public static EventDispatcher.Factory wrapFactoryWithCache(EventDispatcher.Factory factory) {
+    public static Dispatcher.Factory wrapFactoryWithCache(Dispatcher.Factory factory) {
         if(factory == null) return getDefaultDispatcherFactory();
         return new DispatchersFactoryCachedProxy(factory);
     }
 
-    public static class DispatchersFactoryCachedProxy implements EventDispatcher.Factory {
+    public static class DispatchersFactoryCachedProxy implements Dispatcher.Factory {
 
-        final Map<String, EventDispatcher> dispatchersMap = newHashMap(4);
-        final EventDispatcher.Factory dispatcherFactory;
+        final Map<String, Dispatcher> dispatchersMap = newHashMap(4);
+        final Dispatcher.Factory dispatcherFactory;
 
-        public DispatchersFactoryCachedProxy(EventDispatcher.Factory dispatcherFactory) {
+        public DispatchersFactoryCachedProxy(Dispatcher.Factory dispatcherFactory) {
             this.dispatcherFactory = dispatcherFactory;
         }
 
-        @Override public EventDispatcher getDispatcher(String dispatcherName) {
-            EventDispatcher dispatcher = dispatchersMap.get(dispatcherName);
+        @Override public Dispatcher getDispatcher(String dispatcherName) {
+            Dispatcher dispatcher = dispatchersMap.get(dispatcherName);
             if(dispatcher == null) {
                 dispatcher = dispatcherFactory.getDispatcher(dispatcherName);
                 if(dispatcher == null) {

@@ -12,11 +12,11 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-public class EventDispatcherFactoryTest {
+public class DispatcherFactoryTest {
 
     @Test public void dispatcherFactoryTest() {
-        AsyncBus bus = (AsyncBus) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
-            @Override public EventDispatcher getDispatcher(String name) {
+        AsyncBus bus = (AsyncBus) Bus.Factory.builder().withEventDispatcherFactory(new Dispatcher.Factory() {
+            @Override public Dispatcher getDispatcher(String name) {
                 fail("must not be called");
                 return null;
             }
@@ -29,8 +29,8 @@ public class EventDispatcherFactoryTest {
         bus.unregister(target);
 
         final SimpleEventDispatcher dispatcher = new SimpleEventDispatcher();
-        bus = (AsyncBus) Bus.Factory.builder().withEventDispatcherFactory(new EventDispatcher.Factory() {
-            @Override public EventDispatcher getDispatcher(String dispatcherName) {
+        bus = (AsyncBus) Bus.Factory.builder().withEventDispatcherFactory(new Dispatcher.Factory() {
+            @Override public Dispatcher getDispatcher(String dispatcherName) {
                 return dispatcher;
             }
         }).create();

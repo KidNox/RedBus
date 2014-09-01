@@ -1,13 +1,13 @@
 package kidnox.eventbus.internal.element;
 
-import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.Dispatcher;
 
 public final class ServiceElement extends Element {
 
-    public final EventDispatcher eventDispatcher;
+    public final Dispatcher dispatcher;
 
-    public ServiceElement(ElementInfo elementInfo, Object target, EventDispatcher eventDispatcher) {
+    public ServiceElement(ElementInfo elementInfo, Object target, Dispatcher dispatcher) {
         super(elementInfo, target);
-        this.eventDispatcher = eventDispatcher;
+        this.dispatcher = dispatcher;
     }
 }

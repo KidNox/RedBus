@@ -1,21 +1,21 @@
 package kidnox.eventbus.internal.element;
 
-import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.internal.Utils;
 
 import java.lang.reflect.InvocationTargetException;
 
 public final class AsyncElement extends Element {
 
-    public final EventDispatcher eventDispatcher;
+    public final Dispatcher dispatcher;
 
     //Mutable, but not volatile.
     //Unregister should be called from eventDispatcher thread, otherwise invoke may be called after unregister.
     private boolean valid = true;
 
-    public AsyncElement(Object target, ElementInfo elementInfo, EventDispatcher dispatcher) {
+    public AsyncElement(Object target, ElementInfo elementInfo, Dispatcher dispatcher) {
         super(elementInfo, target);
-        this.eventDispatcher = dispatcher;
+        this.dispatcher = dispatcher;
     }
 
     public void onUnregister() {

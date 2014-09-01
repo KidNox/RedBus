@@ -107,8 +107,8 @@ public class AsyncTest {
     }
 
     @Test public void testAsyncDispatcherFactory() throws InterruptedException {
-        final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
+                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder()
                 .withEventDispatcherFactory(factory)
                 .create();
@@ -135,7 +135,7 @@ public class AsyncTest {
 
     @Test (timeout = 1000)
     public void asyncSubscriberUnregisterTest() throws InterruptedException {
-        final EventDispatcher.Factory factory = new AsyncDispatcherFactory("worker");
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
         //here we catch event, that posted after async unregister
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
         final Bus bus = Bus.Factory.builder()
@@ -193,13 +193,13 @@ public class AsyncTest {
     public void produceTest() throws InterruptedException {
         final Thread thread = Thread.currentThread();
 
-        final EventDispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(EventDispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
+                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
         final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
 
-        final SingleThreadEventDispatcher worker = TestUtils.getSTWorkerForName(EventDispatcher.WORKER, factory);
+        final SingleThreadEventDispatcher worker = TestUtils.getSTWorkerForName(Dispatcher.WORKER, factory);
 
-        @Subscriber(EventDispatcher.WORKER)
+        @Subscriber(Dispatcher.WORKER)
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Event event) {
                 currentEvent = event;
@@ -231,7 +231,7 @@ public class AsyncTest {
 
     @Test(timeout = 1000)
     public void asyncProduceTest() throws InterruptedException {
-        final EventDispatcher.Factory factory = new AsyncDispatcherFactory("subscriber", "producer");
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory("subscriber", "producer");
         final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
 
         final Semaphore semaphore = new Semaphore(0, true);
@@ -288,7 +288,7 @@ public class AsyncTest {
 
     @Test (timeout = 1000)
     public void asyncProducerUnregisterTest() throws InterruptedException {
-        final EventDispatcher.Factory factory = new AsyncDispatcherFactory("worker");
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
         final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
 
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");

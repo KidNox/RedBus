@@ -1,10 +1,10 @@
 package kidnox.eventbus.util;
 
-import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.Dispatcher;
 
 import java.util.concurrent.*;
 
-public class SingleThreadEventDispatcher extends ThreadPoolExecutor implements EventDispatcher {
+public class SingleThreadEventDispatcher extends ThreadPoolExecutor implements Dispatcher {
 
     final SingleThreadFactory threadFactory;
 

@@ -1,6 +1,6 @@
 package kidnox.eventbus.test;
 
-import kidnox.eventbus.EventDispatcher;
+import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.util.AsyncDispatcherFactory;
 import kidnox.eventbus.util.SingleThreadEventDispatcher;
 
@@ -12,8 +12,8 @@ public class TestUtils {
         }
     }
 
-    public static SingleThreadEventDispatcher getSTWorkerForName(String name, EventDispatcher.Factory factory) {
-        EventDispatcher dispatcher = factory.getDispatcher(name);
+    public static SingleThreadEventDispatcher getSTWorkerForName(String name, Dispatcher.Factory factory) {
+        Dispatcher dispatcher = factory.getDispatcher(name);
         if(dispatcher instanceof SingleThreadEventDispatcher) {
             return ((SingleThreadEventDispatcher)dispatcher);
         }

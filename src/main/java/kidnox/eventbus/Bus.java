@@ -21,7 +21,7 @@ public interface Bus {
 
     public static final class Factory {
 
-        public static Bus createBus(EventDispatcher.Factory dispatcherFactory, ErrorHandler exHandler,
+        public static Bus createBus(Dispatcher.Factory dispatcherFactory, ErrorHandler exHandler,
                                     DeadEventHandler deadEvHandler, EventLogger logger, EventInterceptor interceptor) {
 
             ClassInfoExtractor extractor = createClassInfoExtractor();

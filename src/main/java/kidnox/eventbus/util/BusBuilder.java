@@ -11,7 +11,7 @@ public final class BusBuilder {
     DeadEventHandler deadEventHandler;
     EventInterceptor interceptor;
     ErrorHandler errorHandler;
-    EventDispatcher.Factory dispatcherFactory;
+    Dispatcher.Factory dispatcherFactory;
 
     BusBuilder() {
     }
@@ -40,7 +40,7 @@ public final class BusBuilder {
         return this;
     }
 
-    public BusBuilder withEventDispatcherFactory(EventDispatcher.Factory factory) {
+    public BusBuilder withEventDispatcherFactory(Dispatcher.Factory factory) {
         this.dispatcherFactory = checkNotNull(factory);
         return this;
     }
