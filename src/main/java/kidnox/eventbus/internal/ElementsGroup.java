@@ -1,15 +1,25 @@
 package kidnox.eventbus.internal;
-//TODO replace with abstract class with AsyncBus reference?
-public interface ElementsGroup {
 
-    void registerGroup(Object target);
+import kidnox.eventbus.Dispatcher;
 
-    void unregisterGroup();
+public abstract class ElementsGroup {
+
+    protected final ClassInfo classInfo;
+    protected final Dispatcher dispatcher;
+
+    protected ElementsGroup(ClassInfo classInfo, Dispatcher dispatcher) {
+        this.classInfo = classInfo;
+        this.dispatcher = dispatcher;
+    }
+
+    public abstract void registerGroup(Object target, AsyncBus bus);
+
+    public abstract void unregisterGroup(AsyncBus bus);
 
 
-    ElementsGroup EMPTY = new ElementsGroup() {
-        @Override public void registerGroup(Object target) { }
+    static final ElementsGroup EMPTY = new ElementsGroup(null, null) {
+        @Override public void registerGroup(Object target, AsyncBus asyncBus) { }
 
-        @Override public void unregisterGroup() { }
+        @Override public void unregisterGroup(AsyncBus bus) { }
     };
 }

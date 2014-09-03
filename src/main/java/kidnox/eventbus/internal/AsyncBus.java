@@ -1,17 +1,14 @@
 package kidnox.eventbus.internal;
 
 import kidnox.eventbus.*;
-import kidnox.eventbus.internal.element.AsyncElement;
-import kidnox.eventbus.internal.element.ElementInfo;
-import kidnox.eventbus.internal.element.ProducerGroup;
-import kidnox.eventbus.internal.element.SubscriberGroup;
+import kidnox.eventbus.internal.element.*;
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static kidnox.eventbus.internal.Utils.*;
-//TODO figure out about ElementGroup and reference to element maps (maybe create BusService)
+
 public class AsyncBus implements Bus {
 
     final Map<Object, ElementsGroup> instanceToElementsMap = newHashMap();
@@ -22,10 +19,10 @@ public class AsyncBus implements Bus {
     final ClassInfoExtractor classInfoExtractor;
     final Dispatcher.Factory dispatcherFactory;
 
-    final EventLogger logger;
-    final DeadEventHandler deadEventHandler;
-    final EventInterceptor interceptor;
     final ErrorHandler errorHandler;
+    final DeadEventHandler deadEventHandler;
+    final EventLogger logger;
+    final EventInterceptor interceptor;
 
     public AsyncBus(ClassInfoExtractor classInfoExtractor, Dispatcher.Factory factory,
                     ErrorHandler errorHandler, DeadEventHandler deadEventHandler,
@@ -39,20 +36,22 @@ public class AsyncBus implements Bus {
     }
 
     @Override synchronized public void register(Object target) {
-        final ClassInfo classInfo = classInfoExtractor.getClassInfo(target.getClass());
+        ClassInfo classInfo = classInfoExtractor.getClassInfo(target.getClass());
+        Dispatcher dispatcher = classInfo.annotationValue == null ?
+                null : dispatcherFactory.getDispatcher(classInfo.annotationValue);
         ElementsGroup elementsGroup = null;
         switch (classInfo.type) {
             case SUBSCRIBER:
-                elementsGroup = registerSubscriber(target, classInfo);
+                elementsGroup = new SubscriberGroup(classInfo, dispatcher);
                 break;
             case PRODUCER:
-                elementsGroup = registerProducer(target, classInfo);
+                elementsGroup = new ProducerGroup(classInfo, dispatcher);
                 break;
             case TASK:
-                elementsGroup = registerTask(target, classInfo);
+                elementsGroup = new TaskGroup(classInfo, dispatcher);
                 break;
             case SERVICE:
-                elementsGroup = registerService(target, classInfo);
+                elementsGroup = new ServiceGroup(classInfo, dispatcher);
                 break;
             case NONE:
                 elementsGroup = ElementsGroup.EMPTY;
@@ -60,7 +59,7 @@ public class AsyncBus implements Bus {
         }
         if(instanceToElementsMap.put(target, elementsGroup) != null)
             throwBusException("register", target, " already registered");
-        elementsGroup.registerGroup(target);
+        elementsGroup.registerGroup(target, this);
     }
 
     @Override synchronized public void unregister(Object target) {
@@ -68,7 +67,7 @@ public class AsyncBus implements Bus {
         ElementsGroup elementsGroup = instanceToElementsMap.remove(target);
         if(elementsGroup == null)
             throwBusException("unregister", target, " not registered");
-        else elementsGroup.unregisterGroup();
+        else elementsGroup.unregisterGroup(this);
     }
 
     @Override synchronized public void post(Object event) {
@@ -87,54 +86,28 @@ public class AsyncBus implements Bus {
         }
     }
 
-    ElementsGroup registerSubscriber(Object target, ClassInfo classInfo) {
-        final boolean checkProducers = eventTypeToProducerMap.size() > 0;
-        final List<AsyncElement> subscribers = new LinkedList<AsyncElement>();
-        for(ElementInfo entry : classInfo.elements) {
-            final AsyncElement subscriber = new AsyncElement(target, entry,
-                    dispatcherFactory.getDispatcher(classInfo.annotationValue));
-            subscribers.add(subscriber);
-            if(checkProducers) {
-                AsyncElement producer = eventTypeToProducerMap.get(subscriber.eventType);
-                if(producer != null) {
-                    dispatch(producer, subscriber);
-                }
-            }
-            Set<AsyncElement> set = eventTypeToSubscribersMap.get(subscriber.eventType);
-            if (set == null) {
-                set = newHashSet(2);
-                eventTypeToSubscribersMap.put(subscriber.eventType, set);
-            }
-            set.add(subscriber);
-        }
-        return new SubscriberGroup(subscribers, eventTypeToSubscribersMap);
+    public Set<AsyncElement> getSubscribers(Class eventType) {
+        return eventTypeToSubscribersMap.get(eventType);
     }
 
-    ElementsGroup registerProducer(Object target, ClassInfo classInfo) {
-        List<AsyncElement> producers = new LinkedList<AsyncElement>();
-        for(ElementInfo entry : classInfo.elements) {
-            final AsyncElement producer = new AsyncElement(target, entry,
-                    dispatcherFactory.getDispatcher(classInfo.annotationValue));
-            if(eventTypeToProducerMap.put(producer.eventType, producer) != null) {
-                throwBusException("register", target, " producer for event "
-                        + producer.eventType + " already registered");
-            }
-            producers.add(producer);
-            final Set<AsyncElement> subscribers = eventTypeToSubscribersMap.get(producer.eventType);
-            if(notEmpty(subscribers)) {
-                dispatch(producer);
-            }
-        }
-        return new ProducerGroup(producers, eventTypeToProducerMap);
+    public Set<AsyncElement> putSubscribers(Class eventType, Set<AsyncElement> subscribers) {
+        return eventTypeToSubscribersMap.put(eventType, subscribers);
     }
 
-    ElementsGroup registerService(Object target, ClassInfo classInfo) {
-        //TODO
-        return null;
+    public AsyncElement getProducer(Class eventType) {
+        return eventTypeToProducerMap.get(eventType);
     }
 
-    ElementsGroup registerTask(Object target, ClassInfo classInfo) {
-        return null;//TODO
+    public AsyncElement putProducer(Class eventType, AsyncElement producer) {
+        return eventTypeToProducerMap.put(eventType, producer);
+    }
+
+    public AsyncElement removeProducer(Class eventType) {
+        return eventTypeToProducerMap.remove(eventType);
+    }
+
+    public boolean checkProducers() {
+        return eventTypeToProducerMap.size() > 0;
     }
 
     Object produceEvent(AsyncElement producer, Object target) {
@@ -149,7 +122,7 @@ public class AsyncBus implements Bus {
 
     //////////////////////////////////////////////////////////////
 
-    Object invokeElement(AsyncElement element, Object... args) {
+    public Object invokeElement(AsyncElement element, Object... args) {
         try {
             Object result = element.invoke(args);
             if(result != null && !element.isValid()) {
@@ -159,16 +132,15 @@ public class AsyncBus implements Bus {
             }
             return result;
         } catch (InvocationTargetException e) {
-            if(errorHandler != null &&
-                    errorHandler.handle(e.getCause(), element.target, args.length == 0 ? null : args[0])) {
+            if(errorHandler.handle(e.getCause(), element.target, args.length == 0 ? null : args[0])) {
                 return null;
             } else {
                 throw new RuntimeException(e.getCause());
             }
         }
     }
-    //TODO need more dispatch methods (for task and services), maybe move all to BusService
-    void dispatch(final AsyncElement subscriber, final Object event) {
+    //TODO need more dispatch methods (for task and services), maybe move all to BusService or create separate dispatchers
+    public void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.dispatcher.isDispatcherThread()) {
             Object result = invokeElement(subscriber, event);
             if(result != null) post(result);//means this is @Process method
@@ -182,7 +154,7 @@ public class AsyncBus implements Bus {
         }
     }
 
-    void dispatch(final AsyncElement producer, final AsyncElement subscriber) {
+    public void dispatch(final AsyncElement producer, final AsyncElement subscriber) {
         if(producer.dispatcher.isDispatcherThread()) {
             Object event = produceEvent(producer, subscriber);
             if(event != null) dispatch(subscriber, event);
@@ -196,7 +168,7 @@ public class AsyncBus implements Bus {
         }
     }
 
-    void dispatch(final AsyncElement producer) {
+    public void dispatch(final AsyncElement producer) {
         if(producer.dispatcher.isDispatcherThread()) {
             Object event = produceEvent(producer, null);
             if(event != null) post(event);

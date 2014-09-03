@@ -1,28 +1,47 @@
 package kidnox.eventbus.internal.element;
 
+import kidnox.eventbus.Dispatcher;
+import kidnox.eventbus.internal.AsyncBus;
+import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.ElementsGroup;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public final class SubscriberGroup implements ElementsGroup {
+import static kidnox.eventbus.internal.Utils.newHashSet;
 
-    final List<AsyncElement> subscribers;
-    final Map<Class, Set<AsyncElement>> mapReference;
+public final class SubscriberGroup extends ElementsGroup {
 
-    public SubscriberGroup(List<AsyncElement> subscribers, Map<Class, Set<AsyncElement>> mapReference) {
-        this.subscribers = subscribers;
-        this.mapReference = mapReference;
+    final List<AsyncElement> subscribers = new LinkedList<AsyncElement>();
+
+    public SubscriberGroup(ClassInfo classInfo, Dispatcher dispatcher) {
+        super(classInfo, dispatcher);
     }
 
-    @Override public void registerGroup(Object target) {
-
+    @Override public void registerGroup(Object target, AsyncBus bus) {
+        final boolean checkProducers = bus.checkProducers();
+        for(ElementInfo entry : classInfo.elements) {
+            final AsyncElement subscriber = new AsyncElement(target, entry, dispatcher);
+            subscribers.add(subscriber);
+            if(checkProducers) {
+                AsyncElement producer = bus.getProducer(subscriber.eventType);
+                if(producer != null) {
+                    bus.dispatch(producer, subscriber);
+                }
+            }
+            Set<AsyncElement> set = bus.getSubscribers(subscriber.eventType);
+            if (set == null) {
+                set = newHashSet(2);
+                bus.putSubscribers(subscriber.eventType, set);
+            }
+            set.add(subscriber);
+        }
     }
 
-    @Override public void unregisterGroup() {
+    @Override public void unregisterGroup(AsyncBus bus) {
         for (AsyncElement subscriber : subscribers) {
-            mapReference.get(subscriber.eventType).remove(subscriber);
+            bus.getSubscribers(subscriber.eventType).remove(subscriber);
             subscriber.onUnregister();
         }
     }
