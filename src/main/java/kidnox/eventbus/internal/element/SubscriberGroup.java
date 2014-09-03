@@ -20,6 +20,7 @@ public final class SubscriberGroup extends ElementsGroup {
     }
 
     @Override public void registerGroup(Object target, AsyncBus bus) {
+        super.registerGroup(target, bus);
         final boolean checkProducers = bus.checkProducers();
         for(ElementInfo entry : classInfo.elements) {
             final AsyncElement subscriber = new AsyncElement(target, entry, dispatcher);
@@ -39,7 +40,8 @@ public final class SubscriberGroup extends ElementsGroup {
         }
     }
 
-    @Override public void unregisterGroup(AsyncBus bus) {
+    @Override public void unregisterGroup(Object target, AsyncBus bus) {
+        super.unregisterGroup(target, bus);
         for (AsyncElement subscriber : subscribers) {
             bus.getSubscribers(subscriber.eventType).remove(subscriber);
             subscriber.onUnregister();

@@ -10,8 +10,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.Map;
 
-import static kidnox.eventbus.internal.Utils.isNullOrEmpty;
-import static kidnox.eventbus.internal.Utils.newHashMap;
+import static kidnox.eventbus.internal.Utils.*;
 import static kidnox.eventbus.internal.extraction.ExtractionUtils.*;
 
 interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
@@ -48,9 +47,9 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
             return true;
         }
     };
-    //EventTask can contain only one element(maybe onRegister?) or 3 (with register/unregister), figure out about that
+
     ClassInfoExtractorStrategy<EventTask> TASK = new InheritanceNotSupportedStrategy<EventTask>
-            (ClassType.TASK, Execute.class) {//TODO
+            (ClassType.TASK, OnRegister.class, OnUnregister.class, Execute.class, Schedule.class) {
 
         @Override String getAnnotationValue(EventTask annotation) {
             return annotation.value();
@@ -166,8 +165,15 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
             if(elementsMap == null) {
                 return new ClassInfo(clazz, type, annotationValue, Collections.<ElementInfo>emptyList());
             } else {
-                ElementInfo onRegister = elementsMap.remove(REGISTER_TYPE_KEY);
-                ElementInfo onUnregister = elementsMap.remove(UNREGISTER_TYPE_KEY);
+                ElementInfo onRegister = elementsMap.remove(REGISTER_VOID_KEY);
+                ElementInfo onRegisterBusType = elementsMap.remove(REGISTER_BUS_KEY);
+                if(onRegister == null) {
+                    onRegister = onRegisterBusType;
+                } else {
+                    if(onRegisterBusType != null)
+                        throw new BusException("to many @OnRegister methods, can be only one");
+                }
+                ElementInfo onUnregister = elementsMap.remove(UNREGISTER_VOID_KEY);
                 return new ClassInfo(clazz, type, annotationValue, elementsMap.values(), onRegister, onUnregister);
             }
         }

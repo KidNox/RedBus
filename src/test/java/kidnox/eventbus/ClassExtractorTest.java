@@ -93,22 +93,6 @@ public class ClassExtractorTest {
         assertEquals(1, classInfoExtractor.getClassInfo(TestSubscriber2.class).elements.size());
     }
 
-    @Test public void sameSubscribeMethodTest() {
-        @Subscriber
-        class Subscriber1 {
-            @Subscribe public void obtainEvent1(Event event) {}
-
-            @Subscribe public void obtainEvent2(Event event) {}
-        }
-
-        try {
-            classInfoExtractor.getClassInfo(Subscriber1.class);
-            fail("to many subscribers for event");
-        } catch (RuntimeException ignored) {
-            //ignored.printStackTrace();
-        }
-    }
-
     @Test(expected = BusException.class)
     public void sameExtSubscriberTest() {
         @Subscriber
@@ -116,26 +100,6 @@ public class ClassExtractorTest {
             @Subscribe public void obtainEvent2(Event event) {}
         }
         classInfoExtractor.getClassInfo(Subscriber1.class);
-    }
-
-    @Test public void sameProduceMethodTest() {
-        @Producer
-        class Producer1 {
-            @Produce public Event produceEvent1() {
-                return new Event();
-            }
-
-            @Produce public Event produceEvent2() {
-                return new Event();
-            }
-        }
-
-        try {
-            classInfoExtractor.getClassInfo(Producer1.class);
-            fail("to many producers for event");
-        } catch (RuntimeException ignored) {
-            //ignored.printStackTrace();
-        }
     }
 
     @Test(expected = BusException.class)

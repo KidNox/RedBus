@@ -21,6 +21,7 @@ public final class ProducerGroup extends ElementsGroup {
     }
 
     @Override public void registerGroup(Object target, AsyncBus bus) {
+        super.registerGroup(target, bus);
         for(ElementInfo entry : classInfo.elements) {
             final AsyncElement producer = new AsyncElement(target, entry, dispatcher);
             if(bus.putProducer(producer.eventType, producer) != null) {
@@ -35,7 +36,8 @@ public final class ProducerGroup extends ElementsGroup {
         }
     }
 
-    @Override public void unregisterGroup(AsyncBus bus) {
+    @Override public void unregisterGroup(Object target, AsyncBus bus) {
+        super.unregisterGroup(target, bus);
         for(AsyncElement producer : producers) {
             bus.removeProducer(producer.eventType);
             producer.onUnregister();

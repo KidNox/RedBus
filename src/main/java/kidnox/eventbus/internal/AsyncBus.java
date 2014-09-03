@@ -67,7 +67,7 @@ public class AsyncBus implements Bus {
         ElementsGroup elementsGroup = instanceToElementsMap.remove(target);
         if(elementsGroup == null)
             throwBusException("unregister", target, " not registered");
-        else elementsGroup.unregisterGroup(this);
+        else elementsGroup.unregisterGroup(target, this);
     }
 
     @Override synchronized public void post(Object event) {
@@ -122,10 +122,10 @@ public class AsyncBus implements Bus {
 
     //////////////////////////////////////////////////////////////
 
-    public Object invokeElement(AsyncElement element, Object... args) {
+    public Object invokeElement(Element element, Object... args) {
         try {
             Object result = element.invoke(args);
-            if(result != null && !element.isValid()) {
+            if(result != null && element.elementInfo.elementType == ElementType.SUBSCRIBE) {
                 //unregistered subscriber return event as result so we can handle dead event
                 deadEventHandler.onDeadEvent(result);
                 return null;
@@ -143,7 +143,7 @@ public class AsyncBus implements Bus {
     public void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.dispatcher.isDispatcherThread()) {
             Object result = invokeElement(subscriber, event);
-            if(result != null) post(result);//means this is @Process method
+            if(result != null) post(result);//means this is @Handle method
         } else {
             subscriber.dispatcher.dispatch(new Runnable() {
                 @Override public void run() {

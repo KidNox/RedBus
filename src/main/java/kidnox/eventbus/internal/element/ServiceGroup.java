@@ -15,10 +15,10 @@ public final class ServiceGroup extends ElementsGroup {
     }
 
     @Override public void registerGroup(Object target, AsyncBus bus) {
-
+        super.registerGroup(target, bus);
     }
 
-    @Override public void unregisterGroup(AsyncBus bus) {
-
+    @Override public void unregisterGroup(Object target, AsyncBus bus) {
+        super.unregisterGroup(target, bus);
     }
 }

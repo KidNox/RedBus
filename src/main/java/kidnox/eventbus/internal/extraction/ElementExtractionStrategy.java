@@ -1,10 +1,12 @@
 package kidnox.eventbus.internal.extraction;
 
+import kidnox.eventbus.Bus;
 import kidnox.eventbus.internal.element.ElementInfo;
 import kidnox.eventbus.internal.element.ElementType;
 
 import java.lang.reflect.Method;
 
+import static kidnox.eventbus.internal.Utils.*;
 import static kidnox.eventbus.internal.extraction.ExtractionUtils.*;
 
 interface ElementExtractionStrategy {
@@ -15,9 +17,14 @@ interface ElementExtractionStrategy {
         @Override public ElementInfo extract(Method method, Class target) {
             if (method.getReturnType() != void.class)
                 throwBadMethodException(method, "with @Register must return void type.");
-            if (method.getParameterTypes().length != 0)//TODO maybe allow Bus type argument?
-                throwBadMethodException(method, "with @Register must require zero arguments.");
-            return new ElementInfo(ElementType.REGISTER, REGISTER_TYPE_KEY, method);
+            Class[] params = method.getParameterTypes();
+            if (params.length == 0)
+                return new ElementInfo(ElementType.REGISTER, REGISTER_VOID_KEY, method);
+            else if (params.length == 1 && params[0] == Bus.class)
+                return new ElementInfo(ElementType.REGISTER, REGISTER_BUS_KEY, method);
+            else throwBadMethodException(method,
+                        "with @Register must require zero arguments or one argument of Bus type.");
+            return null;
         }
     };
 
@@ -27,7 +34,7 @@ interface ElementExtractionStrategy {
                 throwBadMethodException(method, "with @Unregister must return void type.");
             if (method.getParameterTypes().length != 0)
                 throwBadMethodException(method, "with @Unregister must require zero arguments.");
-            return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_TYPE_KEY, method);
+            return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_VOID_KEY, method);
         }
     };
 
@@ -86,7 +93,7 @@ interface ElementExtractionStrategy {
                 throwBadMethodException(method, "with @Execute must return void type.");
             if (method.getParameterTypes().length != 0)
                 throwBadMethodException(method, "with @Execute must require zero arguments.");
-            return new ElementInfo(ElementType.EXECUTE, EXECUTE_TYPE_KEY, method);
+            return new ElementInfo(ElementType.EXECUTE, EXECUTE_VOID_KEY, method);
         }
     };
 

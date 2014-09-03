@@ -37,26 +37,16 @@ public final class Utils {
         throw new BusException(action + " was failed " + cause + message);
     }
 
-/*    public static <K, V> MapBuilder<K, V> unmodifiableMap(int size) {
-        return new MapBuilder<K, V>(new HashMap<K, V>(size));
-    }
+    public static final Class REGISTER_VOID_KEY = OnRegisterVoidType.class;
+    public static final Class REGISTER_BUS_KEY = OnRegisterBusType.class;
+    public static final Class UNREGISTER_VOID_KEY = OnUnregisterVoidType.class;
+    public static final Class EXECUTE_VOID_KEY = ExecuteVoidType.class;
 
-    public static class MapBuilder<K, V> {
-        final Map<K, V> tempMap;
+    private static class OnRegisterVoidType {}
+    private static class OnRegisterBusType {}
+    private static class OnUnregisterVoidType {}
+    private static class ExecuteVoidType {}
 
-        MapBuilder(Map<K, V> tempMap) {
-            this.tempMap = tempMap;
-        }
-
-        public MapBuilder<K, V> with(K key, V value) {
-            tempMap.put(key, value);
-            return this;
-        }
-
-        public Map<K, V> map() {
-            return Collections.unmodifiableMap(tempMap);
-        }
-    }*/
 
     //no instance
     private Utils() {}

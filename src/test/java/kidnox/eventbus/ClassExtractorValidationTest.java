@@ -2,6 +2,8 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
+import kidnox.eventbus.test.Event;
+import kidnox.eventbus.test.Event2;
 import kidnox.eventbus.test.SimpleProducer;
 import kidnox.eventbus.test.SimpleSubscriber;
 import kidnox.eventbus.test.bad.*;
@@ -27,6 +29,12 @@ public class ClassExtractorValidationTest {
                 {new VoidReturnTypeProducer()},
                 {new WrongMethodArgsNumberProducer()},
                 {new InterfaceEventProducer()},
+                {new SameEventsSubscriber()},
+                {new SameEventsProducer()},
+                {new SameEventsHandler()},
+                {new SameEventsSubscriberHandler()},
+                {new WrongArgsEventHandler()},
+                {new WrongReturnTypeHandler()},
                 {new WrongInheritDispatcherSubscriber()},
                 {new WrongInheritDispatcherProducer()}});
     }
@@ -87,6 +95,59 @@ public class ClassExtractorValidationTest {
         @Subscribe public void obtainEvent(Runnable event) {}
     }
 
+    @Subscriber
+    private static class SameEventsSubscriber extends BadClass {
+        public SameEventsSubscriber() {
+            super("to many subscribers for event");
+        }
+
+        @Subscribe public void obtainEvent1(Event event) {}
+
+        @Subscribe public void obtainEvent2(Event event) {}
+    }
+
+    @Producer
+    private static class SameEventsProducer extends BadClass {
+        public SameEventsProducer() {
+            super("to many producers for event");
+        }
+
+        @Produce public Event produceEvent1() {
+            return new Event();
+        }
+
+        @Produce public Event produceEvent2() {
+            return new Event();
+        }
+    }
+
+    @Subscriber
+    private static class SameEventsHandler extends BadClass {
+        public SameEventsHandler() {
+            super("to many event handlers for event");
+        }
+
+        @Handle public Event2 handleEvent(Event event) {
+            return null;
+        }
+
+        @Handle public Object handleEvent2(Event event) {
+            return null;
+        }
+    }
+
+    @Subscriber
+    private static class SameEventsSubscriberHandler extends BadClass {
+        public SameEventsSubscriberHandler() {
+            super("same event for subscriber and event handler");
+        }
+
+        @Handle public Event2 handleEvent(Event event) {
+            return null;
+        }
+
+        @Handle public void obtainEvent(Event event) { }
+    }
 
     @Producer
     private static class VoidReturnTypeProducer extends BadClass {
@@ -117,6 +178,26 @@ public class ClassExtractorValidationTest {
         @Produce public Runnable produceEvent() {
             return null;
         }
+    }
+
+    @Subscriber
+    private static class WrongArgsEventHandler extends BadClass {
+        public WrongArgsEventHandler() {
+            super("method annotated with @Handle must require a single element.");
+        }
+
+        @Handle public Event handleEvent() {
+            return null;
+        }
+    }
+
+    @Subscriber
+    private static class WrongReturnTypeHandler extends BadClass {
+        public WrongReturnTypeHandler() {
+            super("method annotated with @Handle can't be void.");
+        }
+
+        @Handle public void handleEvent(Event event) {}
     }
 
     @Subscriber("wrong")

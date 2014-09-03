@@ -8,7 +8,7 @@ public class Element {
     public final ElementInfo elementInfo;
     public final Object target;
 
-    protected Element(ElementInfo elementInfo, Object target) {
+    public Element(ElementInfo elementInfo, Object target) {
         this.elementInfo = elementInfo;
         this.eventType = elementInfo.eventType;
         this.target = target;
