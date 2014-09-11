@@ -18,7 +18,7 @@ public @interface Schedule {
 
     long period();
 
-    TimeUnit timeUnit();
+    TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
 
     /**infinite when -1*/
     int times() default -1;
