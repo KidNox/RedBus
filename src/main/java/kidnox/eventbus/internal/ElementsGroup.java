@@ -16,15 +16,35 @@ public class ElementsGroup {
     public void registerGroup(Object target, AsyncBus bus) {
         if(classInfo.onRegisterListener != null) {
             if(classInfo.onRegisterListener.eventType == Utils.REGISTER_BUS_KEY)
-                bus.invokeElement(new Element(classInfo.onRegisterListener, target), bus);
+                dispatch(new Element(classInfo.onRegisterListener, target), bus, bus);
             else
-                bus.invokeElement(new Element(classInfo.onRegisterListener, target));
+                dispatch(new Element(classInfo.onRegisterListener, target), bus, null);
         }
     }
 
     public void unregisterGroup(Object target, AsyncBus bus) {
         if(classInfo.onUnRegisterListener != null) {
-            bus.invokeElement(new Element(classInfo.onUnRegisterListener, target));
+            dispatch(new Element(classInfo.onUnRegisterListener, target), bus, null);
+        }
+    }
+
+    protected void dispatch(final Element element, final AsyncBus bus, final Object param) {
+        if(dispatcher.isDispatcherThread()) {
+            invokeElement(element, bus, param);
+        } else {
+            dispatcher.dispatch(new Runnable() {
+                @Override public void run() {
+                    invokeElement(element, bus, param);
+                }
+            });
+        }
+    }
+
+    protected void invokeElement(Element element, AsyncBus bus, Object param) {
+        if(param == null) {
+            bus.invokeElement(element);
+        } else {
+            bus.invokeElement(element, param);
         }
     }
 
