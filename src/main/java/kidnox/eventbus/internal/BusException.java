@@ -1,8 +1,10 @@
 package kidnox.eventbus.internal;
 
 public final class BusException extends RuntimeException {
-    public BusException() {
-    }
+
+    private static final long serialVersionUID = -2544973023435911787L;
+
+    public BusException() {}
 
     public BusException(String message) {
         super(message);

@@ -339,6 +339,14 @@ public class AsyncTest {
         assertFalse(isRegistered.get());
     }
 
+    @Test public void asyncRegisterTest() {
+        @Subscriber class SubscriberWithListener {
+            @OnRegister public void onrRegister() {
+
+            }
+        }
+    }
+
     private void checkThread(Thread expected) {
         assertEquals("wrong thread", expected, Thread.currentThread());
     }

@@ -50,9 +50,6 @@ public class AsyncBus implements Bus {
             case TASK:
                 elementsGroup = new TaskGroup(classInfo, dispatcher);
                 break;
-            case SERVICE:
-                elementsGroup = new ServiceGroup(classInfo, dispatcher);
-                break;
             case NONE:
                 elementsGroup = ElementsGroup.EMPTY;
                 break;
@@ -139,7 +136,7 @@ public class AsyncBus implements Bus {
             }
         }
     }
-    //TODO need more dispatch methods (for task and services), maybe move all to BusService or create separate dispatchers
+    //TODO need more dispatch methods (for task), maybe move all to BusService or create separate dispatchers
     public void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.dispatcher.isDispatcherThread()) {
             Object result = invokeElement(subscriber, event);

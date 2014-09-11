@@ -26,14 +26,12 @@ final class ExtractionUtils {
         mEES.put(Produce.class, PRODUCE);
         mEES.put(Handle.class, HANDLE);
         mEES.put(Execute.class, EXECUTE);
-        mEES.put(EventService.class, SERVICE);
         ELEMENT_STRATEGIES = Collections.unmodifiableMap(mEES);
 
         Map<Class<? extends Annotation>, ClassInfoExtractorStrategy> mCES = newHashMap(4);
         mCES.put(Subscriber.class, SUBSCRIBER);
         mCES.put(Producer.class, PRODUCER);
         mCES.put(EventTask.class, TASK);
-        mCES.put(EventServiceFactory.class, SERVICE_FACTORY);
         CLASS_STRATEGIES = Collections.unmodifiableMap(mCES);
     }
 

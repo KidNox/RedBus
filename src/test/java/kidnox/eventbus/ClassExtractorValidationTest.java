@@ -4,8 +4,6 @@ import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.test.Event;
 import kidnox.eventbus.test.Event2;
-import kidnox.eventbus.test.SimpleProducer;
-import kidnox.eventbus.test.SimpleSubscriber;
 import kidnox.eventbus.test.bad.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -88,22 +88,12 @@ interface ElementExtractionStrategy {
     };
 
     ElementExtractionStrategy EXECUTE = new ElementExtractionStrategy() {
-        @Override public ElementInfo extract(Method method, Class target) {
+        @Override public ElementInfo extract(Method method, Class target) {//TODO allow bus type argument
             if (method.getReturnType() != void.class)
                 throwBadMethodException(method, "with @Execute must return void type.");
             if (method.getParameterTypes().length != 0)
                 throwBadMethodException(method, "with @Execute must require zero arguments.");
             return new ElementInfo(ElementType.EXECUTE, EXECUTE_VOID_KEY, method);
-        }
-    };
-
-    ElementExtractionStrategy SERVICE = new ElementExtractionStrategy() {
-        @Override public ElementInfo extract(Method method, Class target) {
-            if (method.getReturnType() == void.class)
-                throwBadMethodException(method, "with @EventService can't return void type.");
-            if (method.getParameterTypes().length != 0)
-                throwBadMethodException(method, "with @EventService must require zero arguments.");
-            return new ElementInfo(ElementType.SERVICE, method.getReturnType(), method);
         }
     };
 

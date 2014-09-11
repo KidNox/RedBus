@@ -43,12 +43,10 @@ public class ClassExtractorTest {
     @Test public void classInfoCacheTest() {
         classInfoExtractor.getClassInfo(SimpleSubscriber.class);
         classInfoExtractor.getClassInfo(SimpleProducer.class);
-        classInfoExtractor.getClassInfo(SimpleEventServices.class);
         classInfoExtractor.getClassInfo(SimpleNone.class);
 
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleSubscriber.class).type, ClassType.SUBSCRIBER);
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleProducer.class).type, ClassType.PRODUCER);
-        assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleEventServices.class).type, ClassType.SERVICE);
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleNone.class).type, ClassType.NONE);
     }
 
@@ -69,7 +67,6 @@ public class ClassExtractorTest {
         assertEquals(4, classInfoExtractor.getClassInfo(LargeSubscriber.class).elements.size());
         assertEquals(4, classInfoExtractor.getClassInfo(LargeProducer.class).elements.size());
         assertEquals(4, classInfoExtractor.getClassInfo(LargeProcessor.class).elements.size());
-        assertEquals(6, classInfoExtractor.getClassInfo(LargeEventService.class).elements.size());
     }
     //for java 8
     @Test public void bridgeMethodIgnoreTest() {

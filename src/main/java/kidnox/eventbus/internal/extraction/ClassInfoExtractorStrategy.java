@@ -13,6 +13,7 @@ import java.util.Map;
 import static kidnox.eventbus.internal.Utils.*;
 import static kidnox.eventbus.internal.extraction.ExtractionUtils.*;
 
+@SuppressWarnings("unchecked")
 interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
 
     ClassInfo extract(Class clazz, T annotation);
@@ -55,15 +56,6 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
             return annotation.value();
         }
     };
-
-    ClassInfoExtractorStrategy<EventServiceFactory> SERVICE_FACTORY =  new InheritanceNotSupportedStrategy
-            <EventServiceFactory>(ClassType.SERVICE, OnRegister.class, OnUnregister.class, EventService.class) {
-
-        @Override String getAnnotationValue(EventServiceFactory annotation) {
-            return annotation.value();
-        }
-    };
-
 
     static abstract class InheritanceSupportedStrategy<T extends Annotation> extends AbstractStrategy<T> {
 
