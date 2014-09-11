@@ -45,11 +45,6 @@ public final class BusBuilder {
         return this;
     }
 
-    public BusBuilder withAndroidDefaultDispatchers() {
-        this.dispatcherFactory = AsyncDispatcherFactory.getAndroidDispatcherFactory();
-        return this;
-    }
-
     public Bus create() {
         return Bus.Factory.createBus(dispatcherFactory, errorHandler, deadEventHandler, eventLogger, interceptor);
     }

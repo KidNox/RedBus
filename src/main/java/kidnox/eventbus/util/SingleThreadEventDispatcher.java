@@ -6,14 +6,17 @@ import java.util.concurrent.*;
 
 public class SingleThreadEventDispatcher extends ThreadPoolExecutor implements Dispatcher {
 
+    public final String name;
     final SingleThreadFactory threadFactory;
 
-    public SingleThreadEventDispatcher() {
-        this(new LinkedBlockingQueue<Runnable>(), new SingleThreadFactory());
+    public SingleThreadEventDispatcher(String name) {
+        this(name, new LinkedBlockingQueue<Runnable>(), new SingleThreadFactory(name, false));
     }
 
-    public SingleThreadEventDispatcher(BlockingQueue<Runnable> workQueue, SingleThreadFactory threadFactory) {
+    public SingleThreadEventDispatcher(String name, BlockingQueue<Runnable> workQueue,
+                                       SingleThreadFactory threadFactory) {
         super(1, 1, 0, TimeUnit.NANOSECONDS, workQueue, threadFactory);
+        this.name = name;
         this.threadFactory = threadFactory;
     }
 

@@ -20,9 +20,9 @@ public class AsyncTest {
         AsyncDispatcherFactory factory = new AsyncDispatcherFactory();
         bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
 
-        final NamedAsyncEventDispatcher dispatcher1 = new NamedAsyncEventDispatcher("worker-1");
-        final NamedAsyncEventDispatcher dispatcher2 = new NamedAsyncEventDispatcher("worker-2");
-        final NamedAsyncEventDispatcher dispatcher3 = new NamedAsyncEventDispatcher("worker-3");
+        final SingleThreadEventDispatcher dispatcher1 = new SingleThreadEventDispatcher("worker-1");
+        final SingleThreadEventDispatcher dispatcher2 = new SingleThreadEventDispatcher("worker-2");
+        final SingleThreadEventDispatcher dispatcher3 = new SingleThreadEventDispatcher("worker-3");
 
         addDispatchersToFactory(factory, dispatcher1, dispatcher2, dispatcher3);
 
@@ -79,7 +79,7 @@ public class AsyncTest {
     @Test (timeout = 1000)
     public void asyncPost() throws InterruptedException {
         final Bus bus = Bus.Factory.createDefault();
-        final NamedAsyncEventDispatcher dispatcher1 = new NamedAsyncEventDispatcher("worker-1");
+        final SingleThreadEventDispatcher dispatcher1 = new SingleThreadEventDispatcher("worker-1");
 
         @Subscriber
         class SubscriberClass extends AbsAsyncSubscriber {
@@ -107,8 +107,7 @@ public class AsyncTest {
     }
 
     @Test public void testAsyncDispatcherFactory() throws InterruptedException {
-        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory().withDispatcher("worker");
         final Bus bus = Bus.Factory.builder()
                 .withEventDispatcherFactory(factory)
                 .create();
@@ -193,13 +192,12 @@ public class AsyncTest {
     public void produceTest() throws InterruptedException {
         final Thread thread = Thread.currentThread();
 
-        final Dispatcher.Factory factory = new AsyncDispatcherFactory()
-                .addDispatcher(Dispatcher.WORKER, AsyncDispatcherFactory.getWorkerDispatcher());
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory().withDispatcher("worker");
         final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
 
-        final SingleThreadEventDispatcher worker = TestUtils.getSTWorkerForName(Dispatcher.WORKER, factory);
+        final SingleThreadEventDispatcher worker = TestUtils.getSTWorkerForName("worker", factory);
 
-        @Subscriber(Dispatcher.WORKER)
+        @Subscriber("worker")
         class SubscriberClass extends AbsAsyncSubscriber {
             @Subscribe public void obtainEvent(Event event) {
                 currentEvent = event;

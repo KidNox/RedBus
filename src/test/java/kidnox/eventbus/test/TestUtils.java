@@ -6,9 +6,9 @@ import kidnox.eventbus.util.SingleThreadEventDispatcher;
 
 public class TestUtils {
     
-    public static void addDispatchersToFactory(AsyncDispatcherFactory factory, NamedAsyncEventDispatcher... dispatchers) {
-        for (NamedAsyncEventDispatcher dispatcher : dispatchers) {
-            factory.addDispatcher(dispatcher.getName(), dispatcher);
+    public static void addDispatchersToFactory(AsyncDispatcherFactory factory, SingleThreadEventDispatcher... dispatchers) {
+        for (SingleThreadEventDispatcher dispatcher : dispatchers) {
+            factory.addDispatcher(dispatcher.name, dispatcher);
         }
     }
 

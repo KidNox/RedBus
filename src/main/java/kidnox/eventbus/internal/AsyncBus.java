@@ -136,7 +136,7 @@ public class AsyncBus implements Bus {
             }
         }
     }
-    //TODO need more dispatch methods (for task), maybe move all to BusService or create separate dispatchers
+
     public void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.dispatcher.isDispatcherThread()) {
             Object result = invokeElement(subscriber, event);

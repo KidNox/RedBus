@@ -122,7 +122,7 @@ public class ClassExtractorTest {
 //        }
 //        //AsyncDispatcherFactory
 //        final String name = "test-dispatcher";
-//        classInfoExtractor = createExtractor(new AsyncDispatcherFactory().registerDispatcherForName(name));
+//        classInfoExtractor = createExtractor(new AsyncDispatcherFactory().withDispatcher(name));
 //        assertTrue(getDispatcher(name, classInfoExtractor) instanceof AsyncEventDispatcherExt);
 //        try {
 //            getDispatcher("not-registered-dispatcher", classInfoExtractor);
@@ -134,7 +134,7 @@ public class ClassExtractorTest {
 //
 //    @Test public void dispatcherCacheTest() {
 //        classInfoExtractor = createExtractor(
-//                new AsyncDispatcherFactory().registerDispatchersForNames("test-1", "test-2", "test-3"));
+//                new AsyncDispatcherFactory().withDispatchers("test-1", "test-2", "test-3"));
 //        getDispatcher("test-1", classInfoExtractor);
 //        getDispatcher("test-2", classInfoExtractor);
 //        getDispatcher("test-3", classInfoExtractor);
