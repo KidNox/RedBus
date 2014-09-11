@@ -26,6 +26,7 @@ final class ExtractionUtils {
         mEES.put(Produce.class, PRODUCE);
         mEES.put(Handle.class, HANDLE);
         mEES.put(Execute.class, EXECUTE);
+        mEES.put(Schedule.class, SCHEDULE);
         ELEMENT_STRATEGIES = Collections.unmodifiableMap(mEES);
 
         Map<Class<? extends Annotation>, ClassInfoExtractorStrategy> mCES = newHashMap(4);

@@ -43,11 +43,11 @@ interface ElementExtractionStrategy {
             if (method.getReturnType() != void.class)
                 throwBadMethodException(method, "with @Subscribe must return void type. Try @Handle for this case");
 
-            final Class[] params = method.getParameterTypes();
+            Class[] params = method.getParameterTypes();
             if (params.length != 1)
                 throwBadMethodException(method, "with @Subscribe must require a single argument.");
 
-            final Class type = params[0];
+            Class type = params[0];
             if (type.isInterface())
                 throwBadMethodException(method, "can't subscribe for interface.");
 
@@ -57,7 +57,7 @@ interface ElementExtractionStrategy {
 
     ElementExtractionStrategy PRODUCE = new ElementExtractionStrategy() {
         @Override public ElementInfo extract(Method method, Class target) {
-            final Class returnType = method.getReturnType();
+            Class returnType = method.getReturnType();
             if (returnType == void.class)
                 throwBadMethodException(method, "with @Produce can't return void type.");
             if (method.getParameterTypes().length != 0)
@@ -75,11 +75,11 @@ interface ElementExtractionStrategy {
             if (method.getReturnType() == void.class)
                 throwBadMethodException(method, "with @Handle must return not void type. Try @Subscribe for this case");
 
-            final Class[] params = method.getParameterTypes();
+            Class[] params = method.getParameterTypes();
             if (params.length != 1)
                 throwBadMethodException(method, "with @Handle must require a single argument.");
 
-            final Class type = params[0];
+            Class type = params[0];
             if (type.isInterface())
                 throwBadMethodException(method, "can't handle interface.");
 
@@ -94,6 +94,18 @@ interface ElementExtractionStrategy {
             if (method.getParameterTypes().length != 0)
                 throwBadMethodException(method, "with @Execute must require zero arguments.");
             return new ElementInfo(ElementType.EXECUTE, EXECUTE_VOID_KEY, method);
+        }
+    };
+
+    ElementExtractionStrategy SCHEDULE = new ElementExtractionStrategy() {
+        @Override public ElementInfo extract(Method method, Class target) {
+            Class[] params = method.getParameterTypes();
+            if (params.length > 1)
+                throwBadMethodException(method, "with @Schedule must require zero or one argument.");
+            if (params.length == 0)
+                return new ElementInfo(ElementType.SCHEDULE, SCHEDULE_VOID_KEY, method);
+            else
+                return new ElementInfo(ElementType.SCHEDULE, SCHEDULE_EVENT_KEY, method);
         }
     };
 

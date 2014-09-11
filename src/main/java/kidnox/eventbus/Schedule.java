@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Annotation for method with zero or one argument, in EventTask class.
  * When method require single argument, event of that type can be used for task cancellation.
+ * If method return value, that value are posted to bus. Method can be void or return null.
  * */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
