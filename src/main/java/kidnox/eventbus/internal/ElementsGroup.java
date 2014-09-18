@@ -24,7 +24,10 @@ public class ElementsGroup {
 
     public void unregisterGroup(Object target, AsyncBus bus) {
         if(classInfo.onUnRegisterListener != null) {
-            dispatch(new Element(classInfo.onUnRegisterListener, target), bus, null);
+            if(classInfo.onUnRegisterListener.eventType == Utils.UNREGISTER_BUS_KEY)
+                dispatch(new Element(classInfo.onUnRegisterListener, target), bus, bus);
+            else
+                dispatch(new Element(classInfo.onUnRegisterListener, target), bus, null);
         }
     }
 

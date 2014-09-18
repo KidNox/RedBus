@@ -32,9 +32,14 @@ interface ElementExtractionStrategy {
         @Override public ElementInfo extract(Method method, Class target) {
             if (method.getReturnType() != void.class)
                 throwBadMethodException(method, "with @Unregister must return void type.");
-            if (method.getParameterTypes().length != 0)
-                throwBadMethodException(method, "with @Unregister must require zero arguments.");
-            return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_VOID_KEY, method);
+            Class[] params = method.getParameterTypes();
+            if (params.length == 0)
+                return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_VOID_KEY, method);
+            else if (params.length == 1 && params[0] == Bus.class)
+                return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_BUS_KEY, method);
+            else throwBadMethodException(method,
+                        "with @Unregister must require zero arguments or one argument of Bus type.");
+            return null;
         }
     };
 

@@ -17,6 +17,8 @@ public class RegUnregListenersTest {
         return Arrays.asList(new Object[][]{
                 {new SubscriberWithListeners()},
                 {new ProducerWithListeners()},
+                {new SubscriberWithListeners2()},
+                {new ProducerWithListeners2()},
 
         });
     }
@@ -28,7 +30,7 @@ public class RegUnregListenersTest {
         this.target =  target;
     }
 
-    @Test public void testUnreg() {
+    @Test public void testListeners() {
         bus.register(target);
         assertTrue(target.isOnRegisterCall());
         assertFalse(target.isOnUnregisterCall());
@@ -57,6 +59,32 @@ public class RegUnregListenersTest {
 
         @OnUnregister public void onUnregister() {
             setOnUnregisterCall(true);
+        }
+    }
+
+    @Subscriber
+    static class SubscriberWithListeners2 extends RegUnregListeners {
+        @OnRegister public void onRegister(Bus bus) {
+            setOnRegisterCall(true);
+            assertNotNull(bus);
+        }
+
+        @OnUnregister public void onUnregister(Bus bus) {
+            setOnUnregisterCall(true);
+            assertNotNull(bus);
+        }
+    }
+
+    @Producer
+    static class ProducerWithListeners2 extends RegUnregListeners {
+        @OnRegister public void onRegister(Bus bus) {
+            setOnRegisterCall(true);
+            assertNotNull(bus);
+        }
+
+        @OnUnregister public void onUnregister(Bus bus) {
+            setOnUnregisterCall(true);
+            assertNotNull(bus);
         }
     }
 

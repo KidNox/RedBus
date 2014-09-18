@@ -39,7 +39,7 @@ public final class ClassInfo {
         return "ClassInfo{" +
                 "clazz=" + clazz +
                 ", type=" + type +
-                ", annotationValue='" + annotationValue + '\'' +
+                ", annotationValue='" + annotationValue +
                 '}';
     }
 }

@@ -156,7 +156,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
         ClassInfo createInfo(Class clazz, ClassType type, String annotationValue, Map<Class, ElementInfo> elementsMap) {
             if(elementsMap == null) {
                 return new ClassInfo(clazz, type, annotationValue, Collections.<ElementInfo>emptyList());
-            } else {
+            } else { //TODO optimize listeners extraction
                 ElementInfo onRegister = elementsMap.remove(REGISTER_VOID_KEY);
                 ElementInfo onRegisterBusType = elementsMap.remove(REGISTER_BUS_KEY);
                 if(onRegister == null) {
@@ -166,6 +166,13 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
                         throw new BusException("to many @OnRegister methods, can be only one");
                 }
                 ElementInfo onUnregister = elementsMap.remove(UNREGISTER_VOID_KEY);
+                ElementInfo onUnregisterBusType = elementsMap.remove(UNREGISTER_BUS_KEY);
+                if(onUnregister == null) {
+                    onUnregister = onUnregisterBusType;
+                } else {
+                    if(onUnregisterBusType != null)
+                        throw new BusException("to many @OnUnregister methods, can be only one");
+                }
                 return new ClassInfo(clazz, type, annotationValue, elementsMap.values(), onRegister, onUnregister);
             }
         }
