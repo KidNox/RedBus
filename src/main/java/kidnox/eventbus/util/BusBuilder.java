@@ -13,13 +13,6 @@ public final class BusBuilder {
     ErrorHandler errorHandler;
     Dispatcher.Factory dispatcherFactory;
 
-    BusBuilder() {
-    }
-
-    public static BusBuilder get() {
-        return new BusBuilder();
-    }
-
     public BusBuilder withEventLogger(EventLogger busLogger) {
         this.eventLogger = checkNotNull(busLogger);
         return this;

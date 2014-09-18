@@ -40,7 +40,7 @@ public interface Bus {
         }
 
         public static BusBuilder builder() {
-            return BusBuilder.get();
+            return new BusBuilder();
         }
 
         private Factory() { }

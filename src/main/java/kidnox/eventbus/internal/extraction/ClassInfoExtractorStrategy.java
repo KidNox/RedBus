@@ -50,7 +50,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
     };
 
     ClassInfoExtractorStrategy<EventTask> TASK = new InheritanceNotSupportedStrategy<EventTask>
-            (ClassType.TASK, OnRegister.class, OnUnregister.class, Execute.class, Schedule.class) {
+            (ClassType.TASK, OnRegister.class, OnUnregister.class, Execute.class) {
 
         @Override String getAnnotationValue(EventTask annotation) {
             return annotation.value();
