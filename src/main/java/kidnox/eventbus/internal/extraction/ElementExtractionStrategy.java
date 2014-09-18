@@ -97,16 +97,4 @@ interface ElementExtractionStrategy {
         }
     };
 
-    ElementExtractionStrategy SCHEDULE = new ElementExtractionStrategy() {
-        @Override public ElementInfo extract(Method method, Class target) {
-            Class[] params = method.getParameterTypes();
-            if (params.length > 1)
-                throwBadMethodException(method, "with @Schedule must require zero or one argument.");
-            if (params.length == 0)
-                return new ElementInfo(ElementType.SCHEDULE, SCHEDULE_VOID_KEY, method);
-            else
-                return new ElementInfo(ElementType.SCHEDULE, SCHEDULE_EVENT_KEY, method);
-        }
-    };
-
 }

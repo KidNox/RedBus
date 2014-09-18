@@ -2,6 +2,7 @@ package kidnox.eventbus.internal;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
+import kidnox.eventbus.util.AsyncDispatcherFactory;
 
 import java.util.Map;
 
@@ -64,11 +65,11 @@ public final class InternalFactory {
 
     public static Dispatcher.Factory wrapFactoryWithCache(Dispatcher.Factory factory) {
         if(factory == null) return getDefaultDispatcherFactory();
+        if(factory instanceof AsyncDispatcherFactory) return factory;
         return new DispatchersFactoryCachedProxy(factory);
     }
 
     public static class DispatchersFactoryCachedProxy implements Dispatcher.Factory {
-
         final Map<String, Dispatcher> dispatchersMap = newHashMap(4);
         final Dispatcher.Factory dispatcherFactory;
 
