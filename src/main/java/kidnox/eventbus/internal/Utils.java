@@ -33,7 +33,7 @@ public final class Utils {
         return new HashSet<T>(capacity);
     }
 
-    public static void throwBusException(String action, Object cause, String message) {//TODO move to bus?
+    public static void throwBusException(String action, Object cause, String message) {
         throw new BusException(action + " was failed " + cause + message);
     }
 
@@ -41,16 +41,11 @@ public final class Utils {
     public static final Class REGISTER_BUS_KEY = OnRegisterBusType.class;
     public static final Class UNREGISTER_VOID_KEY = OnUnregisterVoidType.class;
     public static final Class EXECUTE_VOID_KEY = ExecuteVoidType.class;
-    public static final Class SCHEDULE_VOID_KEY = ScheduleVoidType.class;
-    public static final Class SCHEDULE_EVENT_KEY = ScheduleEventType.class;
 
     private static class OnRegisterVoidType {}
     private static class OnRegisterBusType {}
     private static class OnUnregisterVoidType {}
     private static class ExecuteVoidType {}
-    private static class ScheduleVoidType {}
-    private static class ScheduleEventType {}
 
-    //no instance
     private Utils() {}
 }

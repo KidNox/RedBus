@@ -14,7 +14,7 @@ import static kidnox.eventbus.internal.Utils.*;
 import static kidnox.eventbus.internal.extraction.ExtractionUtils.*;
 
 @SuppressWarnings("unchecked")
-interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
+interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask support
 
     ClassInfo extract(Class clazz, T annotation);
 
@@ -69,7 +69,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
 
             for(Class mClass = clazz; check(mClass, clazz, value); mClass = mClass.getSuperclass()) {
                 for (Method method : mClass.getDeclaredMethods()) {
-                    if ((method.getModifiers() & Modifier.PUBLIC) == 0)// ignore all not public methods
+                    if ((method.getModifiers() & Modifier.PUBLIC) == 0) //ignore all not public methods
                         continue;
                     Annotation[] annotations = method.getDeclaredAnnotations();
                     if (isNullOrEmpty(annotations)) continue;
@@ -90,7 +90,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
                                 throwMultiplyMethodsException(clazz, element.eventType, type.toString().toLowerCase());
                             }
                         }
-                        break;//we find strategy for annotation and extract element so can break
+                        break; //we find strategy for annotation and extract element so can break
                     }
                 }
             }
@@ -112,11 +112,11 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO
             final String value = getAnnotationValue(annotation);
 
             for(Method method : clazz.getDeclaredMethods()) {
-                if ((method.getModifiers() & Modifier.PUBLIC) == 0)// ignore all not public methods
+                if ((method.getModifiers() & Modifier.PUBLIC) == 0)
                     continue;
                 Annotation[] annotations = method.getDeclaredAnnotations();
                 if (isNullOrEmpty(annotations)) continue;
-                if(method.isBridge()) continue; //java 8 annotated bridge methods fix
+                if(method.isBridge()) continue;
 
                 for (Annotation mAnnotation : annotations) {
                     ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);

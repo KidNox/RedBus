@@ -22,7 +22,7 @@ public interface ClassInfoExtractor {
             ClassInfo info = classInfoCache.get(clazz);
             if(info != null) return info;
 
-            final Annotation[] annotations = clazz.getAnnotations();
+            Annotation[] annotations = clazz.getAnnotations();
             if(!isNullOrEmpty(annotations)) {
                 for (Annotation annotation : annotations) {
                     ClassInfoExtractorStrategy extractionStrategy = CLASS_STRATEGIES.get(annotation.annotationType());
@@ -32,7 +32,7 @@ public interface ClassInfoExtractor {
                     }
                 }
             }
-            if(info == null) info = new ClassInfo(clazz);//info for none type
+            if(info == null) info = new ClassInfo(clazz); //info for none type
             classInfoCache.put(clazz, info);
             return info;
         }

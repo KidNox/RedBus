@@ -43,6 +43,6 @@ public interface Bus {
             return new BusBuilder();
         }
 
-        private Factory() { }
+        private Factory() {}
     }
 }
