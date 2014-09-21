@@ -41,13 +41,13 @@ public final class Utils {
     public static final Class REGISTER_BUS_KEY = OnRegisterBusType.class;
     public static final Class UNREGISTER_VOID_KEY = OnUnregisterVoidType.class;
     public static final Class UNREGISTER_BUS_KEY = OnUnregisterBusType.class;
-    public static final Class EXECUTE_VOID_KEY = ExecuteVoidType.class;
+    public static final Class EXECUTE_KEY = ExecuteType.class;
 
     private static class OnRegisterVoidType {}
     private static class OnRegisterBusType {}
     private static class OnUnregisterVoidType {}
     private static class OnUnregisterBusType {}
-    private static class ExecuteVoidType {}
+    private static class ExecuteType {}
 
     private Utils() {}
 }

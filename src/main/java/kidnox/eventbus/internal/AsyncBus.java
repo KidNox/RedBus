@@ -140,7 +140,7 @@ public class AsyncBus implements Bus {
     public void dispatch(final AsyncElement subscriber, final Object event) {
         if(subscriber.dispatcher.isDispatcherThread()) {
             Object result = invokeElement(subscriber, event);
-            if(result != null) post(result);//means this is @Handle method
+            if(result != null) post(result); //means this is @Handle method
         } else {
             subscriber.dispatcher.dispatch(new Runnable() {
                 @Override public void run() {

@@ -3,7 +3,6 @@ package kidnox.eventbus;
 import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.test.Event;
-import kidnox.eventbus.test.SimpleSubscriber;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -24,6 +23,9 @@ public class WrongAnnotationsTest {
                 {new ProducerWithSubscribeMethod()},
                 {new ProducerWithHandleMethod()},
                 {new ProducerWithExecuteMethod()},
+                {new TaskWithSubscribeMethod()},
+                {new TaskWithHandleMethod()},
+                {new TaskWithProduceMethod()},
         });
     }
 
@@ -72,6 +74,25 @@ public class WrongAnnotationsTest {
     @Producer
     static class ProducerWithExecuteMethod {
         @Execute public void execute() {}
+    }
+
+    @Task
+    static class TaskWithSubscribeMethod {
+        @Subscribe public void subscribe(Object event) {}
+    }
+
+    @Task
+    static class TaskWithHandleMethod {
+        @Handle public Event handle(Object event) {
+            return null;
+        }
+    }
+
+    @Task
+    static class TaskWithProduceMethod {
+        @Produce public Object produce() {
+            return null;
+        }
     }
 
 }

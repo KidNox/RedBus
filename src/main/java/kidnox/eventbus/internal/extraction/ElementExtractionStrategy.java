@@ -94,11 +94,11 @@ interface ElementExtractionStrategy {
 
     ElementExtractionStrategy EXECUTE = new ElementExtractionStrategy() {
         @Override public ElementInfo extract(Method method, Class target) {
-            if (method.getReturnType() != void.class)
-                throwBadMethodException(method, "with @Execute must return void type.");
+//            if (method.getReturnType() != void.class) //TODO implement execute method with return value
+//                throwBadMethodException(method, "with @Execute must return void type.");
             if (method.getParameterTypes().length != 0)
                 throwBadMethodException(method, "with @Execute must require zero arguments.");
-            return new ElementInfo(ElementType.EXECUTE, EXECUTE_VOID_KEY, method);
+            return new ElementInfo(ElementType.EXECUTE, EXECUTE_KEY, method);
         }
     };
 

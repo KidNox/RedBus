@@ -43,12 +43,9 @@ public class ElementsGroup {
         }
     }
 
-    protected void invokeElement(Element element, AsyncBus bus, Object param) {
-        if(param == null) {
-            bus.invokeElement(element);
-        } else {
-            bus.invokeElement(element, param);
-        }
+    protected Object invokeElement(Element element, AsyncBus bus, Object param) {
+        if(param == null)   return bus.invokeElement(element);
+        else                return bus.invokeElement(element, param);
     }
 
     static final ElementsGroup EMPTY = new ElementsGroup(null, null) {

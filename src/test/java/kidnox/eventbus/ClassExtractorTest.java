@@ -5,17 +5,14 @@ import kidnox.eventbus.internal.ClassInfo;
 import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.internal.extraction.ClassInfoExtractor;
 import kidnox.eventbus.internal.ClassType;
-import kidnox.eventbus.test.bad.BadChildProducer;
-import kidnox.eventbus.test.bad.BadChildSubscriber;
-import kidnox.eventbus.test.bad.BadProducer;
-import kidnox.eventbus.test.bad.BadSubscriber;
+import kidnox.eventbus.test.bad.*;
 import kidnox.eventbus.test.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static kidnox.eventbus.internal.extraction.PackageLocalProvider.getClassToInfoMap;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class ClassExtractorTest {
 
@@ -36,6 +33,9 @@ public class ClassExtractorTest {
         classInfo = classInfoExtractor.getClassInfo(SimpleProducer.class);
         assertEquals(classInfo.type, ClassType.PRODUCER);
 
+        classInfo = classInfoExtractor.getClassInfo(SimpleTask.class);
+        assertEquals(classInfo.type, ClassType.TASK);
+
         classInfo = classInfoExtractor.getClassInfo(SimpleNone.class);
         assertEquals(classInfo.type, ClassType.NONE);
     }
@@ -43,10 +43,12 @@ public class ClassExtractorTest {
     @Test public void classInfoCacheTest() {
         classInfoExtractor.getClassInfo(SimpleSubscriber.class);
         classInfoExtractor.getClassInfo(SimpleProducer.class);
+        classInfoExtractor.getClassInfo(SimpleTask.class);
         classInfoExtractor.getClassInfo(SimpleNone.class);
 
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleSubscriber.class).type, ClassType.SUBSCRIBER);
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleProducer.class).type, ClassType.PRODUCER);
+        assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleTask.class).type, ClassType.TASK);
         assertEquals(getClassToInfoMap(classInfoExtractor).get(SimpleNone.class).type, ClassType.NONE);
     }
 
@@ -55,12 +57,16 @@ public class ClassExtractorTest {
         assertEquals(classType.type, ClassType.NONE);
         classType = classInfoExtractor.getClassInfo(BadProducer.class);
         assertEquals(classType.type, ClassType.NONE);
+        classType = classInfoExtractor.getClassInfo(BadTask.class);
+        assertEquals(classType.type, ClassType.NONE);
         classType = classInfoExtractor.getClassInfo(BadChildSubscriber.class);
         assertEquals(classType.type, ClassType.NONE);
         classType = classInfoExtractor.getClassInfo(BadChildProducer.class);
         assertEquals(classType.type, ClassType.NONE);
+        classType = classInfoExtractor.getClassInfo(BadChildTask.class);
+        assertEquals(classType.type, ClassType.NONE);
 
-        assertEquals(4, getClassToInfoMap(classInfoExtractor).size());
+        assertEquals(6, getClassToInfoMap(classInfoExtractor).size());
     }
 
     @Test public void methodsCountTest() {
@@ -91,7 +97,7 @@ public class ClassExtractorTest {
     }
 
     @Test(expected = BusException.class)
-    public void sameExtSubscriberTest() {
+    public void sameExtSubscriberExtTest() {
         @Subscriber
         class Subscriber1 extends SimpleSubscriber {
             @Subscribe public void obtainEvent2(Event event) {}
@@ -108,6 +114,26 @@ public class ClassExtractorTest {
             }
         }
         classInfoExtractor.getClassInfo(Producer1.class);
+    }
+
+    @Test @Ignore
+    public void taskTest() {
+        @Task
+        class Task1 {
+            @Execute public void execute() {}
+
+            @Execute public void execute2() {}
+        }
+        assertEquals(2, classInfoExtractor.getClassInfo(Task1.class).elements.size());//FIXME only one execute method available
+    }
+
+    @Test
+    public void taskExtTest() {
+        @Task
+        class Task1 extends SimpleTask {
+            @Execute public void execute2() {}
+        }
+        assertEquals(1, classInfoExtractor.getClassInfo(Task1.class).elements.size());
     }
 
 

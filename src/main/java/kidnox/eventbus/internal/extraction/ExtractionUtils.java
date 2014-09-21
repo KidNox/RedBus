@@ -31,7 +31,7 @@ final class ExtractionUtils {
         Map<Class<? extends Annotation>, ClassInfoExtractorStrategy> mCES = newHashMap(4);
         mCES.put(Subscriber.class, SUBSCRIBER);
         mCES.put(Producer.class, PRODUCER);
-        mCES.put(EventTask.class, TASK);
+        mCES.put(Task.class, TASK);
         CLASS_STRATEGIES = Collections.unmodifiableMap(mCES);
     }
 
