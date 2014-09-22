@@ -2,6 +2,8 @@ package kidnox.eventbus;
 
 import kidnox.eventbus.internal.element.AsyncElement;
 import kidnox.eventbus.internal.AsyncBus;
+import kidnox.eventbus.test.simple.SimpleProducer;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import kidnox.eventbus.util.EventTypeInterceptor;
 import kidnox.eventbus.test.*;
 import org.junit.Before;

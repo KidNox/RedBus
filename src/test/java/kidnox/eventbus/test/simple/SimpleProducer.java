@@ -1,7 +1,8 @@
-package kidnox.eventbus.test;
+package kidnox.eventbus.test.simple;
 
 import kidnox.eventbus.Produce;
 import kidnox.eventbus.Producer;
+import kidnox.eventbus.test.Event;
 
 @Producer
 public class SimpleProducer {

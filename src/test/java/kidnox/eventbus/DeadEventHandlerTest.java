@@ -1,8 +1,8 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.test.Event;
-import kidnox.eventbus.test.SimpleDeadEventHandler;
-import kidnox.eventbus.test.SimpleSubscriber;
+import kidnox.eventbus.test.simple.SimpleDeadEventHandler;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import org.junit.Test;
 
 

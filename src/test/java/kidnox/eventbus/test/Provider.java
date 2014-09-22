@@ -1,5 +1,9 @@
 package kidnox.eventbus.test;
 
+import kidnox.eventbus.test.simple.SimpleNone;
+import kidnox.eventbus.test.simple.SimpleProducer;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
+
 public interface Provider<T> {
 
     T get();

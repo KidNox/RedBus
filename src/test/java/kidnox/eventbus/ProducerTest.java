@@ -1,7 +1,7 @@
 package kidnox.eventbus;
 
-import kidnox.eventbus.test.SimpleProducer;
-import kidnox.eventbus.test.SimpleSubscriber;
+import kidnox.eventbus.test.simple.SimpleProducer;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import org.junit.Before;
 import org.junit.Test;
 

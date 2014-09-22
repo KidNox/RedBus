@@ -1,6 +1,7 @@
 package kidnox.eventbus.test;
 
 import kidnox.eventbus.Producer;
+import kidnox.eventbus.test.simple.SimpleProducer;
 
 @Producer
 public class MutableProducer extends SimpleProducer {

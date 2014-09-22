@@ -1,7 +1,9 @@
-package kidnox.eventbus.test;
+package kidnox.eventbus.test.simple;
 
 import kidnox.eventbus.*;
 import kidnox.eventbus.Handle;
+import kidnox.eventbus.test.Event;
+import kidnox.eventbus.test.Event2;
 
 @Subscriber
 public class SimpleProcessor {

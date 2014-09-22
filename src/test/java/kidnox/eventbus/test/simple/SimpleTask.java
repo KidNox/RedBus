@@ -1,4 +1,4 @@
-package kidnox.eventbus.test;
+package kidnox.eventbus.test.simple;
 
 import kidnox.eventbus.Task;
 import kidnox.eventbus.Execute;

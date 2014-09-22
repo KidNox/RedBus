@@ -1,5 +1,8 @@
 package kidnox.eventbus;
 
+import kidnox.eventbus.test.simple.SimpleDeadEventHandler;
+import kidnox.eventbus.test.simple.SimpleProducer;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import kidnox.eventbus.util.AsyncDispatcherFactory;
 import kidnox.eventbus.test.*;
 import kidnox.eventbus.util.SingleThreadEventDispatcher;

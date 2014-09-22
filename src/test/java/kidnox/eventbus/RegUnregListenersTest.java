@@ -19,7 +19,6 @@ public class RegUnregListenersTest {
                 {new ProducerWithListeners()},
                 {new SubscriberWithListeners2()},
                 {new ProducerWithListeners2()},
-
         });
     }
 

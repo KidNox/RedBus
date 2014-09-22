@@ -3,7 +3,7 @@ package kidnox.eventbus;
 import kidnox.eventbus.test.Event;
 import kidnox.eventbus.test.Event2;
 import kidnox.eventbus.test.EventsSubscriber;
-import kidnox.eventbus.test.SimpleSubscriber;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import kidnox.eventbus.test.exceptions.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +44,14 @@ public class ErrorHandlerTest {
         bus.register(new ThrowingSubscriber());
         bus.post(new Event2());
         assertTrue(exceptionHandler.getThrowable() instanceof TestException);
+    }
+
+    @Test public void subscriberOnlyListenersTest() {
+        ThrowingSubscriber2 throwingSubscriber = new ThrowingSubscriber2();
+        bus.register(throwingSubscriber);
+        assertEquals(1, exceptionHandler.getCatchCount());
+        bus.unregister(throwingSubscriber);
+        assertEquals(2, exceptionHandler.getCatchCount());
     }
 
     @Test public void produceRuntimeExceptionTest() {

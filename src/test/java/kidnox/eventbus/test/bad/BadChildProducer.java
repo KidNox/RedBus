@@ -1,7 +1,7 @@
 package kidnox.eventbus.test.bad;
 
 import kidnox.eventbus.Produce;
-import kidnox.eventbus.test.SimpleProducer;
+import kidnox.eventbus.test.simple.SimpleProducer;
 
 import static org.junit.Assert.fail;
 

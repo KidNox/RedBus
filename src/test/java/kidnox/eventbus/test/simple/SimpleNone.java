@@ -1,4 +1,4 @@
-package kidnox.eventbus.test;
+package kidnox.eventbus.test.simple;
 
 public class SimpleNone {
 

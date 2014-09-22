@@ -4,6 +4,9 @@ import kidnox.eventbus.internal.BusException;
 import kidnox.eventbus.test.*;
 import kidnox.eventbus.test.bad.BadSubscriber;
 import kidnox.eventbus.test.bad.BadSubscriber2;
+import kidnox.eventbus.test.simple.SimpleProducer;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
+import kidnox.eventbus.test.simple.SimpleTask;
 import org.junit.Before;
 import org.junit.Test;
 

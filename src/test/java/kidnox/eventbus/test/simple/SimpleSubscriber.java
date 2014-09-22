@@ -1,7 +1,8 @@
-package kidnox.eventbus.test;
+package kidnox.eventbus.test.simple;
 
 import kidnox.eventbus.Subscribe;
 import kidnox.eventbus.Subscriber;
+import kidnox.eventbus.test.Event;
 
 @Subscriber
 public class SimpleSubscriber {

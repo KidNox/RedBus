@@ -1,39 +1,30 @@
-package kidnox.eventbus.test;
+package kidnox.eventbus.test.exceptions;
 
-import kidnox.eventbus.Execute;
 import kidnox.eventbus.OnRegister;
 import kidnox.eventbus.OnUnregister;
-import kidnox.eventbus.Task;
+import kidnox.eventbus.Subscriber;
 
-@Task
-public class SimpleTask2 {
+@Subscriber
+public class ThrowingSubscriber2 {
 
     int onRegisterCount;
-    int executeCount;
     int onUnregisterCount;
 
     @OnRegister public void onRegister() {
         onRegisterCount++;
-    }
-
-    @Execute public void execute() {
-        executeCount++;
+        throw new RuntimeException();
     }
 
     @OnUnregister public void onUnregister() {
         onUnregisterCount++;
+        throw new RuntimeException();
     }
 
     public int getOnRegisterCount() {
         return onRegisterCount;
     }
 
-    public int getExecuteCount() {
-        return executeCount;
-    }
-
     public int getOnUnregisterCount() {
         return onUnregisterCount;
     }
-
 }

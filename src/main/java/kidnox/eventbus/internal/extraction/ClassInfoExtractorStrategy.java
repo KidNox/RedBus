@@ -156,7 +156,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
         ClassInfo createInfo(Class clazz, ClassType type, String annotationValue, Map<Class, ElementInfo> elementsMap) {
             if(elementsMap == null) {
                 return new ClassInfo(clazz, type, annotationValue, Collections.<ElementInfo>emptyList());
-            } else { //TODO optimize listeners extraction
+            } else { //TODO optimize listeners extraction, ElementInfo overriding can be used for this
                 ElementInfo onRegister = elementsMap.remove(REGISTER_VOID_KEY);
                 ElementInfo onRegisterBusType = elementsMap.remove(REGISTER_BUS_KEY);
                 if(onRegister == null) {

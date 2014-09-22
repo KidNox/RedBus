@@ -1,7 +1,9 @@
 package kidnox.eventbus;
 
+import kidnox.eventbus.test.Event2;
+import kidnox.eventbus.test.MutableEventHandler;
 import kidnox.eventbus.test.MutableProducer;
-import kidnox.eventbus.test.SimpleSubscriber;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,6 +42,18 @@ public class NullsTest {
 
         assertEquals(1, mutableProducer.getProducedCount());
         assertEquals(0, simpleSubscriber.getSubscribedCount());
+    }
+
+    //ignore null events from handler
+    @Test public void nullHandle() {
+        MutableEventHandler mutableEventHandler = new MutableEventHandler();
+        SimpleSubscriber simpleSubscriber = new SimpleSubscriber();
+        mutableEventHandler.setReturnValue(null);
+        bus.register(mutableEventHandler);
+        bus.register(simpleSubscriber);
+        bus.post(new Event2());
+        assertEquals(0, simpleSubscriber.getSubscribedCount());
+        assertEquals(1, mutableEventHandler.getHandleCount());
     }
 
 }

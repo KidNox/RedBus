@@ -1,8 +1,8 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.internal.BusException;
-import kidnox.eventbus.test.SimpleTask;
-import kidnox.eventbus.test.SimpleTask2;
+import kidnox.eventbus.test.simple.SimpleTask;
+import kidnox.eventbus.test.simple.SimpleTask2;
 import org.junit.Before;
 import org.junit.Test;
 

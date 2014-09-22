@@ -4,8 +4,8 @@ import kidnox.eventbus.internal.element.AsyncElement;
 import kidnox.eventbus.internal.AsyncBus;
 import kidnox.eventbus.internal.PackageLocalProvider;
 import kidnox.eventbus.test.Event;
-import kidnox.eventbus.test.SimpleEventDispatcher;
-import kidnox.eventbus.test.SimpleSubscriber;
+import kidnox.eventbus.test.simple.SimpleEventDispatcher;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import org.junit.Test;
 
 import java.util.Set;
