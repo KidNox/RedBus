@@ -79,4 +79,20 @@ public class ErrorHandlerTest {
         assertEquals(2, exceptionHandler.getCatchCount());
     }
 
+    @Test public void taskExceptionTest() {
+        ThrowingTask throwingTask = new ThrowingTask();
+        bus.register(throwingTask);
+        assertEquals(1, exceptionHandler.getCatchCount());
+        assertEquals(1, throwingTask.getExecuteCount());
+    }
+
+    @Test public void taskWithListenerMethodsExceptionTest() {
+        ThrowingTask2 throwingTask2 = new ThrowingTask2();
+        bus.register(throwingTask2);
+        assertEquals(3, exceptionHandler.getCatchCount());
+        assertEquals(1, throwingTask2.getOnRegisterCount());
+        assertEquals(1, throwingTask2.getExecuteCount());
+        assertEquals(1, throwingTask2.getOnUnregisterCount());
+    }
+
 }

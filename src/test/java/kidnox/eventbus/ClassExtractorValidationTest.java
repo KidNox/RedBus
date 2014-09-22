@@ -33,6 +33,7 @@ public class ClassExtractorValidationTest {
                 {new SameEventsSubscriberHandler()},
                 {new WrongArgsEventHandler()},
                 {new WrongReturnTypeHandler()},
+                {new WrongExecuteMethodTask()},
                 {new WrongInheritDispatcherSubscriber()},
                 {new WrongInheritDispatcherProducer()}});
     }
@@ -196,6 +197,15 @@ public class ClassExtractorValidationTest {
         }
 
         @Handle public void handleEvent(Event event) {}
+    }
+
+    @Task
+    private static class WrongExecuteMethodTask extends BadClass {
+        public WrongExecuteMethodTask() {
+            super("method annotated with @Execute must require zero arguments");
+        }
+
+        @Execute public void execute(Object param) {}
     }
 
     @Subscriber("wrong")

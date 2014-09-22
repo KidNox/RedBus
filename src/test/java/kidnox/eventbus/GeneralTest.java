@@ -97,6 +97,12 @@ public class GeneralTest {
         assertEquals(2, producer.getProducedCount());
     }
 
+    @Test public void taskTest() {
+        SimpleTask simpleTask = new SimpleTask();
+        bus.register(simpleTask);
+        assertEquals(1, simpleTask.getExecuteCount());
+    }
+
     @Test public void largeSubscriberTest() {
         LargeSubscriber largeSubscriber = new LargeSubscriber();
         bus.register(largeSubscriber);

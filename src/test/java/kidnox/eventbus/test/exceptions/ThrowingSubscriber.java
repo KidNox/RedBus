@@ -19,7 +19,6 @@ public class ThrowingSubscriber {
     @Subscribe public void obtainEvent(Event2 event) throws TestException {
         this.event2 = event;
         throw new TestException();
-
     }
 
     public Event getEvent() {

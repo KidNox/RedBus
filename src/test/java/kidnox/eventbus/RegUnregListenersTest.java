@@ -32,45 +32,43 @@ public class RegUnregListenersTest {
 
     @Test public void testListeners() {
         bus.register(target);
-        assertTrue(target.isOnRegisterCall());
-        assertFalse(target.isOnUnregisterCall());
+        assertEquals(1, target.getOnRegisterCallCount());
+        assertEquals(0, target.getOnUnregisterCallCount());
         bus.unregister(target);
-        assertTrue(target.isOnUnregisterCall());
+        assertEquals(1, target.getOnUnregisterCallCount());
     }
 
     @Subscriber
     static class SubscriberWithListeners extends RegUnregListeners {
-
         @OnRegister public void onRegister() {
-            setOnRegisterCall(true);
+            super.onRegister();
         }
 
         @OnUnregister public void onUnregister() {
-            setOnUnregisterCall(true);
+            super.onUnregister();
         }
-
     }
 
     @Producer
     static class ProducerWithListeners extends RegUnregListeners {
         @OnRegister public void onRegister() {
-            setOnRegisterCall(true);
+            super.onRegister();
         }
 
         @OnUnregister public void onUnregister() {
-            setOnUnregisterCall(true);
+            super.onUnregister();
         }
     }
 
     @Subscriber
     static class SubscriberWithListeners2 extends RegUnregListeners {
         @OnRegister public void onRegister(Bus bus) {
-            setOnRegisterCall(true);
+            super.onRegister();
             assertNotNull(bus);
         }
 
         @OnUnregister public void onUnregister(Bus bus) {
-            setOnUnregisterCall(true);
+            super.onUnregister();
             assertNotNull(bus);
         }
     }
@@ -78,12 +76,12 @@ public class RegUnregListenersTest {
     @Producer
     static class ProducerWithListeners2 extends RegUnregListeners {
         @OnRegister public void onRegister(Bus bus) {
-            setOnRegisterCall(true);
+            super.onRegister();
             assertNotNull(bus);
         }
 
         @OnUnregister public void onUnregister(Bus bus) {
-            setOnUnregisterCall(true);
+            super.onUnregister();
             assertNotNull(bus);
         }
     }

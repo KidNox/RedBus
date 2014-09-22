@@ -16,6 +16,8 @@ public interface Provider<T> {
         }
     };
 
+
+
     Provider<SimpleNone> SIMPLE_NONE_PROVIDER = new Provider<SimpleNone>() {
         @Override public SimpleNone get() {
             return new SimpleNone();

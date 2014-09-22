@@ -4,24 +4,24 @@ import kidnox.eventbus.Bus;
 
 public class RegUnregListeners {
 
-    volatile boolean onRegisterCall;
-    volatile boolean onUnregisterCall;
+    volatile int onRegisterCallCount;
+    volatile int onUnregisterCallCount;
     volatile Bus bus;
 
-    public boolean isOnRegisterCall() {
-        return onRegisterCall;
+    public int getOnRegisterCallCount() {
+        return onRegisterCallCount;
     }
 
-    public void setOnRegisterCall(boolean onRegisterCall) {
-        this.onRegisterCall = onRegisterCall;
+    public int getOnUnregisterCallCount() {
+        return onUnregisterCallCount;
     }
 
-    public boolean isOnUnregisterCall() {
-        return onUnregisterCall;
+    public void onRegister() {
+        onRegisterCallCount++;
     }
 
-    public void setOnUnregisterCall(boolean onUnregisterCall) {
-        this.onUnregisterCall = onUnregisterCall;
+    public void onUnregister() {
+        onUnregisterCallCount++;
     }
 
     public Bus getBus() {

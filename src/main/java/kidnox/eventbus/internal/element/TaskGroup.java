@@ -13,7 +13,6 @@ public final class TaskGroup extends ElementsGroup {
     }
 
     @Override public void registerGroup(final Object target, final AsyncBus bus) {
-        super.registerGroup(target, bus);
         if(dispatcher.isDispatcherThread()) {
             executeTask(target, bus);
         } else {
