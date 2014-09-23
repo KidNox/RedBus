@@ -130,17 +130,6 @@ public class ClassExtractorTest {
         assertEquals(1, classInfoExtractor.getClassInfo(Task1.class).elements.size());
     }
 
-    @Ignore
-    @Test public void taskTest2() {
-        @Task
-        class Task1 {
-            @Execute public void execute() {}
-
-            @Execute public void execute2() {}
-        }
-        assertEquals(2, classInfoExtractor.getClassInfo(Task1.class).elements.size());//FIXME only one execute method available
-    }
-
     @Test public void taskExtTest() {
         @Task
         class Task1 extends SimpleTask {

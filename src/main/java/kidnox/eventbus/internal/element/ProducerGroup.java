@@ -22,7 +22,7 @@ public final class ProducerGroup extends ElementsGroup {
 
     @Override public void registerGroup(Object target, AsyncBus bus) {
         super.registerGroup(target, bus);
-        for(ElementInfo entry : classInfo.elements) {
+        for(ElementInfo entry : classInfo.elements.values()) {
             final AsyncElement producer = new AsyncElement(target, entry, dispatcher);
             if(bus.putProducer(producer.eventType, producer) != null) {
                 throwBusException("register", target, " producer for event "

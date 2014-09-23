@@ -22,7 +22,7 @@ public final class SubscriberGroup extends ElementsGroup {
     @Override public void registerGroup(Object target, AsyncBus bus) {
         super.registerGroup(target, bus);
         final boolean checkProducers = bus.checkProducers();
-        for(ElementInfo entry : classInfo.elements) {
+        for(ElementInfo entry : classInfo.elements.values()) {
             final AsyncElement subscriber = new AsyncElement(target, entry, dispatcher);
             subscribers.add(subscriber);
             if(checkProducers) {

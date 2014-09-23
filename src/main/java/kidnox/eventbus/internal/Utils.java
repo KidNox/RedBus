@@ -37,16 +37,12 @@ public final class Utils {
         throw new BusException(action + " was failed " + cause + message);
     }
 
-    public static final Class REGISTER_VOID_KEY = OnRegisterVoidType.class;
-    public static final Class REGISTER_BUS_KEY = OnRegisterBusType.class;
+    public static final Class REGISTER_KEY = OnRegisterVoidType.class;
     public static final Class UNREGISTER_VOID_KEY = OnUnregisterVoidType.class;
-    public static final Class UNREGISTER_BUS_KEY = OnUnregisterBusType.class;
     public static final Class EXECUTE_KEY = ExecuteType.class;
 
     private static class OnRegisterVoidType {}
-    private static class OnRegisterBusType {}
     private static class OnUnregisterVoidType {}
-    private static class OnUnregisterBusType {}
     private static class ExecuteType {}
 
     private Utils() {}

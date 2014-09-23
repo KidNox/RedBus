@@ -2,6 +2,7 @@ package kidnox.eventbus.internal;
 
 import kidnox.eventbus.Dispatcher;
 import kidnox.eventbus.internal.element.Element;
+import kidnox.eventbus.internal.element.ListenerInfo;
 
 public class ElementsGroup {
 
@@ -14,21 +15,15 @@ public class ElementsGroup {
     }
 
     public void registerGroup(Object target, AsyncBus bus) {
-        if(classInfo.onRegisterListener != null) {
-            if(classInfo.onRegisterListener.eventType == Utils.REGISTER_BUS_KEY)
-                dispatch(new Element(classInfo.onRegisterListener, target), bus, bus);
-            else
-                dispatch(new Element(classInfo.onRegisterListener, target), bus, null);
-        }
+        ListenerInfo listenerInfo = (ListenerInfo) classInfo.elements.get(Utils.REGISTER_KEY);
+        if(listenerInfo != null)
+            dispatch(new Element(listenerInfo, target), bus, listenerInfo.withBusArgument ? bus : null);
     }
 
     public void unregisterGroup(Object target, AsyncBus bus) {
-        if(classInfo.onUnRegisterListener != null) {
-            if(classInfo.onUnRegisterListener.eventType == Utils.UNREGISTER_BUS_KEY)
-                dispatch(new Element(classInfo.onUnRegisterListener, target), bus, bus);
-            else
-                dispatch(new Element(classInfo.onUnRegisterListener, target), bus, null);
-        }
+        ListenerInfo listenerInfo = (ListenerInfo) classInfo.elements.get(Utils.UNREGISTER_VOID_KEY);
+        if(listenerInfo != null)
+            dispatch(new Element(listenerInfo, target), bus, listenerInfo.withBusArgument ? bus : null);
     }
 
     protected void dispatch(final Element element, final AsyncBus bus, final Object param) {

@@ -25,23 +25,20 @@ public final class TaskGroup extends ElementsGroup {
     }
 
     private void executeTask(Object target, AsyncBus bus) {
-        if(classInfo.onRegisterListener != null) {
-            if(classInfo.onRegisterListener.eventType == Utils.REGISTER_BUS_KEY)
-                invokeElement(new Element(classInfo.onRegisterListener, target), bus, bus);
-            else
-                invokeElement(new Element(classInfo.onRegisterListener, target), bus, null);
-        }
-        for(ElementInfo entry : classInfo.elements) {
-            Object event = invokeElement(new Element(entry, target), bus, null);
+        ListenerInfo listenerInfo = (ListenerInfo) classInfo.elements.get(Utils.REGISTER_KEY);
+        if(listenerInfo != null)
+            invokeElement(new Element(listenerInfo, target), bus, listenerInfo.withBusArgument ? bus : null);
+
+        ElementInfo elementInfo = classInfo.elements.get(Utils.EXECUTE_KEY);
+        if(elementInfo != null) {
+            Object event = invokeElement(new Element(elementInfo, target), bus, null);
             if(event != null) bus.post(event);
         }
+
         bus.unregister(target);
-        if(classInfo.onUnRegisterListener != null) {
-            if(classInfo.onUnRegisterListener.eventType == Utils.UNREGISTER_BUS_KEY)
-                invokeElement(new Element(classInfo.onUnRegisterListener, target), bus, bus);
-            else
-                invokeElement(new Element(classInfo.onUnRegisterListener, target), bus, null);
-        }
+        listenerInfo = (ListenerInfo) classInfo.elements.get(Utils.UNREGISTER_VOID_KEY);
+        if(listenerInfo != null)
+            dispatch(new Element(listenerInfo, target), bus, listenerInfo.withBusArgument ? bus : null);
     }
 
     @Override public void unregisterGroup(Object target, AsyncBus bus) { }

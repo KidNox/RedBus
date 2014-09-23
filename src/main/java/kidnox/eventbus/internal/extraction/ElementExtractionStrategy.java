@@ -3,6 +3,7 @@ package kidnox.eventbus.internal.extraction;
 import kidnox.eventbus.Bus;
 import kidnox.eventbus.internal.element.ElementInfo;
 import kidnox.eventbus.internal.element.ElementType;
+import kidnox.eventbus.internal.element.ListenerInfo;
 
 import java.lang.reflect.Method;
 
@@ -19,9 +20,9 @@ interface ElementExtractionStrategy {
                 throwBadMethodException(method, "with @Register must return void type.");
             Class[] params = method.getParameterTypes();
             if (params.length == 0)
-                return new ElementInfo(ElementType.REGISTER, REGISTER_VOID_KEY, method);
+                return new ListenerInfo(ElementType.REGISTER, REGISTER_KEY, method, false);
             else if (params.length == 1 && params[0] == Bus.class)
-                return new ElementInfo(ElementType.REGISTER, REGISTER_BUS_KEY, method);
+                return new ListenerInfo(ElementType.REGISTER, REGISTER_KEY, method, true);
             else throwBadMethodException(method,
                         "with @Register must require zero arguments or one argument of Bus type.");
             return null;
@@ -34,9 +35,9 @@ interface ElementExtractionStrategy {
                 throwBadMethodException(method, "with @Unregister must return void type.");
             Class[] params = method.getParameterTypes();
             if (params.length == 0)
-                return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_VOID_KEY, method);
+                return new ListenerInfo(ElementType.UNREGISTER, UNREGISTER_VOID_KEY, method, false);
             else if (params.length == 1 && params[0] == Bus.class)
-                return new ElementInfo(ElementType.UNREGISTER, UNREGISTER_BUS_KEY, method);
+                return new ListenerInfo(ElementType.UNREGISTER, UNREGISTER_VOID_KEY, method, true);
             else throwBadMethodException(method,
                         "with @Unregister must require zero arguments or one argument of Bus type.");
             return null;

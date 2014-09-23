@@ -2,33 +2,23 @@ package kidnox.eventbus.internal;
 
 import kidnox.eventbus.internal.element.ElementInfo;
 
-import java.util.Collection;
+import java.util.Map;
 
 public final class ClassInfo {
     public final Class clazz;
     public final ClassType type;
     public final String annotationValue;
-    public final Collection<ElementInfo> elements;
-    //TODO maybe better to keep listeners in element collection (use map optionally)
-    public final ElementInfo onRegisterListener;
-    public final ElementInfo onUnRegisterListener;
+    public final Map<Class, ElementInfo> elements;
 
     public ClassInfo(Class clazz) {
         this(clazz, ClassType.NONE, null, null);
     }
 
-    public ClassInfo(Class clazz, ClassType type, String annotationValue, Collection<ElementInfo> elements) {
-        this(clazz, type, annotationValue, elements, null, null);
-    }
-
-    public ClassInfo(Class clazz, ClassType type, String annotationValue, Collection<ElementInfo> elements,
-                     ElementInfo onRegisterListener, ElementInfo onUnRegisterListener) {
+    public ClassInfo(Class clazz, ClassType type, String annotationValue, Map<Class, ElementInfo> elements) {
         this.clazz = clazz;
         this.type = type;
         this.annotationValue = annotationValue;
         this.elements = elements;
-        this.onRegisterListener = onRegisterListener;
-        this.onUnRegisterListener = onUnRegisterListener;
     }
 
     public boolean isEmpty() {

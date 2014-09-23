@@ -34,6 +34,7 @@ public class ClassExtractorValidationTest {
                 {new WrongArgsEventHandler()},
                 {new WrongReturnTypeHandler()},
                 {new WrongExecuteMethodTask()},
+                {new ToManyExecuteMethodsTask()},
                 {new WrongInheritDispatcherSubscriber()},
                 {new WrongInheritDispatcherProducer()}});
     }
@@ -206,6 +207,17 @@ public class ClassExtractorValidationTest {
         }
 
         @Execute public void execute(Object param) {}
+    }
+
+    @Task
+    private static class ToManyExecuteMethodsTask extends BadClass {
+        public ToManyExecuteMethodsTask() {
+            super("task can contain only one @Execute method.");
+        }
+
+        @Execute public void execute() {}
+
+        @Execute public void execute2() {}
     }
 
     @Subscriber("wrong")

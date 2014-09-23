@@ -156,31 +156,12 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {
         }
 
         ClassInfo createInfo(Class clazz, ClassType type, String annotationValue, Map<Class, ElementInfo> elementsMap) {
-            if(elementsMap == null) {
-                return new ClassInfo(clazz, type, annotationValue, Collections.<ElementInfo>emptyList());
-            } else { //TODO optimize listeners extraction, ElementInfo overriding can be used for this
-                ElementInfo onRegister = elementsMap.remove(REGISTER_VOID_KEY);
-                ElementInfo onRegisterBusType = elementsMap.remove(REGISTER_BUS_KEY);
-                if(onRegister == null) {
-                    onRegister = onRegisterBusType;
-                } else {
-                    if(onRegisterBusType != null)
-                        throw new BusException("to many @OnRegister methods, can be only one");
-                }
-                ElementInfo onUnregister = elementsMap.remove(UNREGISTER_VOID_KEY);
-                ElementInfo onUnregisterBusType = elementsMap.remove(UNREGISTER_BUS_KEY);
-                if(onUnregister == null) {
-                    onUnregister = onUnregisterBusType;
-                } else {
-                    if(onUnregisterBusType != null)
-                        throw new BusException("to many @OnUnregister methods, can be only one");
-                }
-                return new ClassInfo(clazz, type, annotationValue, elementsMap.values(), onRegister, onUnregister);
-            }
+            elementsMap = elementsMap == null ? Collections.<Class, ElementInfo>emptyMap() : elementsMap;
+            return new ClassInfo(clazz, type, annotationValue, elementsMap);
         }
 
         boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
-            if(oldElement.eventType == Utils.REGISTER_VOID_KEY)
+            if(oldElement.eventType == Utils.REGISTER_KEY)
                 throw new BusException("Class %s can contain only one @OnRegister method", clazz.getName());
             if(oldElement.eventType == Utils.UNREGISTER_VOID_KEY)
                 throw new BusException("Class %s can contain only one @OnUnregister method");
