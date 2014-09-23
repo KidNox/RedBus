@@ -1,5 +1,9 @@
 package kidnox.eventbus.internal;
 
+import kidnox.eventbus.Execute;
+import kidnox.eventbus.OnRegister;
+import kidnox.eventbus.OnUnregister;
+
 import java.util.*;
 
 public final class Utils {
@@ -37,13 +41,10 @@ public final class Utils {
         throw new BusException(action + " was failed " + cause + message);
     }
 
-    public static final Class REGISTER_KEY = OnRegisterVoidType.class;
-    public static final Class UNREGISTER_VOID_KEY = OnUnregisterVoidType.class;
-    public static final Class EXECUTE_KEY = ExecuteType.class;
+    public static final Class REGISTER_KEY = OnRegister.class;
+    public static final Class UNREGISTER_VOID_KEY = OnUnregister.class;
+    public static final Class EXECUTE_KEY = Execute.class;
 
-    private static class OnRegisterVoidType {}
-    private static class OnUnregisterVoidType {}
-    private static class ExecuteType {}
 
     private Utils() {}
 }
