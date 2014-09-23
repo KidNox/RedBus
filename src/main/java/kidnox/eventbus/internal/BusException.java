@@ -6,6 +6,10 @@ public final class BusException extends RuntimeException {
 
     public BusException() {}
 
+    public BusException(String template, Object... args) {
+        this(String.format(template, args));
+    }
+
     public BusException(String message) {
         super(message);
     }

@@ -43,13 +43,10 @@ public class TaskLifecycleTest {
             bus.unregister(simpleTask);
             fail();
         } catch (BusException ignored) {}
-    }
-
-    @Test public void testUnregister4() {
-        SimpleTask2 simpleTask = new SimpleTask2();
-        bus.register(simpleTask);
+        SimpleTask2 simpleTask2 = new SimpleTask2();
+        bus.register(simpleTask2);
         try {
-            bus.unregister(simpleTask);
+            bus.unregister(simpleTask2);
             fail();
         } catch (BusException ignored) {}
     }

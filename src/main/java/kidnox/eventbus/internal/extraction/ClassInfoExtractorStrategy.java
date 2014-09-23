@@ -14,7 +14,7 @@ import static kidnox.eventbus.internal.Utils.*;
 import static kidnox.eventbus.internal.extraction.ExtractionUtils.*;
 
 @SuppressWarnings("unchecked")
-interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask support
+interface ClassInfoExtractorStrategy<T extends Annotation> {
 
     ClassInfo extract(Class clazz, T annotation);
 
@@ -32,6 +32,12 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
             checkAnnotationValue(current, subscriber.value(), childAnnotationValue, child);
             return true;
         }
+
+        @Override boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
+            if(super.resolveSameKeysElements(clazz, newElement, oldElement)) return true;//TODO subscribe handle
+            throw new BusException("To many @Subscribe methods in instance of %s, for event %s, can be only one.",
+                    clazz.getName(), newElement.eventType);
+        }
     };
 
     ClassInfoExtractorStrategy<Producer> PRODUCER = new InheritanceSupportedStrategy<Producer>
@@ -47,6 +53,12 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
             checkAnnotationValue(current, producer.value(), childAnnotationValue, child);
             return true;
         }
+
+        @Override boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
+            if(super.resolveSameKeysElements(clazz, newElement, oldElement)) return true;
+            throw new BusException("To many @Produce methods in instance of %s, for event %s, can be only one.",
+                    clazz.getName(), newElement.eventType);
+        }
     };
 
     ClassInfoExtractorStrategy<Task> TASK = new InheritanceNotSupportedStrategy<Task>
@@ -54,6 +66,11 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
 
         @Override String getAnnotationValue(Task annotation) {
             return annotation.value();
+        }
+
+        @Override boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
+            if(super.resolveSameKeysElements(clazz, newElement, oldElement)) return true;
+            throw new BusException("Task %s can contain only one @Execute method.", clazz.getName());
         }
     };
 
@@ -65,36 +82,17 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
 
         @Override public ClassInfo extract(Class clazz, T annotation) {
             Map<Class, ElementInfo> elementsInfoMap = null;
-            final String value = getAnnotationValue(annotation);
-
+            String value = getAnnotationValue(annotation);
             for(Class mClass = clazz; check(mClass, clazz, value); mClass = mClass.getSuperclass()) {
-                for (Method method : mClass.getDeclaredMethods()) {
-                    if ((method.getModifiers() & Modifier.PUBLIC) == 0) //ignore all not public methods
-                        continue;
-                    Annotation[] annotations = method.getDeclaredAnnotations();
-                    if (isNullOrEmpty(annotations)) continue;
-                    if(method.isBridge()) continue; //java 8 annotated bridge methods fix
-
-                    for (Annotation mAnnotation : annotations) {
-                        ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);
-                        if (strategy == null) continue;
-                        if (elementsInfoMap == null) elementsInfoMap = newHashMap(8);
-
-                        ElementInfo element = strategy.extract(method, clazz);
-                        ElementInfo oldEntry = elementsInfoMap.put(element.eventType, element);
-                        if (oldEntry != null) {
-                            //overridden method check
-                            if (oldEntry.method.getName().equals(element.method.getName())) {
-                                elementsInfoMap.put(element.eventType, element);
-                            } else {
-                                throwMultiplyMethodsException(clazz, element.eventType, type.toString().toLowerCase());
-                            }
-                        }
-                        break; //we find strategy for annotation and extract element so can break
-                    }
-                }
+                elementsInfoMap = fillElementsInfoMap(elementsInfoMap, mClass.getDeclaredMethods(), clazz);
             }
             return createInfo(clazz, type, value, elementsInfoMap);
+        }
+
+        @Override boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
+            //noinspection SimplifiableIfStatement
+            if(super.resolveSameKeysElements(clazz, newElement, oldElement)) return true;
+            return oldElement.method.getName().equals(newElement.method.getName());
         }
 
         abstract String getAnnotationValue(T annotation);
@@ -108,26 +106,8 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
         }
 
         @Override public ClassInfo extract(Class clazz, T annotation) {
-            Map<Class, ElementInfo> elementsInfoMap = null;
-            final String value = getAnnotationValue(annotation);
-
-            for(Method method : clazz.getDeclaredMethods()) {
-                if ((method.getModifiers() & Modifier.PUBLIC) == 0)
-                    continue;
-                Annotation[] annotations = method.getDeclaredAnnotations();
-                if (isNullOrEmpty(annotations)) continue;
-                if(method.isBridge()) continue;
-
-                for (Annotation mAnnotation : annotations) {
-                    ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);
-                    if (strategy == null) continue;
-                    if (elementsInfoMap == null) elementsInfoMap = newHashMap(8);
-
-                    ElementInfo element = strategy.extract(method, clazz);
-                    elementsInfoMap.put(element.eventType, element);
-                    break;
-                }
-            }
+            Map<Class, ElementInfo> elementsInfoMap = fillElementsInfoMap(null, clazz.getDeclaredMethods(), clazz);
+            String value = getAnnotationValue(annotation);
             return createInfo(clazz, type, value, elementsInfoMap);
         }
 
@@ -135,6 +115,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
     }
 
     static abstract class AbstractStrategy<T extends Annotation> implements ClassInfoExtractorStrategy<T> {
+
         final ClassType type;
         final Map<Class<? extends Annotation>, ElementExtractionStrategy> strategyMap;
 
@@ -144,12 +125,33 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
             this.strategyMap = getElementStrategiesFor(args);
         }
 
+        Map<Class, ElementInfo> fillElementsInfoMap(Map<Class, ElementInfo> elements, Method[] methods, Class clazz) {
+            for(Method method : methods) {
+                if ((method.getModifiers() & Modifier.PUBLIC) == 0) continue; //ignore all not public methods
+
+                Annotation[] annotations = method.getDeclaredAnnotations();
+                if (isNullOrEmpty(annotations)) continue;
+                if(method.isBridge()) continue; //java 8 annotated bridge methods fix
+
+                for (Annotation mAnnotation : annotations) {
+                    ElementExtractionStrategy strategy = getElementStrategy(mAnnotation, type, clazz);
+                    if (strategy == null) continue;
+                    if (elements == null) elements = newHashMap(8);
+
+                    ElementInfo element = strategy.extract(method, clazz);
+                    ElementInfo oldEntry = elements.put(element.eventType, element);
+                    if(oldEntry != null) resolveSameKeysElements(clazz, element, oldEntry);
+                    break; //we find strategy for annotation and extract element so can break
+                }
+            }
+            return elements;
+        }
+
         ElementExtractionStrategy getElementStrategy(Annotation elementAnnotation, ClassType classType, Class clazz) {
             Class<? extends Annotation> elementType = elementAnnotation.annotationType();
             ElementExtractionStrategy strategy = strategyMap.get(elementType);
-            if(strategy == null && ELEMENT_STRATEGIES.containsKey(elementType)) {
+            if(strategy == null && ELEMENT_STRATEGIES.containsKey(elementType))
                 throwAnnotationNotAllowedHere(clazz, classType, elementType);
-            }
             return strategy;
         }
 
@@ -175,6 +177,14 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {//TODO EventTask sup
                 }
                 return new ClassInfo(clazz, type, annotationValue, elementsMap.values(), onRegister, onUnregister);
             }
+        }
+
+        boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
+            if(oldElement.eventType == Utils.REGISTER_VOID_KEY)
+                throw new BusException("Class %s can contain only one @OnRegister method", clazz.getName());
+            if(oldElement.eventType == Utils.UNREGISTER_VOID_KEY)
+                throw new BusException("Class %s can contain only one @OnUnregister method");
+            return false;
         }
     }
 }

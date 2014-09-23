@@ -145,7 +145,7 @@ public class ClassExtractorValidationTest {
             return null;
         }
 
-        @Handle public void obtainEvent(Event event) { }
+        @Subscribe public void obtainEvent(Event event) { }
     }
 
     @Producer

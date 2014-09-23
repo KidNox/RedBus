@@ -46,24 +46,19 @@ final class ExtractionUtils {
 
     static void checkAnnotationValue(Class clazz, String annotationValue, String baseValue, Class child) {
         if (!baseValue.equals(annotationValue)){
-            throw new BusException(String.format("dispatchers for child and parent classes does not match:"
-                            + " child class = %s, dispatcher = %s, parent class = %s, dispatcher = %s.",
-                    child.getName(), baseValue, clazz.getName(), annotationValue));
+            throw new BusException("dispatchers for child and parent classes does not match: child class = %s, " +
+                    "dispatcher = %s, parent class = %s, dispatcher = %s.",
+                    child.getName(), baseValue, clazz.getName(), annotationValue);
         }
     }
 
-    static void throwMultiplyMethodsException(Class clazz, Class event, String what) {
-        throw new BusException(String.format("To many %s methods in instance of %s, " +
-                "for event %s, can be only one.", what, clazz.getName(), event.getName()));
-    }
-
     static void throwAnnotationNotAllowedHere(Class target, ClassType targetType,Class badAnnotation) {
-        throw new BusException(String.format("annotation %s not allowed in class %s that annotated as %s",
-                badAnnotation.getSimpleName(), target.getName(), targetType));
+        throw new BusException("Annotation %s not allowed in class %s that annotated as %s",
+                badAnnotation.getSimpleName(), target.getName(), targetType);
     }
 
     static void throwBadMethodException(Method method, String description) {
-        throw new BusException(String.format("Method %s %s", method, description));
+        throw new BusException("Method %s %s", method, description);
     }
 
 }
