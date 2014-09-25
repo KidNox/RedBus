@@ -31,10 +31,13 @@ public class ClassExtractorValidationTest {
                 {new SameEventsProducer()},
                 {new SameEventsHandler()},
                 {new SameEventsSubscriberHandler()},
+                {new InterfaceParamHandler()},
+                {new InterfaceReturnHandler()},
                 {new WrongArgsEventHandler()},
                 {new WrongReturnTypeHandler()},
                 {new WrongExecuteMethodTask()},
                 {new ToManyExecuteMethodsTask()},
+                {new ExecuteReturnInterface()},
                 {new WrongInheritDispatcherSubscriber()},
                 {new WrongInheritDispatcherProducer()}});
     }
@@ -60,7 +63,7 @@ public class ClassExtractorValidationTest {
     @Subscriber
     private static class NotVoidReturnTypeSubscriber extends BadClass {
         public NotVoidReturnTypeSubscriber() {
-            super("method annotated with @Subscribe must be void.");
+            super("method annotated with @Subscribe must be void");
         }
 
         @Subscribe public Object obtainEvent(Object event) {
@@ -71,7 +74,7 @@ public class ClassExtractorValidationTest {
     @Subscriber
     private static class WrongMethodArgsNumberSubscriber extends BadClass {
         public WrongMethodArgsNumberSubscriber() {
-            super("method annotated with @Subscribe must require a single argument.");
+            super("method annotated with @Subscribe must require a single argument");
         }
 
         @Subscribe public void obtainEvent() {}
@@ -80,7 +83,7 @@ public class ClassExtractorValidationTest {
     @Subscriber
     private static class WrongMethodArgsNumber2Subscriber extends BadClass {
         public WrongMethodArgsNumber2Subscriber() {
-            super("method annotated with @Subscribe must require a single argument.");
+            super("method annotated with @Subscribe must require a single argument");
         }
 
         @Subscribe public void obtainEvent(Object event, Object event2) {}
@@ -89,7 +92,7 @@ public class ClassExtractorValidationTest {
     @Subscriber
     private static class InterfaceEventSubscriber extends BadClass {
         public InterfaceEventSubscriber() {
-            super("method annotated with @Subscribe can't subscribe for interface.");
+            super("method annotated with @Subscribe can't subscribe for interface");
         }
 
         @Subscribe public void obtainEvent(Runnable event) {}
@@ -149,10 +152,32 @@ public class ClassExtractorValidationTest {
         @Subscribe public void obtainEvent(Event event) { }
     }
 
+    @Subscriber
+    private static class InterfaceParamHandler extends BadClass {
+        public InterfaceParamHandler() {
+            super("method annotated with @Handle can't handle interface");
+        }
+
+        @Handle public Event handle(Runnable event) {
+            return null;
+        }
+    }
+
+    @Subscriber
+    private static class InterfaceReturnHandler extends BadClass {
+        public InterfaceReturnHandler() {
+            super("method annotated with @Handle can't return interface");
+        }
+
+        @Handle public Runnable handle(Event event) {
+            return null;
+        }
+    }
+
     @Producer
     private static class VoidReturnTypeProducer extends BadClass {
         public VoidReturnTypeProducer() {
-            super("method annotated with @Produce can't be void.");
+            super("method annotated with @Produce can't be void");
         }
 
         @Produce public void produceEvent() {}
@@ -161,7 +186,7 @@ public class ClassExtractorValidationTest {
     @Producer
     private static class WrongMethodArgsNumberProducer extends BadClass {
         public WrongMethodArgsNumberProducer() {
-            super("method annotated with @Produce must require zero arguments.");
+            super("method annotated with @Produce must require zero arguments");
         }
 
         @Produce public Object produceEvent(Object event) {
@@ -172,7 +197,7 @@ public class ClassExtractorValidationTest {
     @Producer
     private static class InterfaceEventProducer extends BadClass {
         public InterfaceEventProducer() {
-            super("method annotated with @Produce can't produce interface.");
+            super("method annotated with @Produce can't produce interface");
         }
 
         @Produce public Runnable produceEvent() {
@@ -183,7 +208,7 @@ public class ClassExtractorValidationTest {
     @Subscriber
     private static class WrongArgsEventHandler extends BadClass {
         public WrongArgsEventHandler() {
-            super("method annotated with @Handle must require a single element.");
+            super("method annotated with @Handle must require a single element");
         }
 
         @Handle public Event handleEvent() {
@@ -194,7 +219,7 @@ public class ClassExtractorValidationTest {
     @Subscriber
     private static class WrongReturnTypeHandler extends BadClass {
         public WrongReturnTypeHandler() {
-            super("method annotated with @Handle can't be void.");
+            super("method annotated with @Handle can't be void");
         }
 
         @Handle public void handleEvent(Event event) {}
@@ -212,12 +237,23 @@ public class ClassExtractorValidationTest {
     @Task
     private static class ToManyExecuteMethodsTask extends BadClass {
         public ToManyExecuteMethodsTask() {
-            super("task can contain only one @Execute method.");
+            super("task can contain only one @Execute method");
         }
 
         @Execute public void execute() {}
 
         @Execute public void execute2() {}
+    }
+
+    @Task
+    private static class ExecuteReturnInterface extends BadClass {
+        public ExecuteReturnInterface() {
+            super("method annotated with @Execute can't return interface");
+        }
+
+        @Execute public Runnable execute() {
+            return null;
+        }
     }
 
     @Subscriber("wrong")

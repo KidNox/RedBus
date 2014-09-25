@@ -15,7 +15,7 @@ public class SimpleSubscriber {
         currentEvent = event;
     }
 
-    public Object getCurrentEvent() {
+    public Event getCurrentEvent() {
         return currentEvent;
     }
 

@@ -1,15 +1,16 @@
 package kidnox.eventbus;
 
 import kidnox.eventbus.internal.BusException;
+import kidnox.eventbus.test.Event;
+import kidnox.eventbus.test.simple.SimpleSubscriber;
 import kidnox.eventbus.test.simple.SimpleTask;
 import kidnox.eventbus.test.simple.SimpleTask2;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-public class TaskLifecycleTest {
+public class TaskTest {
 
     Bus bus;
 
@@ -49,6 +50,31 @@ public class TaskLifecycleTest {
             bus.unregister(simpleTask2);
             fail();
         } catch (BusException ignored) {}
+    }
+
+    @Test public void stubTaskTest() {
+        @Task
+        class StubTask {}
+        StubTask task = new StubTask();
+        bus.register(task);
+        try {
+            bus.unregister(task);
+            fail();
+        } catch (BusException ignored) {}
+    }
+
+    @Test public void executeReturnValueTest() {
+        @Task class TestTask {
+            @Execute public Event execute() {
+                return new Event();
+            }
+        }
+        TestTask testTask = new TestTask();
+        SimpleSubscriber subscriber = new SimpleSubscriber();
+        bus.register(subscriber);
+        assertNull(subscriber.getCurrentEvent());
+        bus.register(testTask);
+        assertNotNull(subscriber.getCurrentEvent());
     }
 
 }

@@ -340,7 +340,7 @@ public class AsyncTest {
         assertFalse(isRegistered.get());
     }
 
-    @Test public void asyncRegisterTest() throws InterruptedException {
+    @Test public void asyncRegisterUnregisterTest() throws InterruptedException {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
         final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
@@ -348,27 +348,14 @@ public class AsyncTest {
         @Subscriber("worker")
         class SubscriberWithListener {
             volatile Bus bus;
+            volatile boolean unregisterCalled;
             @OnRegister public void onRegister(Bus bus) {
                 checkThread(dispatcher.getThread());
                 this.bus = bus;
                 semaphore.release();
             }
-        }
-        SubscriberWithListener subscriber = new SubscriberWithListener();
-        bus.register(subscriber);
-        semaphore.acquire();
-        assertEquals(bus, subscriber.bus);
-    }
 
-    @Test public void asyncUnregisterTest() throws InterruptedException {
-        final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
-        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
-        final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
-        final Semaphore semaphore = new Semaphore(0, true);
-        @Subscriber("worker")
-        class SubscriberWithListener {
-            volatile boolean unregisterCalled;
-            @OnRegister public void onUnregister() {
+            @OnUnregister public void onUnregister() {
                 checkThread(dispatcher.getThread());
                 unregisterCalled = true;
                 semaphore.release();
@@ -377,7 +364,46 @@ public class AsyncTest {
         SubscriberWithListener subscriber = new SubscriberWithListener();
         bus.register(subscriber);
         semaphore.acquire();
+        assertEquals(bus, subscriber.bus);
+        bus.unregister(subscriber);
+        semaphore.acquire();
         assertTrue(subscriber.unregisterCalled);
+    }
+
+    @Test public void asyncTaskTest() throws InterruptedException {
+        final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
+        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+        final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
+        final Semaphore semaphore = new Semaphore(0, true);
+        @Task("worker")
+        class TestTask {
+            volatile boolean onRegisterCalled;
+            volatile boolean executeCalled;
+            volatile boolean onUnregisterCalled;
+
+            @OnRegister public void onRegister() {
+                checkThread(dispatcher.getThread());
+                onRegisterCalled = !onRegisterCalled;
+            }
+
+            @Execute public void execute() {
+                checkThread(dispatcher.getThread());
+                executeCalled = !executeCalled;
+            }
+
+            @OnUnregister public void onUnregisterCalled() {
+                checkThread(dispatcher.getThread());
+                onUnregisterCalled = !onUnregisterCalled;
+                semaphore.release();
+            }
+        }
+
+        TestTask testTask = new TestTask();
+        bus.register(testTask);
+        semaphore.acquire();
+        assertTrue(testTask.onRegisterCalled);
+        assertTrue(testTask.executeCalled);
+        assertTrue(testTask.onUnregisterCalled);
     }
 
     private void checkThread(Thread expected) {

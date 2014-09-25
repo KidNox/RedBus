@@ -6,7 +6,7 @@ import kidnox.eventbus.Handle;
 import java.util.Date;
 
 @Subscriber
-public class LargeProcessor {
+public class LargeHandler {
 
     volatile int producedObjectCount = 0;
     volatile int producedEventCount = 0;

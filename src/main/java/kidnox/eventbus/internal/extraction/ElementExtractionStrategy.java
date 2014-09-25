@@ -88,6 +88,8 @@ interface ElementExtractionStrategy {
             Class type = params[0];
             if (type.isInterface())
                 throwBadMethodException(method, "can't handle interface.");
+            if(method.getReturnType().isInterface())
+                throwBadMethodException(method, "can't return interface type");
 
             return new ElementInfo(ElementType.HANDLE, type, method);
         }
@@ -97,6 +99,9 @@ interface ElementExtractionStrategy {
         @Override public ElementInfo extract(Method method, Class target) {
             if (method.getParameterTypes().length != 0)
                 throwBadMethodException(method, "with @Execute must require zero arguments.");
+            if(method.getReturnType().isInterface())
+                throwBadMethodException(method, "can't return interface type");
+
             return new ElementInfo(ElementType.EXECUTE, EXECUTE_KEY, method);
         }
     };

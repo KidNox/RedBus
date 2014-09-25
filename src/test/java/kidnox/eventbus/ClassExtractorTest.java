@@ -12,7 +12,6 @@ import kidnox.eventbus.test.simple.SimpleProducer;
 import kidnox.eventbus.test.simple.SimpleSubscriber;
 import kidnox.eventbus.test.simple.SimpleTask;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static kidnox.eventbus.internal.extraction.PackageLocalProvider.getClassToInfoMap;
@@ -76,7 +75,7 @@ public class ClassExtractorTest {
     @Test public void methodsCountTest() {
         assertEquals(4, classInfoExtractor.getClassInfo(LargeSubscriber.class).elements.size());
         assertEquals(4, classInfoExtractor.getClassInfo(LargeProducer.class).elements.size());
-        assertEquals(4, classInfoExtractor.getClassInfo(LargeProcessor.class).elements.size());
+        assertEquals(4, classInfoExtractor.getClassInfo(LargeHandler.class).elements.size());
     }
     //for java 8
     @Test public void bridgeMethodIgnoreTest() {

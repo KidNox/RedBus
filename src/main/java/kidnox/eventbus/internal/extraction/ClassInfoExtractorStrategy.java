@@ -34,9 +34,13 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {
         }
 
         @Override boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
-            if(super.resolveSameKeysElements(clazz, newElement, oldElement)) return true;//TODO subscribe handle
-            throw new BusException("To many @Subscribe methods in instance of %s, for event %s, can be only one.",
-                    clazz.getName(), newElement.eventType);
+            if(super.resolveSameKeysElements(clazz, newElement, oldElement)) return true;
+            if(newElement.elementType != oldElement.elementType) {
+                throw new BusException("%s can contain only one subscribe or handle method for %s event",
+                        clazz.getName(), newElement.eventType.getName());
+            }
+            throw new BusException("To many %s methods in instance of %s, for event %s, can be only one.",
+                    newElement.elementType.toString().toLowerCase(), clazz.getName(), newElement.eventType);
         }
     };
 
@@ -56,7 +60,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {
 
         @Override boolean resolveSameKeysElements(Class clazz, ElementInfo newElement, ElementInfo oldElement) {
             if(super.resolveSameKeysElements(clazz, newElement, oldElement)) return true;
-            throw new BusException("To many @Produce methods in instance of %s, for event %s, can be only one.",
+            throw new BusException("To many produce methods in instance of %s, for event %s, can be only one.",
                     clazz.getName(), newElement.eventType);
         }
     };

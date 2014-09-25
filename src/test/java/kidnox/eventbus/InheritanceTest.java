@@ -6,6 +6,7 @@ import kidnox.eventbus.internal.InternalFactory;
 import kidnox.eventbus.test.*;
 import kidnox.eventbus.test.simple.SimpleProducer;
 import kidnox.eventbus.test.simple.SimpleSubscriber;
+import kidnox.eventbus.test.simple.SimpleTask;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -168,6 +169,28 @@ public class InheritanceTest {
 
         classInfoExtractor.getClassInfo(Producer2.class);
         assertEquals(1, getClassToInfoMap(classInfoExtractor).get(Producer2.class).elements.size());
+    }
+
+    @Test public void taskNotInheritTest() {
+        @Task class TestTask extends SimpleTask {}
+        classInfoExtractor.getClassInfo(TestTask.class);
+        assertEquals(0, getClassToInfoMap(classInfoExtractor).get(TestTask.class).elements.size());
+    }
+
+    @Test public void taskNotInheritTest2() {
+        @Task class TestTask extends SimpleTask {
+            @Override public void execute() {}
+        }
+        classInfoExtractor.getClassInfo(TestTask.class);
+        assertEquals(0, getClassToInfoMap(classInfoExtractor).get(TestTask.class).elements.size());
+    }
+
+    @Test public void taskNotInheritTest3() {
+        @Task class TestTask extends SimpleTask {
+            @Override @Execute public void execute() {}
+        }
+        classInfoExtractor.getClassInfo(TestTask.class);
+        assertEquals(1, getClassToInfoMap(classInfoExtractor).get(TestTask.class).elements.size());
     }
 
 }

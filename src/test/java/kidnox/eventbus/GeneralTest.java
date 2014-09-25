@@ -100,6 +100,10 @@ public class GeneralTest {
         assertEquals(2, producer.getProducedCount());
     }
 
+    @Test public void eventHandlerTest() {
+
+    }
+
     @Test public void taskTest() {
         SimpleTask simpleTask = new SimpleTask();
         bus.register(simpleTask);
