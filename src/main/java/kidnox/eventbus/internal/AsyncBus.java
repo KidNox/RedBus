@@ -55,7 +55,7 @@ public class AsyncBus implements Bus {
                 break;
         }
         if(instanceToElementsMap.put(target, elementsGroup) != null)
-            throwBusException("register", target, " already registered");
+            throwBusException("Register", target, " already registered.");
         elementsGroup.registerGroup(target, this);
     }
 
@@ -63,7 +63,7 @@ public class AsyncBus implements Bus {
         if(target == null) throw new NullPointerException();
         ElementsGroup elementsGroup = instanceToElementsMap.remove(target);
         if(elementsGroup == null)
-            throwBusException("unregister", target, " not registered");
+            throwBusException("Unregister", target, " not registered.");
         else elementsGroup.unregisterGroup(target, this);
     }
 

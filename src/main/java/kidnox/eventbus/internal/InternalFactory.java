@@ -70,7 +70,7 @@ public final class InternalFactory {
     }
 
     public static class DispatchersFactoryCachedProxy implements Dispatcher.Factory {
-        final Map<String, Dispatcher> dispatchersMap = newHashMap(4);
+        final Map<String, Dispatcher> dispatchersMap = newHashMap(8);
         final Dispatcher.Factory dispatcherFactory;
 
         public DispatchersFactoryCachedProxy(Dispatcher.Factory dispatcherFactory) {

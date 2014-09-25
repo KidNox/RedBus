@@ -38,7 +38,7 @@ public final class Utils {
     }
 
     public static void throwBusException(String action, Object cause, String message) {
-        throw new BusException(action + " was failed " + cause + message);
+        throw new BusException(action + " was failed. " + cause + message);
     }
 
     public static final Class REGISTER_KEY = OnRegister.class;

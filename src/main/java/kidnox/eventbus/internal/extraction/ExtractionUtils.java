@@ -52,11 +52,6 @@ final class ExtractionUtils {
         }
     }
 
-    static void throwAnnotationNotAllowedHere(Class target, ClassType targetType,Class badAnnotation) {
-        throw new BusException("Annotation %s not allowed in class %s that annotated as %s",
-                badAnnotation.getSimpleName(), target.getName(), targetType);
-    }
-
     static void throwBadMethodException(Method method, String description) {
         throw new BusException("Method %s %s", method, description);
     }

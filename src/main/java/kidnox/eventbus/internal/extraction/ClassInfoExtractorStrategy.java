@@ -150,8 +150,9 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {
         ElementExtractionStrategy getElementStrategy(Annotation elementAnnotation, ClassType classType, Class clazz) {
             Class<? extends Annotation> elementType = elementAnnotation.annotationType();
             ElementExtractionStrategy strategy = strategyMap.get(elementType);
-            if(strategy == null && ELEMENT_STRATEGIES.containsKey(elementType))
-                throwAnnotationNotAllowedHere(clazz, classType, elementType);
+            if (strategy == null && ELEMENT_STRATEGIES.containsKey(elementType))
+                throw new BusException("Annotation %s not allowed in class %s that annotated as %s",
+                        elementType.getSimpleName(), clazz.getName(), classType);
             return strategy;
         }
 
