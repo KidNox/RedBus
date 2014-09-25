@@ -36,7 +36,7 @@ public interface Bus {
         }
 
         public static Bus createDefault() {
-            return builder().create();
+            return builder().build();
         }
 
         public static BusBuilder builder() {

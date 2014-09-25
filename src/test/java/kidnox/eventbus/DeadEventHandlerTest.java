@@ -12,7 +12,7 @@ public class DeadEventHandlerTest {
 
     @Test public void deadEventPostTest() {
         SimpleDeadEventHandler deadEventHandler = new SimpleDeadEventHandler();
-        Bus bus = Bus.Factory.builder().withDeadEventHandler(deadEventHandler).create();
+        Bus bus = Bus.Factory.builder().withDeadEventHandler(deadEventHandler).build();
 
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);

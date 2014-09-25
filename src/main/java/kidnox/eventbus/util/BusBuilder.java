@@ -38,7 +38,7 @@ public final class BusBuilder {
         return this;
     }
 
-    public Bus create() {
+    public Bus build() {
         return Bus.Factory.createBus(dispatcherFactory, errorHandler, deadEventHandler, eventLogger, interceptor);
     }
 

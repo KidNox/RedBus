@@ -22,7 +22,7 @@ public class EventLoggerTest {
 
     @Before public void setUp() {
         eventLogger = new EventLoggerImpl();
-        bus = Bus.Factory.builder().withEventLogger(eventLogger).create();
+        bus = Bus.Factory.builder().withEventLogger(eventLogger).build();
     }
 
     @Test public void elementsTest() {
@@ -69,7 +69,7 @@ public class EventLoggerTest {
 
     @Test public  void interceptActionTest() {
         bus = Bus.Factory.builder().withEventLogger(eventLogger)
-                .withInterceptor(new EventTypeInterceptor(Event.class)).create();
+                .withInterceptor(new EventTypeInterceptor(Event.class)).build();
         bus.register(new SimpleSubscriber());
         bus.post(EVENT);
 

@@ -21,7 +21,7 @@ public class AsyncTest {
     @Test (timeout = 1000)
     public void baseAsyncTest() throws InterruptedException {
         AsyncDispatcherFactory factory = new AsyncDispatcherFactory();
-        bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+        bus = Bus.Factory.builder().withEventDispatcherFactory(factory).build();
 
         final SingleThreadEventDispatcher dispatcher1 = new SingleThreadEventDispatcher("worker-1");
         final SingleThreadEventDispatcher dispatcher2 = new SingleThreadEventDispatcher("worker-2");
@@ -113,7 +113,7 @@ public class AsyncTest {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory().withDispatcher("worker");
         final Bus bus = Bus.Factory.builder()
                 .withEventDispatcherFactory(factory)
-                .create();
+                .build();
 
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
 
@@ -143,7 +143,7 @@ public class AsyncTest {
         final Bus bus = Bus.Factory.builder()
                 .withEventDispatcherFactory(factory)
                 .withDeadEventHandler(deadEventHandler)
-                .create();
+                .build();
 
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
 
@@ -196,7 +196,7 @@ public class AsyncTest {
         final Thread thread = Thread.currentThread();
 
         final Dispatcher.Factory factory = new AsyncDispatcherFactory().withDispatcher("worker");
-        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).build();
 
         final SingleThreadEventDispatcher worker = TestUtils.getSTWorkerForName("worker", factory);
 
@@ -233,7 +233,7 @@ public class AsyncTest {
     @Test(timeout = 1000)
     public void asyncProduceTest() throws InterruptedException {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory("subscriber", "producer");
-        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).build();
 
         final Semaphore semaphore = new Semaphore(0, true);
 
@@ -290,7 +290,7 @@ public class AsyncTest {
     @Test (timeout = 1000)
     public void asyncProducerUnregisterTest() throws InterruptedException {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
-        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).build();
 
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
         final AtomicBoolean isRegistered = new AtomicBoolean();
@@ -342,7 +342,7 @@ public class AsyncTest {
 
     @Test public void asyncRegisterUnregisterTest() throws InterruptedException {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
-        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).build();
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
         final Semaphore semaphore = new Semaphore(0, true);
         @Subscriber("worker")
@@ -372,7 +372,7 @@ public class AsyncTest {
 
     @Test public void asyncTaskTest() throws InterruptedException {
         final Dispatcher.Factory factory = new AsyncDispatcherFactory("worker");
-        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).create();
+        final Bus bus = Bus.Factory.builder().withEventDispatcherFactory(factory).build();
         final SingleThreadEventDispatcher dispatcher = (SingleThreadEventDispatcher) factory.getDispatcher("worker");
         final Semaphore semaphore = new Semaphore(0, true);
         @Task("worker")

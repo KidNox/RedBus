@@ -17,13 +17,13 @@ public class ErrorHandlerTest {
 
     @Before public void setUp() {
         exceptionHandler = new DefinedErrorHandler(true);
-        bus = Bus.Factory.builder().withExceptionHandler(exceptionHandler).create();
+        bus = Bus.Factory.builder().withExceptionHandler(exceptionHandler).build();
     }
 
     @Test(expected = RuntimeException.class)
     public void unhandledExceptionTest() {
         exceptionHandler = new DefinedErrorHandler(false);
-        bus = Bus.Factory.builder().withExceptionHandler(exceptionHandler).create();
+        bus = Bus.Factory.builder().withExceptionHandler(exceptionHandler).build();
         bus.register(new ThrowingSubscriber());
         bus.post(new Event());
     }

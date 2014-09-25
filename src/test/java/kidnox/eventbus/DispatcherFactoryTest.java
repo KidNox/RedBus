@@ -20,7 +20,7 @@ public class DispatcherFactoryTest {
                 fail("must not be called");
                 return null;
             }
-        }).create();
+        }).build();
 
         Object target = new Object();
         bus.post(new Object());
@@ -33,7 +33,7 @@ public class DispatcherFactoryTest {
             @Override public Dispatcher getDispatcher(String dispatcherName) {
                 return dispatcher;
             }
-        }).create();
+        }).build();
 
         SimpleSubscriber subscriber = new SimpleSubscriber();
         bus.register(subscriber);
