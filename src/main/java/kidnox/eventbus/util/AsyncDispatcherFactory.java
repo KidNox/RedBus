@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
 
 import static kidnox.eventbus.internal.Utils.checkNotNull;
 
-public final class AsyncDispatcherFactory implements Dispatcher.Factory {//TODO refactor, lazy initialization
+public final class AsyncDispatcherFactory implements Dispatcher.Factory {
 
     protected final Map<String, Dispatcher> dispatchersMap;
 
