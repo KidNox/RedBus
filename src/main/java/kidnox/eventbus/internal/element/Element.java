@@ -10,7 +10,6 @@ public class Element {
     public Element(ElementInfo elementInfo, Object target) {
         this.elementInfo = elementInfo;
         this.target = target;
-        elementInfo.method.setAccessible(true);
     }
 
     public Object invoke(Object... args) throws InvocationTargetException {
