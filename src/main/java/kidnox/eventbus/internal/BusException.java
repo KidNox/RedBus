@@ -12,7 +12,4 @@ public final class BusException extends RuntimeException {
         super(message);
     }
 
-    public BusException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

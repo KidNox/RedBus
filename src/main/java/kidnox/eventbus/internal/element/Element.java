@@ -4,13 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Element {
 
-    public final Class eventType;
     public final ElementInfo elementInfo;
     public final Object target;
 
     public Element(ElementInfo elementInfo, Object target) {
         this.elementInfo = elementInfo;
-        this.eventType = elementInfo.eventType;
         this.target = target;
         elementInfo.method.setAccessible(true);
     }

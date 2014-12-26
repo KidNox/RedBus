@@ -26,15 +26,15 @@ public final class SubscriberGroup extends ElementsGroup {
             final AsyncElement subscriber = new AsyncElement(target, entry, dispatcher);
             subscribers.add(subscriber);
             if(checkProducers) {
-                AsyncElement producer = bus.getProducer(subscriber.eventType);
+                AsyncElement producer = bus.getProducer(subscriber.elementInfo.eventType);
                 if(producer != null) {
                     bus.dispatch(producer, subscriber);
                 }
             }
-            Set<AsyncElement> set = bus.getSubscribers(subscriber.eventType);
+            Set<AsyncElement> set = bus.getSubscribers(subscriber.elementInfo.eventType);
             if (set == null) {
                 set = newHashSet(2);
-                bus.putSubscribers(subscriber.eventType, set);
+                bus.putSubscribers(subscriber.elementInfo.eventType, set);
             }
             set.add(subscriber);
         }
@@ -43,7 +43,7 @@ public final class SubscriberGroup extends ElementsGroup {
     @Override public void unregisterGroup(Object target, AsyncBus bus) {
         super.unregisterGroup(target, bus);
         for (AsyncElement subscriber : subscribers) {
-            bus.getSubscribers(subscriber.eventType).remove(subscriber);
+            bus.getSubscribers(subscriber.elementInfo.eventType).remove(subscriber);
             subscriber.onUnregister();
         }
     }

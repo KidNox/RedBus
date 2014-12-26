@@ -21,7 +21,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
+/**
+ * Marks a method as an event handler, as used by {@link Bus}.
+ * <p>
+ * The method's first (and only) parameter defines the event type.
+ * If this annotation is applied to methods with zero parameters or more than one parameter, bus fails fast by throwing
+ * runtime exceptions.
+ *
+ * @author Cliff Biffle
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Subscribe {

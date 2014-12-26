@@ -78,7 +78,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {
         }
     };
 
-    static abstract class InheritanceSupportedStrategy<T extends Annotation> extends AbstractStrategy<T> {
+    abstract class InheritanceSupportedStrategy<T extends Annotation> extends AbstractStrategy<T> {
 
         InheritanceSupportedStrategy(ClassType type, Class<? extends Annotation>... args) {
             super(type, args);
@@ -104,7 +104,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {
         abstract boolean check(Class current, Class child, String childAnnotationValue);
     }
 
-    static abstract class InheritanceNotSupportedStrategy<T extends Annotation> extends AbstractStrategy<T> {
+    abstract class InheritanceNotSupportedStrategy<T extends Annotation> extends AbstractStrategy<T> {
         InheritanceNotSupportedStrategy(ClassType type, Class<? extends Annotation>... args) {
             super(type, args);
         }
@@ -118,7 +118,7 @@ interface ClassInfoExtractorStrategy<T extends Annotation> {
         abstract String getAnnotationValue(T annotation);
     }
 
-    static abstract class AbstractStrategy<T extends Annotation> implements ClassInfoExtractorStrategy<T> {
+    abstract class AbstractStrategy<T extends Annotation> implements ClassInfoExtractorStrategy<T> {
 
         final ClassType type;
         final Map<Class<? extends Annotation>, ElementExtractionStrategy> strategyMap;

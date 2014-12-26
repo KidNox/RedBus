@@ -14,8 +14,7 @@ public final class SingleThreadFactory implements ThreadFactory {
     }
 
     public SingleThreadFactory() {
-        runnableProxy = new RunnableProxy();
-        thread = new Thread(runnableProxy);
+        thread = new Thread(runnableProxy = new RunnableProxy());
     }
 
     public void setUncaughtExceptionHandler(Thread.UncaughtExceptionHandler handler) {

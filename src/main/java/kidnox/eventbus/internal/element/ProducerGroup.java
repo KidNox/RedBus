@@ -24,12 +24,12 @@ public final class ProducerGroup extends ElementsGroup {
         super.registerGroup(target, bus);
         for(ElementInfo entry : classInfo.elements.values()) {
             final AsyncElement producer = new AsyncElement(target, entry, dispatcher);
-            if(bus.putProducer(producer.eventType, producer) != null) {
+            if(bus.putProducer(producer.elementInfo.eventType, producer) != null) {
                 throwBusException("register", target, " producer for event "
-                        + producer.eventType + " already registered");
+                        + producer.elementInfo.eventType + " already registered");
             }
             producers.add(producer);
-            final Set<AsyncElement> subscribers = bus.getSubscribers(producer.eventType);
+            final Set<AsyncElement> subscribers = bus.getSubscribers(producer.elementInfo.eventType);
             if(notEmpty(subscribers)) {
                 bus.dispatch(producer);
             }
@@ -39,7 +39,7 @@ public final class ProducerGroup extends ElementsGroup {
     @Override public void unregisterGroup(Object target, AsyncBus bus) {
         super.unregisterGroup(target, bus);
         for(AsyncElement producer : producers) {
-            bus.removeProducer(producer.eventType);
+            bus.removeProducer(producer.elementInfo.eventType);
             producer.onUnregister();
         }
     }
